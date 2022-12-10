@@ -2000,6 +2000,7 @@ U 13
 L 11"""
 
 directions = {"U":[0,1],"D":[0,-1],"L":[-1,0],"R":[1,0]}
+directions = [[int(y) if y.isnumeric() else directions[y] for y in x.split()] for x in a.splitlines()]
 positionH = [0,0]
 positionT = [0,0]
 tailVisits = set({})
@@ -2007,8 +2008,7 @@ tailVisits = set({})
 def isAdj(posH, posT):
     return abs(posH[0] - posT[0]) <= 1 and abs(posH[1] - posT[1]) <= 1
 
-for direction, numMoves in [[int(y) if y.isnumeric() else y for y in x.split()] for x in a.splitlines()]:
-    move = directions[direction]
+for move, numMoves in directions:
     for i in range(numMoves):
         positionH = [positionH[0] + move[0], positionH[1] +  move[1]]
         if not isAdj(positionH, positionT):
@@ -2017,24 +2017,20 @@ for direction, numMoves in [[int(y) if y.isnumeric() else y for y in x.split()] 
 
 print(len(tailVisits)) #part1
 
-positions = [[0,0] for _ in range(10)]
+ropeSegments = [[0,0] for _ in range(10)]
 tailVisits = set({})
-
 makeMove = lambda position, move: [ position[0] + move[0], position[1] + move[1] ]
+measureDistance = lambda p1, p2: [ p2[0] - p1[0], p2[1] - p1[1] ]
+normalizeDiagonals = lambda position: [ 1 if i > 0 else -1 if i < 0 else 0 for i in position ]
 
-measureDistance = lambda c1, c2: [ c2[0] - c1[0], c2[1] - c1[1] ]
-
-normalizeDiagonals = lambda pos: [ 1 if i > 0 else -1 if i < 0 else 0 for i in pos ]
-
-for direction, numMoves in [[int(y) if y.isnumeric() else y for y in x.split()] for x in a.splitlines()]:
-    move = directions[direction]
-    for i in range(numMoves):
-        for i,_ in enumerate(positions):
+for move, numMoves in directions:
+    for _ in range(numMoves):
+        for i,_ in enumerate(ropeSegments):
             if i == 0: 
-                positions[i] = makeMove(positions[i], move)
+                ropeSegments[i] = makeMove(ropeSegments[i], move)
                 continue
-            if not isAdj(positions[i], positions[i-1]): 
-                positions[i] = makeMove(positions[i], normalizeDiagonals(measureDistance(positions[i], positions[i-1])))
-        tailVisits.add(str(positions[-1]))
+            if not isAdj(ropeSegments[i], ropeSegments[i-1]): 
+                ropeSegments[i] = makeMove(ropeSegments[i], normalizeDiagonals(measureDistance(ropeSegments[i], ropeSegments[i-1])))
+        tailVisits.add(str(ropeSegments[-1]))
 
 print(len(tailVisits)) #part2
