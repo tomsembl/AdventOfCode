@@ -291,33 +291,28 @@ noop
 noop
 noop"""
 
-
 dic = {"noop":1,"addx":2}
 instructions = [[dic[x] if x in dic.keys() else int(x) for x in y.split(" ")] for y in a.splitlines()]
-instructions = [(x+[None])[:2] for x in instructions]
-x, cycleCount = 1, 0
-totalSignalStrength = 0
+instructions = [(x+[0])[:2] for x in instructions]
+x, cycleCount, totalSignalStrength = 1, 1, 0
 
 for numCycles, xIncrement in instructions:
     for opNum in range(numCycles):
         cycleCount += 1
-        if opNum==1:
-            x += xIncrement
+        x += xIncrement if opNum == 1 else 0
         if cycleCount in range(20,221,40):
             signalStrength = x * cycleCount
             totalSignalStrength += signalStrength
 
 print(totalSignalStrength) #part1
 
-
-x, cycleCount = 1, 0
-text=""
+x, cycleCount, text = 1, 0, ""
 
 for numCycles, xIncrement in instructions:
     for opNum in range(numCycles):
         text += "█" if cycleCount % 40 in range(x-1,x+2) else "░" #draw pixel
         x += xIncrement if opNum == 1 else 0 #move sprite
-        cycleCount += 1 #increment cycle
+        cycleCount += 1
 
-for x in range(0,240,40):
+for x in range(0,40*6,40):
     print(text[x:x+40]) #part2
