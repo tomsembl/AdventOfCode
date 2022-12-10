@@ -315,7 +315,7 @@ text=""
 
 for numCycles, xIncrement in instructions:
     for opNum in range(numCycles):
-        text += "#" if cycleCount % 40 in range(x-1,x+2) else "." #draw pixel
+        text += "█" if cycleCount % 40 in range(x-1,x+2) else "░" #draw pixel
         x += xIncrement if opNum == 1 else 0 #move sprite
         cycleCount += 1 #increment cycle
 
