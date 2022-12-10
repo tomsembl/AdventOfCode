@@ -306,13 +306,13 @@ for numCycles, xIncrement in instructions:
 
 print(totalSignalStrength) #part1
 
-x, cycleCount, text = 1, 0, ""
+x, cycleCount, text, width, height = 1, 0, "", 40, 6
 
 for numCycles, xIncrement in instructions:
     for opNum in range(numCycles):
-        text += "█" if cycleCount % 40 in range(x-1,x+2) else "░" #draw pixel
+        text += "█" if cycleCount % width in range(x-1,x+2) else "░" #draw pixel
         x += xIncrement if opNum == 1 else 0 #move sprite
         cycleCount += 1
 
-for x in range(0,40*6,40):
+for x in range(0, width*height, width):
     print(text[x:x+40]) #part2
