@@ -1,5 +1,3 @@
-from matplotlib import pyplot as plt
-
 a="""abcccaaaaacccacccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaaacaccccccaaacccccccccccccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccccccccccccccaaaaaa
 abcccaaaaacccaaacaaacccccccccccccccccaaccccccacccaacccccccccccaacccccaaaaaaaaaaaccaaaaaaccccccccccccccccccccccccccccccccccaaaaaccccccccccccccccccccccccccccccccccaaaaaa
 abccccaaaaaccaaaaaaaccccccccccccccaaaacccccccaacaaacccccccccaaaaaacccaaaaaaaaaaaccaaaaaacccccccccccccccccccccccccccccccccccaaaaaccccccccccccccaaacccccccccccccccccaaaaa
@@ -49,10 +47,11 @@ abdefghi"""
 #a=test
 alph="abcdefghijklmnopqrstuvwxyz"
 b=[[alph.index(x) if x in alph else {"S":0,"E":25}[x] for x in y] for y in a.splitlines()]
-w,h = len(b[0]),len(b)
-c = [["" for x in range(w)] for y in range(h)]
+from matplotlib import pyplot as plt
 plt.imshow(b, interpolation='nearest')
 plt.show()
+#w,h = len(b[0]),len(b)
+#c = [["" for x in range(w)] for y in range(h)]
 # def getNeighbours(location):
 #     x,y = location
 #     cell = b[y][x]

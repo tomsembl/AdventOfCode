@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+
 
 a="""abcccaaaaacccacccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaaacaccccccaaacccccccccccccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccccccccccccccaaaaaa
 abcccaaaaacccaaacaaacccccccccccccccccaaccccccacccaacccccccccccaacccccaaaaaaaaaaaccaaaaaaccccccccccccccccccccccccccccccccccaaaaaccccccccccccccccccccccccccccccccccaaaaaa
@@ -50,24 +50,47 @@ abdefghi"""
 alph="abcdefghijklmnopqrstuvwxyz"
 b=[[alph.index(x) if x in alph else {"S":0,"E":25}[x] for x in y] for y in a.splitlines()]
 w,h = len(b[0]),len(b)
-c = [["" for x in range(w)] for y in range(h)]
-plt.imshow(b, interpolation='nearest')
-plt.show()
-# def getNeighbours(location):
-#     x,y = location
-#     cell = b[y][x]
-#     neighbours = [[0,1,"^"],[1,0,">"],[0,-1,"v"],[-1,0,"<"]]
-#     for neighbour in neighbours:
-#         yy,xx,sign=neighbour
-#         newx,newy=x+xx,y+yy
-#         if newy < h and newx < w:
-#             #print(b[newy][newx],cell)
-#             if b[newy][newx] > cell:
-#                 return sign
-#     return "."
-# for j,y in enumerate(b):
-#     for i,x in enumerate(y):
-#         c[j][i] = getNeighbours([i,j])
+distanceMatrix = [[999 for _ in range(w)] for _ in range(h)]
+neighbourMatrix = [["" for _ in range(w)] for _ in range(h)]
+
+def getNeighbours(x,y): 
+    if x<130:
+        return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
+    return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1],[-1,0]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
+
+for j,y in enumerate(b):
+    for i,x in enumerate(y):
+        neighbourMatrix[j][i] = getNeighbours(i,j)
+
+#print(neighbourMatrix[20][0])
+x,y=0,20
+stack = [[x,y]]
+distanceMatrix[y][x] = 0
+while len(stack) > 0:
+    x,y = stack.pop(0)
+    value = b[y][x]
+    if x==145 and y==20:
+        print(x,y,distance)
+        break
+    distance = distanceMatrix[y][x]
+    distance += 1
+    for xx,yy in neighbourMatrix[y][x]:
+        #print(xx,yy,distance)
+        if distanceMatrix[yy][xx] > distance and b[yy][xx]-2<value:
+            distanceMatrix[yy][xx] = distance
+            stack.append([xx,yy])
+
+# def dijkstra(x,y,distance):
+#     distance += 1
+#     print(neighbourMatrix[y][x])
+#     for xx,yy in neighbourMatrix[y][x]:
+#         print(xx,yy)
+#         if distanceMatrix[yy][xx] == None or distanceMatrix[yy][xx] > distance:
+#             distanceMatrix[yy][xx] = distance
+#             dijkstra(xx,yy,distance)
+#     return
+#x,y=0,20
+#dijkstra(x,y,0)
 #for line in b:
 #    print(line)
 # for line in c:
