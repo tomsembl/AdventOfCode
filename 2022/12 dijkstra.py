@@ -1,5 +1,3 @@
-
-
 a="""abcccaaaaacccacccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaaacaccccccaaacccccccccccccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccccccccccccccaaaaaa
 abcccaaaaacccaaacaaacccccccccccccccccaaccccccacccaacccccccccccaacccccaaaaaaaaaaaccaaaaaaccccccccccccccccccccccccccccccccccaaaaaccccccccccccccccccccccccccccccccccaaaaaa
 abccccaaaaaccaaaaaaaccccccccccccccaaaacccccccaacaaacccccccccaaaaaacccaaaaaaaaaaaccaaaaaacccccccccccccccccccccccccccccccccccaaaaaccccccccccccccaaacccccccccccccccccaaaaa
@@ -41,57 +39,33 @@ abaacccccccaacccccccccccccaaaaaaaaccccccaacccccaaaacccccccccccccccccccaaaaaaaaac
 abaaaaaaaccaaccccccccccccccaaaaacccccccaaaacccaaccccccccccccccccccacaaaaaaaaaaccccccccccaaacaaaaaacccccccccccccccaaccccaaaaaaccaaaaaaaacccccccccaacccccccccccccccaaacaa
 abaaaaaaaaaaccccccccccccccccaaaaaccccccaaaacccccccccccccccccccccccaaaaaaaaaaaaccccccccccccccaaaaaacccccccccccccccccccccaaaaaacccaaaaaacccccccccaaacccccccccccccccaaaaaa
 abaaaacaaaaaaaacccccccccccccaacaaccccccaaaaccccccccccccccccccccccccaaaaaaaaaaacccccccccccccaaaaaaaacccccccccccccccccccaaaaaaaaccaaaaaaccccccccccccccccccccccccccccaaaaa"""
-test="""Sabqponm
-abcryxxl
-accszExk
-acctuvwj
-abdefghi"""
-#a=test
+
+def getNeighbours(x,y): return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1],[-1,0]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
+
 alph="abcdefghijklmnopqrstuvwxyz"
-b=[[alph.index(x) if x in alph else {"S":0,"E":25}[x] for x in y] for y in a.splitlines()]
-w,h = len(b[0]),len(b)
+theMatrix=[[alph.index(x) if x in alph else {"S":0,"E":25}[x] for x in y] for y in a.splitlines()]
+w,h = len(theMatrix[0]),len(theMatrix)
 distanceMatrix = [[999 for _ in range(w)] for _ in range(h)]
-neighbourMatrix = [["" for _ in range(w)] for _ in range(h)]
+neighbourMatrix = [[getNeighbours(i,j) for i in range(w)] for j in range(h)]
+startEnd = {a.splitlines()[j][i]:[i,j] for j in range(h) for i in range(w) if a.splitlines()[j][i] in ["S","E"]}
+start,end = startEnd["S"],startEnd["E"]
 
-def getNeighbours(x,y): 
-    if x<130:
-        return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
-    return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1],[-1,0]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
+def dijkstra(start):
+    x,y=start
+    stack = [[x,y]]
+    distanceMatrix[y][x] = -1
+    while len(stack) > 0:
+        x,y = stack.pop(0)
+        if [x,y]==end: 
+            return distance
+        value = theMatrix[y][x]
+        distance = distanceMatrix[y][x]
+        distance += 1
+        for xx,yy in neighbourMatrix[y][x]:
+            if distanceMatrix[yy][xx] > distance and theMatrix[yy][xx]-2<value:
+                distanceMatrix[yy][xx] = distance
+                stack.append([xx,yy])
+    return 999
 
-for j,y in enumerate(b):
-    for i,x in enumerate(y):
-        neighbourMatrix[j][i] = getNeighbours(i,j)
-
-#print(neighbourMatrix[20][0])
-x,y=0,20
-stack = [[x,y]]
-distanceMatrix[y][x] = 0
-while len(stack) > 0:
-    x,y = stack.pop(0)
-    value = b[y][x]
-    if x==145 and y==20:
-        print(x,y,distance)
-        break
-    distance = distanceMatrix[y][x]
-    distance += 1
-    for xx,yy in neighbourMatrix[y][x]:
-        #print(xx,yy,distance)
-        if distanceMatrix[yy][xx] > distance and b[yy][xx]-2<value:
-            distanceMatrix[yy][xx] = distance
-            stack.append([xx,yy])
-
-# def dijkstra(x,y,distance):
-#     distance += 1
-#     print(neighbourMatrix[y][x])
-#     for xx,yy in neighbourMatrix[y][x]:
-#         print(xx,yy)
-#         if distanceMatrix[yy][xx] == None or distanceMatrix[yy][xx] > distance:
-#             distanceMatrix[yy][xx] = distance
-#             dijkstra(xx,yy,distance)
-#     return
-#x,y=0,20
-#dijkstra(x,y,0)
-#for line in b:
-#    print(line)
-# for line in c:
-#     print(line)
+print(dijkstra(start)) #part1
+print(min([dijkstra([0,y]) for y in range(h)])) #part2
