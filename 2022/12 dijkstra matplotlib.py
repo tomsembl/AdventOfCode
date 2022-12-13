@@ -39,11 +39,9 @@ abaacccccccaacccccccccccccaaaaaaaaccccccaacccccaaaacccccccccccccccccccaaaaaaaaac
 abaaaaaaaccaaccccccccccccccaaaaacccccccaaaacccaaccccccccccccccccccacaaaaaaaaaaccccccccccaaacaaaaaacccccccccccccccaaccccaaaaaaccaaaaaaaacccccccccaacccccccccccccccaaacaa
 abaaaaaaaaaaccccccccccccccccaaaaaccccccaaaacccccccccccccccccccccccaaaaaaaaaaaaccccccccccccccaaaaaacccccccccccccccccccccaaaaaacccaaaaaacccccccccaaacccccccccccccccaaaaaa
 abaaaacaaaaaaaacccccccccccccaacaaccccccaaaaccccccccccccccccccccccccaaaaaaaaaaacccccccccccccaaaaaaaacccccccccccccccccccaaaaaaaaccaaaaaaccccccccccccccccccccccccccccaaaaa"""
-import datetime
-startTime = datetime.datetime.now()
-
+from matplotlib import pyplot as plt
+from matplotlib import animation
 def getNeighbours(x,y): return [[x+xx,y+yy] for xx,yy in [[0,1],[1,0],[0,-1],[-1,0]] if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
-#def getNeighbours(x,y): return [[x+xx,y+yy] for xx,yy in ([[0,1],[1,0],[0,-1],[-1,0]] if x<130 else [[0,1],[1,0],[0,-1]] )if all([y+yy<h,x+xx<w,y+yy>=0,x+xx>=0])]
 
 alph="abcdefghijklmnopqrstuvwxyz"
 theMatrix=[[alph.index(x) if x in alph else {"S":0,"E":25}[x] for x in y] for y in a.splitlines()]
@@ -52,6 +50,11 @@ distanceMatrix = [[999 for _ in range(w)] for _ in range(h)]
 neighbourMatrix = [[getNeighbours(i,j) for i in range(w)] for j in range(h)]
 startEnd = {a.splitlines()[j][i]:[i,j] for j in range(h) for i in range(w) if a.splitlines()[j][i] in ["S","E"]}
 start,end = startEnd["S"],startEnd["E"]
+
+plt.ion()
+plot = plt.imshow(distanceMatrix,interpolation="nearest",vmin=0,vmax=517)
+fig1, ax1 = plt.subplots()
+
 
 def dijkstra(start):
     x,y=start
@@ -65,12 +68,12 @@ def dijkstra(start):
         distance = distanceMatrix[y][x]
         distance += 1
         for xx,yy in neighbourMatrix[y][x]:
-            if distanceMatrix[yy][xx] > distance and theMatrix[yy][xx]-2<value:
+            if distanceMatrix[yy][xx] > distance and (value == theMatrix[yy][xx] <= value+2):
                 distanceMatrix[yy][xx] = distance
                 queue.append([xx,yy])
+        plot.set_data(distanceMatrix)
+        fig1.canvas.flush_events()
     return 999
 
 print(dijkstra(start)) #part1
-print("part 1 time:",datetime.datetime.now() - startTime)
 print(min([dijkstra([0,y]) for y in range(h)])) #part2
-print("part 2 time:",datetime.datetime.now() - startTime)
