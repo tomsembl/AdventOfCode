@@ -148,16 +148,15 @@ a="""511,54 -> 511,56 -> 504,56 -> 504,61 -> 520,61 -> 520,56 -> 515,56 -> 515,5
 521,170 -> 521,163 -> 521,170 -> 523,170 -> 523,160 -> 523,170 -> 525,170 -> 525,165 -> 525,170 -> 527,170 -> 527,168 -> 527,170 -> 529,170 -> 529,169 -> 529,170 -> 531,170 -> 531,169 -> 531,170 -> 533,170 -> 533,160 -> 533,170"""
 test = """498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9"""
-#a=test
+a=test
 w,h = 504,20
-w,h = 558,171
+#w,h = 558,171 #PROD!
 b=[[[int(xy) for xy in b.split(",")] for b in a.split(" -> ")] for a in a.splitlines()]
 xes = [x for line in b for x,y in line]
 yes = [y for line in b for x,y in line]
-print("min(xes)",min(xes),"max(xes)",max(xes),"min(yes)",min(yes),"max(yes)",max(yes) )
-print(max([max(x) for line in b for x in line]))
-print(max([max(x) for line in b for x in line]))
-matrix=[[0 for x in range(w)] for y in range(h)]
+w,h = max(xes)+1,max(yes)+3
+print("min(x)",min(xes),"max(x)",max(xes),"min(y)",min(yes),"max(y)",max(yes) )
+matrix=[[0 for x in range(w*2)] for y in range(h)]
 for line in b:
     n=len(line)
     for i in range(n-1):
@@ -171,25 +170,28 @@ for line in b:
                 matrix[y1][x]=1
 
 #apply floor
-
+    matrix[-1] = [1 for _ in matrix[-1]]
+    for line in matrix[:12]:
+        print("".join([str(x) for x in line[490:]]))
 
 dxs = [[-1,1],[0,1],[1,1]]
-def sandFall(x=500,yy=0,inmotion=False):
+def sandFall(x=500,yy=0,first=True):
     for y in range(yy,h):
+        print(matrix[500][0])
+        if matrix[500][0] != 0 and first:
+            return
         if matrix[y][x] == 0:
             continue
-        # if matrix[y][x] == 1:
-        #     return [x,y-1]
         if matrix[y][x] == 2 or 1:
             if matrix[y][x-1] == 0:#left
-                return sandFall(x-1,y,True)
+                return sandFall(x-1,y,False)
             if matrix[y][x+1] == 0:#right
-                return sandFall(x+1,y,True)
+                return sandFall(x+1,y,False)
             return [x,y-1]
-    print("something is wrong")
+    return 
 
 sandCount=0
-while sum([x for x in matrix[-1] if x==2]) == 0:
+while True:
     sandCount+=1
     try: x,y = sandFall(500,0)
     except: break
