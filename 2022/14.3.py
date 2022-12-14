@@ -152,9 +152,10 @@ xes, yes = [x for line in b for x,y in line], [y for line in b for x,y in line]
 maxx, maxy, minx, miny = max(xes), max(yes), min(xes), min(yes)
 w,h = maxx+1, maxy+3
 matrix=[[0 for x in range(w*2)] for y in range(h)]
-for line in b:
-    n=len(line)
-    for i in range(n-1):
+
+for line in b: #draw lines
+    numInstructions=len(line)
+    for i in range(numInstructions-1):
         x1,y1=line[i]
         x2,y2=line[i+1]
         if x1==x2:
@@ -164,35 +165,52 @@ for line in b:
             for x in range(min(x1,x2),max(x1,x2)+1):
                 matrix[y1][x]=1
 
-#apply floor
-matrix[h-1] = [1 for _ in matrix[h-1]]
+matrix[h-1] = [1 for _ in matrix[h-1]] #apply floor 
 
-dxs = [[-1,1],[0,1],[1,1]]
 def sandFall(x=500,yy=0,first=True):
-
     if matrix[0][500] != 0 and first:
         return
     for y in range(yy,h):
-        if matrix[y][x] == 0:
+        if matrix[y][x] == 0: #air, fall
             continue
-        # if matrix[y][x] == 1:
-        #     return [x,y-1]
         if matrix[y][x] == 2 or 1:
-            if matrix[y][x-1] == 0:#left
+            if matrix[y][x-1] == 0:#fall left
                 return sandFall(x-1,y,False)
-            if matrix[y][x+1] == 0:#right
+            if matrix[y][x+1] == 0:#fall right
                 return sandFall(x+1,y,False)
             return [x,y-1]
-    print("something is wrong")
+    return
 
+#graph stuff
+from matplotlib import pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import time
+plt.ion()
+plt.register_cmap(cmap=LinearSegmentedColormap.from_list(name='sand',colors=[[0.0,0.0,0.0,1.0],[1.0,0.0,0.0,1.0],[194.0,178.0,128.0,1.0]]))
+fig, ax = plt.subplots()
+plt.figure(figsize = (10,10))
+plot = plt.imshow([x[330:770] for x in matrix], interpolation='nearest',cmap="sand",vmin=0,vmax=2)
+plt.show()
+def updateGraph(plot,data):
+    plot.set_data([x[300:700] for x in data])
+    fig.canvas.flush_events()
+updateGraph(plot,matrix)
+time.sleep(1)
 sandCount=0
+
+#main loop
 while sum([x for x in matrix[-1] if x==2]) == 0:
     sandCount+=1
     try: x,y = sandFall(500,0,True)
     except: break
     matrix[y][x] = 2
-    #print
-    #print(sandCount)
-    # for line in matrix[:12]:
-    #     print("".join([str(x) for x in line[490:]]))
-print(sandCount-1)
+    #graph updates
+    if sandCount<737 and sandCount%2==0:
+        updateGraph(plot,matrix)
+    elif 737<sandCount<1000 and sandCount%10==0:
+        updateGraph(plot,matrix)
+    elif sandCount%100==0:
+        updateGraph(plot,matrix)
+        
+print(sandCount-1) #28145
+time.sleep(3)
