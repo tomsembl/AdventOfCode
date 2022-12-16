@@ -91,7 +91,6 @@ for valve in valves:
 REMAININGMINUTES = 30
 delay = 1
 totalFlow = 0
-AVAILABLENODES = [x for x in valves if x != "AA"]
 
 #calculate the total flow of a path
 def calcFlow(path):
@@ -118,8 +117,8 @@ queue = [[start, 0, 0, []]]
 maxFlow = 0
 totalChecked = 0
 while queue:
+    if totalChecked % 10000 == 0: print(f"{totalChecked} iterations. {queue[0]}")
     totalChecked += 1
-    if totalChecked % 100000 == 0: print(totalChecked)
     node = queue.pop(0)
     node,time_spent, totalFlow, path = node
     flow = calcFlow(path)
