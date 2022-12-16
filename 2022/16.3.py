@@ -59,7 +59,7 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II"""
-#a=test
+a=test
 valves = {}
 for line in a.splitlines():
     parts = line.split(";")
@@ -88,7 +88,7 @@ for valve in valves:
     bfs(valve)
     print(valves[valve]["distances"])
 
-REMAININGMINUTES = 30
+REMAININGMINUTES = 26
 delay = 1
 totalFlow = 0
 
@@ -110,37 +110,56 @@ def calculateFlow(path):
     return flow
 
 
-#second BFS to try all possible paths
+#second BFS tot try all possible paths
 nonZeroFlowCount = sum([1 for x in valves if valves[x]["flowRate"] != 0])
 start = "AA"
-queue = [{"node":start, "timeSpent":0, "path":[]}]
+queue = [{"nodes":[start,start], "timeSpent":[0,0], "humanPath":[], "elephantPath":[]}]
 maxFlow = 0
 totalChecked = 0
 while queue:
-    if totalChecked % 10000 == 0: print(f"{totalChecked} iterations. queueLength={len(queue[0])}. queue[0]: {queue[0]}")
+    if totalChecked % 1000 == 0: print(f"{totalChecked} iterations. queueLength={len(queue[0])}. queue[0]: {queue[0]}")
     totalChecked += 1
     node = queue.pop(0)
-    node, timeSpent, path = node["node"], node["timeSpent"], node["path"]
-    if timeSpent > REMAININGMINUTES: print("BAD")
-    if len(path)==nonZeroFlowCount or timeSpent == REMAININGMINUTES:
-        path+=[node]
-        totalFlow = calculateFlow(path)
-        if maxFlow < totalFlow:
-            maxFlow = totalFlow
-            print(totalFlow)
-        continue
+    nodes, timeSpent, humanPath, elephantPath = node["nodes"], node["timeSpent"], node["humanPath"], node["elephantPath"]
+    node = nodes[0]
+    elephantNode = nodes[1]
+    if timeSpent[0] > REMAININGMINUTES or timeSpent[1] > REMAININGMINUTES: print("BAD");break
+    # if len(humanPath)+len(elephantPath)==nonZeroFlowCount or timeSpent == REMAININGMINUTES:
+    #     humanPath+=[node]
+    #     totalFlow = calculateFlow(humanPath)
+    #     if maxFlow < totalFlow:
+    #         maxFlow = totalFlow
+    #         print(totalFlow)
+    #     continue
     candidates = list(valves[node]["distances"].keys())
-    candidates = [node for node in candidates if node not in path]
+    candidates = [node for node in candidates if node not in humanPath+elephantPath]
     candidates.sort(key=lambda x: valves[x]["flowRate"], reverse=True)
-    for neighbor in candidates:
-        if neighbor in path:
-            continue
-        distance = valves[node]["distances"][neighbor]
-        timeSpent2 = timeSpent + distance + delay 
-        newPath = path+[node]
-        if timeSpent2 >= REMAININGMINUTES:
-            newPath = path
-            timeSpent2 = REMAININGMINUTES
-        queue.append({"node":neighbor, "timeSpent":timeSpent2, "path":newPath})
+
+    elephantCandidates = list(valves[elephantNode]["distances"].keys())
+    elephantCandidates = [node for node in elephantCandidates if node not in humanPath+elephantPath]
+    elephantCandidates.sort(key=lambda x: valves[x]["flowRate"], reverse=True)
+    for humanNext in candidates:
+
+        elephantCandidates = [node for node in elephantCandidates if node != humanNext]
+        humanDistance = valves[node]["distances"][humanNext]
+        humanTimeSpent = timeSpent[0] + humanDistance + delay 
+        newHumanPath = humanPath+[node]
+        if humanTimeSpent >= REMAININGMINUTES:
+            newHumanPath = humanPath
+            humanTimeSpent = REMAININGMINUTES
+
+        for elephantNext in elephantCandidates:
+
+            elephantDistance = valves[elephantNode]["distances"][elephantNext]
+            elephantTimeSpent = timeSpent[1] + elephantDistance + delay
+            newElephantPath = elephantPath+[elephantNode]
+            if elephantTimeSpent >= REMAININGMINUTES:
+                newElephantPath = elephantPath
+                elephantTimeSpent = REMAININGMINUTES
+            queue.append({"nodes":[humanNext,elephantNext], "timeSpent":[timeSpent[0], elephantTimeSpent], "humanPath":newHumanPath, "elephantPath":newElephantPath})
+        # humanNext = neighbor
+        # if neighbor in humanPath:
+        #     continue
+
 print(maxFlow)
 #1906

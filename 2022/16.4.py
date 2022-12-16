@@ -86,9 +86,9 @@ def bfs(start):
 for valve in valves:
     valves[valve]["distances"] = {}
     bfs(valve)
-    print(valves[valve]["distances"])
+    print(valve, valves[valve]["distances"])
 
-REMAININGMINUTES = 30
+REMAININGMINUTES = 26
 delay = 1
 totalFlow = 0
 
@@ -110,37 +110,65 @@ def calculateFlow(path):
     return flow
 
 
-#second BFS to try all possible paths
+#second BFS tot try all possible paths
 nonZeroFlowCount = sum([1 for x in valves if valves[x]["flowRate"] != 0])
 start = "AA"
-queue = [{"node":start, "timeSpent":0, "path":[]}]
+queue = [{"nodes":[start,start], "timeSpents":[0,0], "paths":[[],[]]}]
 maxFlow = 0
 totalChecked = 0
 while queue:
-    if totalChecked % 10000 == 0: print(f"{totalChecked} iterations. queueLength={len(queue[0])}. queue[0]: {queue[0]}")
+    noneExists = False
+    if totalChecked % 1000 == 0: print(f"{totalChecked} iterations. queueLength={len(queue[0])}. queue[0]: {queue[0]}")
     totalChecked += 1
     node = queue.pop(0)
-    node, timeSpent, path = node["node"], node["timeSpent"], node["path"]
-    if timeSpent > REMAININGMINUTES: print("BAD")
-    if len(path)==nonZeroFlowCount or timeSpent == REMAININGMINUTES:
-        path+=[node]
-        totalFlow = calculateFlow(path)
+    nodes, timeSpents, paths = node["nodes"], node["timeSpents"], node["paths"]
+    candidates = [[],[]]
+    if None in nodes:
+        continue
+    #     noneIndex = nodes.index(None)
+    #     noneExists = True
+    # if noneExists:
+
+    for i in range(2):
+        candidates[i] = list(valves[nodes[i]]["distances"].keys())
+        candidates[i] = [node for node in candidates[i] if node not in paths[0]+paths[1]+nodes]
+        candidates[i].sort(key=lambda x: valves[x]["flowRate"], reverse=True)
+    
+    if nodes==['AA', 'AA']:
+        newTimeSpents = [0,0]
+    else: newTimeSpents = [timeSpents[i] + valves[paths[i][-1]]["distances"][nodes[i]] for i in range(2)]
+    outOfTimeBool = (newTimeSpents[0] == REMAININGMINUTES and newTimeSpents[1] == REMAININGMINUTES)
+    noAvailableNodesBool = len(paths[0])+len(paths[1])+len([x for x in nodes if x])-2 == nonZeroFlowCount
+    if noAvailableNodesBool or outOfTimeBool:
+        newPaths = [paths[i] + ([ nodes[i]  ] if nodes[i] else []) for i in range(2)]
+        totalFlow = calculateFlow(newPaths[0])+calculateFlow(newPaths[1])
         if maxFlow < totalFlow:
             maxFlow = totalFlow
-            print(totalFlow)
+            print(totalFlow , "noAvailableNodesBool" if noAvailableNodesBool else "OUT OF TIME" if outOfTimeBool else "both")
         continue
-    candidates = list(valves[node]["distances"].keys())
-    candidates = [node for node in candidates if node not in path]
-    candidates.sort(key=lambda x: valves[x]["flowRate"], reverse=True)
-    for neighbor in candidates:
-        if neighbor in path:
-            continue
-        distance = valves[node]["distances"][neighbor]
-        timeSpent2 = timeSpent + distance + delay 
-        newPath = path+[node]
-        if timeSpent2 >= REMAININGMINUTES:
-            newPath = path
-            timeSpent2 = REMAININGMINUTES
-        queue.append({"node":neighbor, "timeSpent":timeSpent2, "path":newPath})
+
+
+    for candidate0 in candidates[0]:
+        
+        candidates1 = [x for x in candidates[1] if x != candidate0]
+        for candidate1 in candidates1:
+            newNodes =  [candidate0,candidate1]
+            newTimeSpents = [timeSpents[i] + valves[nodes[i]]["distances"][newNodes[i]] for i in range(2)]
+            newPaths = [paths[i] + ([ nodes[i]  ] if nodes[i] else []) for i in range(2)]
+            outOfTimeBool = (newTimeSpents[0] == REMAININGMINUTES and newTimeSpents[1] == REMAININGMINUTES)
+            noAvailableNodesBool = len(newPaths[0])+len(newPaths[1])-2 == nonZeroFlowCount
+            if noAvailableNodesBool or outOfTimeBool:
+                totalFlow = calculateFlow(newPaths[0])+calculateFlow(newPaths[1])
+                if maxFlow < totalFlow:
+                    maxFlow = totalFlow
+                    print(totalFlow , "noAvailableNodesBool" if noAvailableNodesBool else "OUT OF TIME" if outOfTimeBool else "both")
+                continue
+            for i in range(2):
+                if newTimeSpents[i] >= REMAININGMINUTES:
+                    newNodes[i] = None
+                    newTimeSpents[i] = REMAININGMINUTES
+                    newPaths[i] = paths[i]
+            queue.append({"nodes":newNodes, "timeSpents":newTimeSpents, "paths":newPaths})
+
 print(maxFlow)
-#1906
+#1361
