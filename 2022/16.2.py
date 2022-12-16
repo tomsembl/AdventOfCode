@@ -69,7 +69,7 @@ for line in a.splitlines():
     tunnels = [x.replace(",","") for x in parts[1].split(" ")[tunnelsIndex:] ]
     valves[valve] = {"flowRate": flow_rate, "leadsTo": tunnels}
 
-#first DFS - to get distances
+#first BFS - to get distances
 def bfs(start):
     queue = [[start, 0]]
     visited = set()
@@ -110,7 +110,7 @@ def calculateFlow(path):
     return flow
 
 
-#second DFS tot try all possible paths
+#second BFS tot try all possible paths
 nonZeroFlowCount = sum([1 for x in valves if valves[x]["flowRate"] != 0])
 start = "AA"
 queue = [{"node":start, "timeSpent":0, "path":[]}]
