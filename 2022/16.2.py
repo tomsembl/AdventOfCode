@@ -69,6 +69,7 @@ for line in a.splitlines():
     tunnels = [x.replace(",","") for x in parts[1].split(" ")[tunnelsIndex:] ]
     valves[valve] = {"flowRate": flow_rate, "leadsTo": tunnels}
 
+#first DFS - to get distances
 def bfs(start):
     queue = [[start, 0]]
     visited = set()
@@ -92,7 +93,8 @@ delay = 1
 totalFlow = 0
 AVAILABLENODES = [x for x in valves if x != "AA"]
 
-def calcFlow(time, path):
+#calculate the total flow of a path
+def calcFlow(path):
     #get the distance between each pair in the path
     pathDistances = [0]
     for i in range(len(path)-1):
@@ -104,10 +106,12 @@ def calcFlow(time, path):
         flowRate = valves[node]["flowRate"]
         elapsedTime = sum(pathDistances[:i+1])
         delays = i * delay
-        flow += flowRate * ( time - elapsedTime - delays ) 
+        flow += flowRate * ( REMAININGMINUTES - elapsedTime - delays ) 
     #print()
     return flow
 
+
+#second DFS tot try all possible paths
 nonZeroFlowCount = sum([1 for x in valves if valves[x]["flowRate"] != 0])
 start = "AA"
 queue = [[start, 0, 0, []]]
@@ -118,12 +122,12 @@ while queue:
     if totalChecked % 100000 == 0: print(totalChecked)
     node = queue.pop(0)
     node,time_spent, totalFlow, path = node
-    flow = calcFlow(REMAININGMINUTES, path)
+    flow = calcFlow(path)
     totalFlow = max(totalFlow, flow)
     if time_spent > REMAININGMINUTES: print("BAD")
     if len(path)==nonZeroFlowCount or time_spent == REMAININGMINUTES:
         path+=[node]
-        totalFlow = calcFlow(REMAININGMINUTES, path)
+        totalFlow = calcFlow(path)
         if maxFlow < totalFlow:
             maxFlow = totalFlow
             print(totalFlow)
@@ -141,5 +145,4 @@ while queue:
             time_spent2 = REMAININGMINUTES
         queue.append([neighbor, time_spent2, totalFlow, newPath])
 print(maxFlow)
-#1902
-1906
+#1906
