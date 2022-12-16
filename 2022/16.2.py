@@ -93,16 +93,16 @@ delay = 1
 totalFlow = 0
 
 #calculate the total flow of a path
-def calcFlow(path):
+def calculateFlow(path):
     #get the distance between each pair in the path
     pathDistances = [0]
     for i in range(len(path)-1):
-        node1, node2 = path[i], path[i+1]
-        pathDistances.append(valves[node1]["distances"][node2])
+        valve1, valve2 = path[i], path[i+1]
+        pathDistances.append(valves[valve1]["distances"][valve2])
     flow = 0
-    #calculate the total flow over time
-    for i,node in enumerate(path):
-        flowRate = valves[node]["flowRate"]
+    #calculate the total flow over time for each valve
+    for i,valve in enumerate(path):
+        flowRate = valves[valve]["flowRate"]
         elapsedTime = sum(pathDistances[:i+1])
         delays = i * delay
         flow += flowRate * ( REMAININGMINUTES - elapsedTime - delays ) 
@@ -113,20 +113,18 @@ def calcFlow(path):
 #second DFS tot try all possible paths
 nonZeroFlowCount = sum([1 for x in valves if valves[x]["flowRate"] != 0])
 start = "AA"
-queue = [[start, 0, 0, []]]
+queue = [{"node":start, "timeSpent":0, "path":[]}]
 maxFlow = 0
 totalChecked = 0
 while queue:
-    if totalChecked % 10000 == 0: print(f"{totalChecked} iterations. {queue[0]}")
+    if totalChecked % 10000 == 0: print(f"{totalChecked} iterations. queueLength={len(queue[0])}. queue[0]: {queue[0]}")
     totalChecked += 1
     node = queue.pop(0)
-    node,time_spent, totalFlow, path = node
-    flow = calcFlow(path)
-    totalFlow = max(totalFlow, flow)
-    if time_spent > REMAININGMINUTES: print("BAD")
-    if len(path)==nonZeroFlowCount or time_spent == REMAININGMINUTES:
+    node, timeSpent, path = node["node"], node["timeSpent"], node["path"]
+    if timeSpent > REMAININGMINUTES: print("BAD")
+    if len(path)==nonZeroFlowCount or timeSpent == REMAININGMINUTES:
         path+=[node]
-        totalFlow = calcFlow(path)
+        totalFlow = calculateFlow(path)
         if maxFlow < totalFlow:
             maxFlow = totalFlow
             print(totalFlow)
@@ -137,11 +135,11 @@ while queue:
         if neighbor in path:
             continue
         distance = valves[node]["distances"][neighbor]
-        time_spent2 = time_spent + distance + delay 
+        timeSpent2 = timeSpent + distance + delay 
         newPath = path+[node]
-        if time_spent2 >= REMAININGMINUTES:
+        if timeSpent2 >= REMAININGMINUTES:
             newPath = path
-            time_spent2 = REMAININGMINUTES
-        queue.append([neighbor, time_spent2, totalFlow, newPath])
+            timeSpent2 = REMAININGMINUTES
+        queue.append({"node":neighbor, "timeSpent":timeSpent2, "path":newPath})
 print(maxFlow)
 #1906
