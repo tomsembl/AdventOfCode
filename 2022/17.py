@@ -23,13 +23,12 @@ testWinds=""">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"""
 shapesLen = len(shapes)
 shapeIndex = 0
 winds = ["< >".index(x)-1 for x in winds]
-#print(winds)
 windsLen = len(winds)
 windex = 0
 rockFallCount = 0
 tickCount = 0
 dirs =[[-1,0],[0,1],[1,0]]
-grid = []#["."*7 for x in range(3)]
+grid = []
 blankRow = "."*7
 tempGrid = grid.copy()
 
@@ -73,11 +72,12 @@ def getLastTop():
 def printFrame(shape,anchor):
     x,y=anchor
     tempGrid = grid.copy()
-    #printShape(tempGrid,shape,[x,y])
-    #for line in tempGrid: print(line)
-    #print()
+    printShape(tempGrid,shape,[x,y])
+    for line in tempGrid: print(line)
+    print()
 
-for rockFallCount in range(2022):#(2022):
+numberOfLoops = 2022
+for rockFallCount in range(numberOfLoops):
     lastTopDepth = getLastTop()
     grid = grid[lastTopDepth:]
     x,y = 2,0
@@ -87,7 +87,7 @@ for rockFallCount in range(2022):#(2022):
     #gridHeight = len(grid)
     newLinesCount = shapeHeight+3
     grid = [blankRow for _ in range(newLinesCount)] + grid
-    printFrame(shape,[x,y])
+    #printFrame(shape,[x,y])
     while True:
         #blow sideways
         windex = tickCount % windsLen
@@ -98,24 +98,22 @@ for rockFallCount in range(2022):#(2022):
             xx,yy = dir
             x,y = x+xx, y+yy
         tickCount += 1
-        printFrame(shape,[x,y])
-        #make it fall and land if false
+        #printFrame(shape,[x,y])
+        #try and drop 1 and place it if false (it cant)
         dir = dirs[1]
         canMoveDown = checkCanMove(dir,shape,grid,[x,y])
-        #tickCount += 1 not for downs
         if canMoveDown:
             xx,yy = dir
             x,y = x+xx, y+yy
-            printFrame(shape,[x,y])
+            #printFrame(shape,[x,y])
         else:
-            #print("endOfThisLoop:")
-            printFrame(shape,[x,y])
+            #printFrame(shape,[x,y])
             break
     printShape(grid,shape,[x,y],save=True)
 
 gridHeight = len(grid)
 lastTopDepth = getLastTop()
-print(gridHeight-lastTopDepth)
+print(gridHeight-lastTopDepth) #part 1
 
 
 
