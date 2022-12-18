@@ -2040,36 +2040,42 @@ a="""6,7,3
 dirs = [[0,0,1],[0,1,0],[1,0,0],[0,0,-1],[0,-1,0],[-1,0,0]]
 b=[[int(y) for y in x.split(",")] for x in a.splitlines()]
 
+def getSurfaceArea(voxels):
+    surfaceArea = 0
+    for x,y,z in voxels:
+        for xx,yy,zz in dirs:
+            xxx,yyy,zzz=x+xx,y+yy,z+zz
+            if [xxx,yyy,zzz] in voxels:
+                continue
+            surfaceArea +=1
+    return surfaceArea
 
-surfaceArea = 0
-for x,y,z in b:
-    for xx,yy,zz in dirs:
-        xxx,yyy,zzz=x+xx,y+yy,z+zz
-        if [xxx,yyy,zzz] in b:
-            continue
-        surfaceArea +=1
-print("pt1:",surfaceArea) #part 1 #3662
+print("pt1:",getSurfaceArea(b)) #part 1 #3662
 
 
 
-minX,maxX,minY,maxY,minZ,maxZ = 20,0,20,0,20,0
-for x,y,z in b:
-    minX = min(minX,x)
-    minY = min(minY,y)
-    minZ = min(minZ,z)
-    maxX = max(maxX,x)
-    maxY = max(minY,y)
-    maxZ = max(minZ,z)
-print("min,max for x,y,z:",minX,maxX,minY,maxY,minZ,maxZ)
+coords = [(1, 2, 3), (4, 5, 6), (7, 8, 9), (10, 11, 12)]
+xs = [x for x,_,_ in coords]
+minX = min(xs)
+maxX = max(xs)
+ys = [y for _,y,_ in coords]
+minY = min(ys)
+maxY = max(ys)
+zs = [z for _,_,z in coords]
+minZ = min(zs)
+maxZ = max(zs)
+print(f"Minimum x: {minX}, Maximum x: {maxX}")
+print(f"Minimum y: {minY}, Maximum y: {maxY}")
+print(f"Minimum z: {minZ}, Maximum z: {maxZ}")
 size = maxX*maxY*maxZ
 print("size",size)
 
-# import voxelListTo3Dplot
-# voxelListTo3Dplot.visualize(size,b)
+import voxelListTo3Dplot
+voxelListTo3Dplot.visualize(size,b)
 
 def getNeighbours(x,y,z): return [[x+xx,y+yy,z+zz] for xx,yy,zz in dirs]
 
-allAir = [[x,y,z] for x in range(minX-1,maxX+2) for y in range(minY-1,maxY+2) for z in range(minZ-1,maxZ+2) if [x,y,z] not in b]
+allAir = [[x,y,z] for x in range(minX-2,20) for y in range(minY-2,20) for z in range(minZ-2,20) if [x,y,z] not in b]
 bubbles=[]
 def BFSThroughNeighbours1(x,y,z,bubble=[]):
     queue = [[x,y,z]]
@@ -2090,54 +2096,14 @@ def BFSThroughNeighbours1(x,y,z,bubble=[]):
 x,y,z = allAir[0]
 if [x,y,z] in b: print("in B")
 if any([[x,y,z] in bubble for bubble in bubbles]): print("in bubbles")
-BFSThroughNeighbours1(xx,yy,zz)
+BFSThroughNeighbours1(x,y,z)
 outerShell = bubbles[0]
-bubbleVoxels = [x for x in allAir if x not in outerShell]
+print(outerShell)
+all =  [[x,y,z] for x in range(minX-2,20) for y in range(minY-2,20) for z in range(minZ-2,20)]
+nonOuterShell = [x for x in all if x not in outerShell]
 
 
-def BFSThroughNeighbours2(x,y,z,bubble=[]):
-    queue = [[x,y,z]]
-    bubble = []
-    while queue:
-        x,y,z = queue.pop(0)
-        bubble.append([x,y,z])
-        for xx,yy,zz in getNeighbours(x,y,z):
-            if [xx,yy,zz] in b: continue
-            if [xx,yy,zz] in queue: continue
-            if [xx,yy,zz] in bubble: continue
-            if [xx,yy,zz] in bubbleVoxels:
-                queue.append([xx,yy,zz])
-    global bubbles
-    bubbles.append(bubble)
-    return 
-
-for x,y,z in bubbleVoxels:
-    if any([[x,y,z] in bubble for bubble in bubbles]): continue
-    BFSThroughNeighbours2(x,y,z)
-
-
-bubbles.sort(key=lambda x:len(x),reverse=True)
-print([len(bubble) for bubble in bubbles])
-
-def flatten(lst):
-  flat_list = []
-  for sublist in lst:
-    for item in sublist:
-      flat_list.append(item)
-  return flat_list
 import voxelListTo3Dplot
-voxelListTo3Dplot.visualize(size,flatten(bubbles[2:]))
+voxelListTo3Dplot.visualize(size,nonOuterShell)
 
-surfaceArea = 0
-for x,y,z in b:
-    for xx,yy,zz in dirs:
-        xxx,yyy,zzz=x+xx,y+yy,z+zz
-        if [xxx,yyy,zzz] in b:
-            continue
-        # if any([[xxx,yyy,zzz] in bubble for bubble in bubbles]):#bubbles[1:]
-        #     continue
-        surfaceArea +=1
-print("pt2:",surfaceArea) #part 2
-#2894 incorrect
-#2893 incorrect too high
-#2077 incorrect too high
+print("pt2:",getSurfaceArea(nonOuterShell)) #part 2 #1150 incorrect
