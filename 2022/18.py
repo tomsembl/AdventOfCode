@@ -1,4 +1,4 @@
-a="""2,2,2
+test="""2,2,2
 1,2,2
 3,2,2
 2,1,2
@@ -2036,12 +2036,25 @@ a="""6,7,3
 6,4,16
 11,14,2
 1,10,11"""
+a=test
+dirs = [[0,0,1],[0,1,0],[1,0,0],[0,0,-1],[0,-1,0],[-1,0,0]]
 b=[[int(y) for y in x.split(",")] for x in a.splitlines()]
 surfaceArea = 0
 for x,y,z in b:
-    for xx,yy,zz in [[0,0,1],[0,1,0],[1,0,0],[0,0,-1],[0,-1,0],[-1,0,0]]:
+    for xx,yy,zz in dirs:
         xxx,yyy,zzz=x+xx,y+yy,z+zz
         if [xxx,yyy,zzz] in b:
             continue
         surfaceArea +=1
+minX,maxX,minY,maxY,minZ,maxZ = 20,0,20,0,20,0
+for x,y,z in b:
+    minX = min(minX,x)
+    minY = min(minY,y)
+    minZ = min(minZ,z)
+    maxX = max(maxX,x)
+    maxY = max(minY,y)
+    maxZ = max(minZ,z)
+print(minX,maxX,minY,maxY,minZ,maxZ)
+def loopThroughNeighbours(x,y,z):
+    neighbours = 
 print(surfaceArea)
