@@ -57,7 +57,7 @@ def checkCanMove(dir,shape,gridToCheck,anchor):
         xxx,yyy = dir
         xxxx,yyyy = x+xx+xxx,y+yy+yyy
         if 0>xxxx or xxxx>6: return False #hitting wall
-        if yyyy > len(gridToCheck)-1: return False #hitting bottom
+        if yyyy>len(gridToCheck)-1: return False #hitting bottom
         if gridToCheck[yyyy][xxxx] == "#": return False #hitting block
     return True
     
