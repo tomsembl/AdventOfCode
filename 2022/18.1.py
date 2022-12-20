@@ -2071,7 +2071,7 @@ size = maxX*maxY*maxZ
 print("size",size)
 
 import voxelListTo3Dplot
-voxelListTo3Dplot.visualize(size,b)
+voxelListTo3Dplot.visualize(b)
 
 def getNeighbours(x,y,z): return [[x+xx,y+yy,z+zz] for xx,yy,zz in dirs]
 
@@ -2104,6 +2104,6 @@ nonOuterShell = [x for x in all if x not in outerShell]
 
 
 import voxelListTo3Dplot
-voxelListTo3Dplot.visualize(size,nonOuterShell)
+voxelListTo3Dplot.visualize(nonOuterShell)
 
 print("pt2:",getSurfaceArea(nonOuterShell)) #part 2 #1150 incorrect
