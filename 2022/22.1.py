@@ -273,16 +273,28 @@ for cubeface in cubeFaces:
     x,y = cubeface["location"]
     cs = cs
     cubeface["anchor"] = [x*cs,y*cs] #topleft
-from matplotlib import pyplot as plt
-#from matplotlib.colors import LinearSegmentedColormap
-import time
 
+
+#graph
+from matplotlib import pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import time
+color_array = plt.get_cmap('rainbow')(range(256))
+color_array[0] = [0.,0.,0.,1.]
+print(color_array)
+#color_array=color_array[::-1]
+plt.register_cmap(cmap=LinearSegmentedColormap.from_list(name='rainbow2',colors=color_array))
 plt.ion()
-plot = plt.imshow(pathGrid,interpolation="nearest",vmin=0,vmax=8,cmap="rainbow")
-fig1, ax1 = plt.subplots()
+plot = plt.imshow(pathGrid,interpolation="nearest",vmin=0,vmax=6,cmap="rainbow2")
+fig, ax = plt.subplots()
+plt.close(fig)
+#plt.show()
 def updateGraph(plot,data):
     plot.set_data(data)
-    fig1.canvas.flush_events()
+    fig.canvas.flush_events()
+updateGraph(plot,pathGrid)
+time.sleep(3)
+
 
 # ensuring every face of the cube is mapped correctly with lambdas
 # counter = 0
@@ -323,3 +335,4 @@ for ii,instruction in enumerate(instructions):
 print(x+1,y+1,dirI)
 print((y+1)*1000 + (x+1)*4 + dirI)
 # 57305
+time.sleep(2)
