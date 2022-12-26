@@ -191,8 +191,8 @@ print("differentials:",differentials)
 # 29, 34, 30, 47, 25, 19, 14, 17, 28, 29, 36, 36, 30, 37, 33, 45, 20, 10, 25, 13, 30, 30, 45, 30, 18, 43, 42, 35, 12, 16, 14, 29, 26, 36, 36, 31, 34, 33, 45, 23, 16, 16, 15, 30, 32, 39, 29, 30, 40, 33, 36, 27, 7, 29, 10, 30, 34, 39, 31, 24, 39, 44, 31, 22, 10, 16, 28, 26, 38, 33, 31, 29, 41, 43, 21, 13, 22, 15, 28, 31, 39, 31, 25, 43, 39, 32, 25, 7, 25, 19, 29, 29, 40, 28, 28, 38, 42, 27, 24, 15, 19, 26, 27, 36, 33, 31, 35, 34, 47, 21, 9, 27, 8, 26, 34, 41, 32, 23, 43, 38, 37, 15, 14, 17, 
 # 27, 26, 36, 35, 31, 32, 30, 48, 25, 16, 18, 16, 29, 29, 40, 31, 29, 41, 29, 42, 24, 8, 27, 13, 30, 29, 44, 30, 21, 43, 41, 32, 18, 11, 14, 30, 30, 35, 35, 30, 32, 38, 39, 28, 12, 18, 18, 30, 28, 41, 31, 26, 42, 36, 32, 27, 9, 23, 14, 31, 27, 46, 
 # 28, 29, 36, 45, 27, 23, 15, 12, 28, 27, 39, 33, 30, 33, 36, 47, 19, 11, 23, 14, 26, 33, 40, 34, 21, 45, 37, 36, 19, 11, 23, 22, 24, 32, 39, 29, 32, 35, 42, 29, 20, 13, 20]
-pattern1 = [0]+differentials
-patternAfter = pattern1[1:]
+#pattern1 = [0]+differentials
+patternAfter = differentials#pattern1[1:]
 patternLen = len(patternAfter)
 
 #get the top
@@ -203,14 +203,14 @@ reset();topBodyLength = mainLoop(topSectionIterations,None)
 lowestCommonMultiple = windsLen*shapesLen*patternLen #this is after filling in the above manually
 bodyRepeats = totalIterations // lowestCommonMultiple
 reset()
-mainLoop(lowestCommonMultiple*3,lowestCommonMultiple,True)
+mainLoop(lowestCommonMultiple*3+1,lowestCommonMultiple,True)
 finalSubtraction =  differentials[-1]
 #patternFinder(5)
 #finalPattern = patternAfter[-1] #then fill this in
 
 
 #get the body
-reset();repeatedBodyLength = heights1[-1]#27850032 #then fill this in      #mainLoop(lowestCommonMultiple)
+reset();repeatedBodyLength = heights1[-2]#27850032 #then fill this in      #mainLoop(lowestCommonMultiple)
 print("repeatedBodyLength*bodyRepeats",repeatedBodyLength*bodyRepeats)
 answer = repeatedBodyLength*bodyRepeats - finalSubtraction*(bodyRepeats-1) + topBodyLength-finalSubtraction
 print(answer)
