@@ -31,7 +31,7 @@ Blueprint 30: Each ore robot costs 4 ore. Each clay robot costs 4 ore. Each obsi
 
 test="""Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
-a=test
+#a=test
 blueprints = []
 
 for line in a.splitlines():
@@ -53,43 +53,57 @@ for blueprint in blueprints:
     print(blueprint)
 print()
 
-def reset():
-    global minutesRemaining,rate,names,robots,robotsLastTurn,ores
-    minutesRemaining = 24
-    rate=1
-    names = ["ore", "clay", "obsidian", "geode"]
-    robots = [1,0,0,0]
-    robotsLastTurn = [1,0,0,0]
-    ores = [0,0,0,0]
+def dfs(blueprint):
+    queue=[(24,[0,0,0,0],[1,0,0,0])]
+    cache = {}
 
-reset()
-count = 0
-candidates = []
+    def writeCache(key):
+        node = cache
+        for x in key:
+            if x not in node:
+                node[x] = {}
+            node = node[x]
+
+    def readCache(key):
+        node = cache
+        for x in key:
+            if x not in node:
+                return False
+            node = node[x]
+        return True
+
+    maxGeodes = 0
+    minTime = 26
+    iterations = 0
+    while queue:
+        iterations += 1
+        if iterations % 1000 == 0:
+            minTime = min(minTime, time)
+            print(iterations, len(queue),minTime)
+        time, ores, bots = queue.pop(0)
+        key = (time,*ores,*bots)
+        #print(key)
+        if readCache(key): continue
+        writeCache(key)
+        if time == 0:
+            maxGeodes = max(maxGeodes, bots[3])
+            print(f"new max geodes: {maxGeodes}")
+        #for n in range(5):
+        for j in range(3,-1,-1):
+            stop = False
+            for i,oreCost in enumerate(blueprint[j]):
+                if bots[i] == 0: 
+                    stop = True
+                    break
+                if ores[i] < oreCost:
+                    stop = True
+                    break
+            if stop: continue
+            newOres = [ores[i]-oreCost for i,oreCost in enumerate(blueprint[j])]
+            newOres = [ores[i]+x for i,x in enumerate(bots)]
+            queue.append([time-1, newOres, bots[:j]+[bots[j]+1]+bots[j+1:]])
+        queue.append([time-1, [ores[i]+x for i,x in enumerate(bots)], bots])
 for blueprint in blueprints:
-    
-    print()
-    print(blueprint)
-    for n in range(2**(minutesRemaining-2),(2**minutesRemaining)+1):
-        if not n%1000000:print(bin(n),count)
-        while minutesRemaining > 0:
-            if 1<<minutesRemaining & n:
-                if blueprint[0][0] <= ores[0]:
-                    ores[0] -= blueprint[0][0]
-                    robots[0] += 1
-                else:break
-                for i in range(4):
-                    ores[i] += robots[i]
-            minutesRemaining -= 1
-        count += 1
-        candidates.append(bin(n))
-            # print("minutes",minutesRemaining,"ores", ores,"robots", robots)
-            # minutesRemaining -= 1
-            # for i in range(4):
-            #     ores[i] += robots[i] * rate
-            # robots = robotsLastTurn
-            # for j in range(3,-1,-1):
-            #     if all([ores[i] >= oreCost for i,oreCost in enumerate(blueprint[j])]):
-            #         for i,oreCost in enumerate(blueprint[i]):
-            #             ores[i] -= oreCost
-            #             robotsLastTurn[i] += 1
-    print(ores)
+    dfs(blueprint)
+        
+
