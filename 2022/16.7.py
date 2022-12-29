@@ -119,11 +119,17 @@ def tryPossibilities(time, currentValve, openValves, score):
 valveIndexes = {x:i for i,x in enumerate(flowyValves)}
 def tryPossibilities2(times, currentValves, openValves, score):
     visited = {x:{y:{v:{vv:set({}) for vv in flowyValves+["AA"]} for v in flowyValves+["AA"]} for y in range(27)} for x in range(27)}
-    queue = [[times, currentValves, openValves, score]]
+    queue = {0:[times, currentValves, openValves, score]}
     totalChecked = 0
     maxFlow = 0
-    while queue:
-        times, currentValves, openValves, score = queue.pop(0)
+    index=-1
+    insertIndex = 1
+    while True:
+        index+=1
+        try:
+            times, currentValves, openValves, score = queue[index]
+            del queue[index]
+        except:break
         time1,time2=times
         if time1>time2:
             time2,time1=times
@@ -138,7 +144,10 @@ def tryPossibilities2(times, currentValves, openValves, score):
             bit1 = 1 << valveIndexes[neighbour1]
             if openValves & bit1: continue #if already open, skip
             newTime1 = time1 - valves[valve1]["distances"][neighbour1] - 1
-            if newTime1 <= 0: continue
+            if newTime1 <= 0: 
+                newTime1 = 0
+                bit1 = 1 << valveIndexes[valve1]
+                neighbour1 = valve1
             for neighbour2 in valves[valve2]["distances"]:
                 bit2 = 1 << valveIndexes[neighbour2]
                 if openValves & bit2: continue
@@ -149,8 +158,11 @@ def tryPossibilities2(times, currentValves, openValves, score):
                 if newScore > maxFlow:
                     maxFlow = newScore
                     print("new max", maxFlow, "after", totalChecked, "iterations", bin(openValves))
-                queue.append([(newTime1,newTime2), (neighbour1,neighbour2), (openValves | bit1) | bit2, newScore])
+                queue[insertIndex]=[(newTime1,newTime2), (neighbour1,neighbour2), (openValves | bit1) | bit2, newScore]
+                insertIndex+=1
         totalChecked += 1
+        if totalChecked % 10000 == 0:
+            print("checked", totalChecked, "iterations")
     return maxFlow
 tryPossibilities2((26,26), ("AA","AA"), 0, 0)
 #1713 failed @iteration 61000 
@@ -164,3 +176,5 @@ tryPossibilities2((26,26), ("AA","AA"), 0, 0)
 #2415 failed
 #2417 failed
 #2500 failed
+#2502 failed iteration 1329955
+#2548 WIN
