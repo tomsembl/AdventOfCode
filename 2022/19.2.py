@@ -52,9 +52,12 @@ for line in a.splitlines():
 for blueprint in blueprints:
     print(blueprint)
 print()
-
-def bfs(blueprint):
+geodesPerBP = []
+def bfs(bpIndex,blueprint):
+    global queue,readQueue,readQueueMil
     queue={0:(24,[0,0,0,0],[1,0,0,0])}
+    readQueue = queue
+    readQueueMil = 0
     cache = {}
     maxProductionNeeded = [max([(blueprint[j]+[0,0])[i] for j in range(4)]) for i in range(3)]  #[[x[i] for x in y+[0,0]] for y in blueprint]
     print(maxProductionNeeded)
@@ -73,6 +76,38 @@ def bfs(blueprint):
                 return False
             node = node[x]
         return True
+    
+    import pickle
+    def storeQueue():
+        global queue
+        if not queueCount % 1_000_000:
+            mil = queueCount // 1_000_000
+            print(f"pickling #{mil} @{queueCount}")
+            with open(f'c:/temp/19/{bpIndex}-{mil}.pkl', 'wb') as f:
+                pickle.dump(queue, f) #pickling
+            #if queueCount-iterations > 1_000_000:
+            if iterations >= 1_000_000:
+                queue = {}
+                retreiveQueue(force=True)
+
+    import os
+    def retreiveQueue(force=False):
+        global readQueue,readQueueMil
+        if queueCount-iterations < 1_000_000:
+            readQueue = queue
+        if iterations % 1_000_000 == 0:
+            if iterations!=0: force = True
+        if force:
+            mil = ( iterations // 1_000_000 ) + 1
+            if readQueueMil < mil:
+                print(f"unpickling #{mil} @{iterations}")
+                with open(f'c:/temp/19/{bpIndex}-{mil}.pkl', 'rb') as f:
+                    readQueue = pickle.load(f) #unpickling
+                    readQueueMil = mil
+                    print("first:",list(readQueue.keys())[0],"last:",list(readQueue.keys())[-1])
+                try: os.remove(f'c:/temp/19/{bpIndex}-{mil-1}.pkl')#delete a file
+                except: print(f'failed to delete: c:/temp/19/{bpIndex}-{mil-1}.pkl')
+        
 
     maxGeodes = 0
     minTime = 24
@@ -81,19 +116,24 @@ def bfs(blueprint):
     skipped=0
     while True:
         iterations += 1
-        try:time, ores, bots = queue[iterations]
-        except:break
-        del queue[iterations]
+        retreiveQueue()
+        # try:time, ores, bots = readQueue[iterations]
+        # except:
+        #     print(f"break at {iterations}")
+        #     break
+        time, ores, bots = readQueue[iterations]
+        #del queue[iterations]
         if iterations % 10000 == 0:
             minTime = min(minTime, time)
-            print(iterations, len(queue),minTime,ores,bots,skipped)
+            print(bpIndex,iterations,queueCount,minTime,ores,bots,skipped)
         key = (time,*ores,*bots)
         #print(key)
         if readCache(key): continue
         writeCache(key)
         if time == 0:
-            maxGeodes = max(maxGeodes, bots[3])
-            print(f"new max geodes: {maxGeodes}")
+            if bots[3] > maxGeodes:
+                maxGeodes = max(maxGeodes, bots[3])
+                print(f"new max geodes: {maxGeodes}")
         #for n in range(5):
         for j in range(3,-1,-1):
             stop = False
@@ -111,11 +151,17 @@ def bfs(blueprint):
             if stop: continue
             newOres = [ores[i]-oreCost for i,oreCost in enumerate(blueprint[j])]
             newOres = [ores[i]+x for i,x in enumerate(bots)]
+            storeQueue()
             queue[queueCount]=[time-1, newOres, bots[:j]+[bots[j]+1]+bots[j+1:]]
             queueCount+=1
+        storeQueue()
         queue[queueCount] = [time-1, [ores[i]+x for i,x in enumerate(bots)], bots]
         queueCount+=1
-for blueprint in blueprints:
-    bfs(blueprint)
+    geodesPerBP.append(maxGeodes)
+for i,blueprint in enumerate(blueprints):
+    bfs(i,blueprint)
+print("geodesPerBP",geodesPerBP)
+print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)]))#part1
+
         
 

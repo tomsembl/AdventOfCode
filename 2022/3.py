@@ -299,26 +299,21 @@ zgLgLHnnzCCvnsHSsZBZBsTRdD
 rslllhJjcQNNGjpWJlSRTRdwBVSSNTPVSdPB
 jGrGqjJfqccrfqGcGplrJpFvzggqmCtMzmsMnvMvvCgm"""
 
-aa="abcdefghijklmnopqrstuvwxyz"
-aaa=aa+aa.upper()
+alpha="abcdefghijklmnopqrstuvwxyz"
+alpha += alpha.upper()
 b=[ [ x[:(len(x)//2)], x[(len(x)//2):] ]  for x in a.splitlines()]
-total = 0
-for x,y in b:
-    total += 1 + aaa.index([z for z in x if z in y][0])
-#print(total) #part 1
+total = sum([1 + alpha.index([z for z in x if z in y][0]) for x,y in b])
+print(total) #part 1
 
 def divide_chunks(l, n):
-     
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i:i + n]
 c = divide_chunks(a.splitlines(),3)
-#d=a.splitlines()
-#c = [d[i:i+3]+[["","",""]] for i in range(0,len(d+[["","",""]]),3)]
 
 total2 = 0
 for x,y,z in c:
-    print(x,y,z)
-    total2 += 1 + aaa.index([c for c in x if c in y and c in z][0])
+    #print(x,y,z)
+    total2 += 1 + alpha.index([c for c in x if c in y and c in z][0])
 print(total2) #part 1
 

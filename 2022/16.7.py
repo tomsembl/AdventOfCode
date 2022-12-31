@@ -177,4 +177,4 @@ tryPossibilities2((26,26), ("AA","AA"), 0, 0)
 #2417 failed
 #2500 failed
 #2502 failed iteration 1329955
-#2548 WIN
+#2548 WIN iteration 4350000 8m39s

@@ -5005,53 +5005,66 @@ test="""1
 -2
 0
 4"""
-test="""0
--1
--1
-1"""
-a=test
-b = [int(x) for x in a.splitlines()]
-dic = {i:x for i,x in enumerate(b)}
-index=0
-offset=0
-#iii = 0
+test="""5
+10
+0
+0"""
+# test="""0
+# -1
+# -1
+# 1"""
+class Node:
+    def __init__(self,value):
+        self.value = int(value)
+        self.next = None
+        self.prev = None
+#a=test
+b = [Node(x) for x in a.splitlines()]
 lenB=len(b)
-indexes = [x for x in range(lenB)]
-print(b)
-for i in range(lenB):
-    index = indexes[i] #get the index of the current number
-    x = b.pop(index) #get the current number
-    indexes = indexes[:index] + [-1] + [y-1 for y in indexes[index+1:]] #reduce all the following indexes by 1, due to the pop
-    newIndex = index + x #new index is changed by the amount of the current number
-    if newIndex > 0:
-        if newIndex > lenB-1:
-            modded = newIndex%lenB + 1
-        else:modded = newIndex
+start = b[0]
+
+def printa():
+    global b,start
+    node = start
+    while True:
+        print(node.value,end=", ")
+        node = node.next
+        if node == b[0]: break
+    print()
+
+for i,x in enumerate(b):
+    x.next = b[(i+1)%lenB]
+    x.prev = b[(i-1)%lenB]
+# print(f"  ",end=" ")
+# printa()
+for node in b:
+    orig = node
+    new = node
+    forward,back = (orig.value+1)%(lenB-1),(-orig.value)%(lenB-1)
+    if ( orig.value == 0 or forward == 0 ) or back == 0: continue
+    orig.prev.next = orig.next
+    orig.next.prev = orig.prev
+    if orig.value > 0:
+        for _ in range(forward): new = new.next
     else:
-        modded = lenB-1 + newIndex
-    #modded = newIndex%lenB if newIndex > 0 else lenB-1 + newIndex
-    b.insert(modded,x)
-    indexes = indexes[:modded+1] + [x+1 for x in indexes[modded+1:]]
-    print(x,b)
-zeroIndex = b.index(0)
-grove = [b[(zeroIndex+x)%lenB] for x in range(1000,3001,1000)]
-print(sum(grove),grove)
+        for _ in range(back): new = new.prev
+    #temp = node
+    orig.prev = new.prev
+    orig.next = new
+    new.prev.next = orig
+    new.prev = orig
+    # print(f"{orig.value}:",end=" ")
+    # printa()
 
-#1, 2, -3, 0, 3, 4, -2, 1, 2, -3, 0, 3, 4, -2
-#2236 failed too low
-#-34510
+n = 0
+node=[x for x in b if x.value==0][0]
+for _ in range(3):
+    for _ in range(1000):
+        node = node.next
+    print(node.value)
+    n+=node.value
+print(n)
 
 
 
-# while index < len(b):
-#     position = index+offset
-#     x = b.pop(position)
-#     newIndex = position + x#) % lenB
-#     modded = newIndex%lenB if newIndex%lenB > 0 else lenB-1 + newIndex
-#     #iii = -1 if newIndex < position else 1 if newIndex > position else 0
-#     offset += 1 if modded < position+1 else -1 if modded > position+1 else 0
-#     #newIndex +=  iii
-#     b.insert(newIndex,x)
-#     index += 1
-#     print(x,b)
 
