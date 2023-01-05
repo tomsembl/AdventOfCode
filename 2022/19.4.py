@@ -54,14 +54,17 @@ for blueprint in blueprints:
     print(blueprint)
 print()
 
+from datetime import datetime
 geodesPerBP = []
-
 def bfs(bpIndex,blueprint,duration=24):
     global queue,readQueue,readQueueMil,time
+    pickleSize = 10000
     queue={0:(duration,[0,0,0,0],[1,0,0,0])}
     readQueue = queue
     readQueueMil = 0
     cache = {}
+    times = [datetime.now()]
+    durations = []
     maxProductionNeeded = [max([(blueprint[j]+[0,0])[i] for j in range(4)]) for i in range(3)]  #[[x[i] for x in y+[0,0]] for y in blueprint]
     print(maxProductionNeeded)
 
@@ -79,6 +82,50 @@ def bfs(bpIndex,blueprint,duration=24):
                 return False
             node = node[x]
         return True
+    
+    import pickle
+    def storeQueue():
+        global queue
+        if not queueCount % pickleSize:
+            mil = queueCount // pickleSize
+            with open(f'c:/temp/19/{dateTime}-{bpIndex}-{mil}.pkl', 'wb') as f:
+                pickle.dump(queue, f) #pickling
+            if iterations >= pickleSize:
+                del queue
+                queue = {}
+                retreiveQueue(force=True)
+
+    import os,sys
+    def retreiveQueue(force=False):
+        global readQueue,readQueueMil
+        if queueCount-iterations < pickleSize:
+            readQueue = queue
+            return
+        if iterations % pickleSize == 0:
+            if iterations!=0: force = True
+        if force:
+            mil = ( iterations // pickleSize ) + 1
+            if readQueueMil < mil:
+                #print(f"unpickling #{mil} @{iterations}")
+                picklePath = f'c:/temp/19/{dateTime}-{bpIndex}-{mil}.pkl'
+                if not os.path.isfile(picklePath):
+                    print("ERROR: file not found")
+                with open(picklePath, 'rb') as f:
+                    del readQueue
+                    readQueue = pickle.load(f) #unpickling
+                    readQueueMil = mil
+                    #print("first:",list(readQueue.keys())[0],"last:",list(readQueue.keys())[-1])
+                try: os.remove(f'c:/temp/19/{dateTime}-{bpIndex}-{mil-1}.pkl')#delete a file
+                except: pass
+        
+    def getSize(d):
+        size = sys.getsizeof(d)
+        for key, value in d.items():
+            if isinstance(value, dict):
+                size += getSize(value)
+            else:
+                size += sys.getsizeof(value)
+        return size
 
     maxGeodes = 0
     minTime = 24
@@ -86,33 +133,32 @@ def bfs(bpIndex,blueprint,duration=24):
     queueCount = 1
     while True:
         iterations += 1
-        try:
-            time, ores, bots = readQueue[iterations]
-            del readQueue[iterations]
+        retreiveQueue()
+        try:time, ores, bots = readQueue[iterations]
         except:
             print(f"break at {iterations}")
             break
-        #time, ores, bots = readQueue[iterations]
+        time, ores, bots = readQueue[iterations]
+        if iterations % 100000 == 0:
+            times.append(datetime.now())
+            durations.append((times[-1]-times[-2]).total_seconds())
+            minTime = min(minTime, time)
+            for x in range(minTime+1,duration+1):
+                try: del cache[minTime+1]
+                except: pass
+            print(bpIndex,iterations,queueCount,queueCount/(iterations if iterations else 1),minTime,time,ores,bots,"duration:",durations[-1],"avg:",str(sum(durations)/len(durations))[:4])#,f"{getSize(cache)//1_000_000}mb")
         key = (time,*ores,*bots)
-        if readCache(key): continue
+        #if readCache(key): continue
         writeCache(key)
         if time == 0:
             if ores[3] > maxGeodes:
                 maxGeodes = max(maxGeodes, ores[3])
                 print(f"new max geodes:{maxGeodes}, ores:{ores}, bots:{bots}, blueprint:{blueprint},")
-                #print(f"break at {iterations}")
-                #break
             continue
-        if iterations % 100000 == 0:
-            minTime = min(minTime, time)
-            for x in range(minTime+1,duration+1):
-                try: del cache[minTime+1]
-                except: pass
-            print(bpIndex,iterations,queueCount,minTime,ores,bots)
         for j in range(3,-1,-1):
             stop = False
             if j<3:
-                if bots[j] >= maxProductionNeeded[j]:# or ores[j] >= maxProductionNeeded[j]*time: 
+                if bots[j]*time + ores[j] >= maxProductionNeeded[j]*time:# or ores[j] >= maxProductionNeeded[j]*time: 
                     continue
             for i,oreCost in enumerate(blueprint[j]):#checking whether affordable given the current robots
                 if bots[i] == 0: 
@@ -121,9 +167,6 @@ def bfs(bpIndex,blueprint,duration=24):
             if stop: continue
             wait = 0
             for i,oreCost in enumerate(blueprint[j]):#checking whether affordable given the current ores, decrementing time if not.
-                # if ores[i] < oreCost:
-                #     stop = True
-                #     break
                 while ores[i]+(bots[i]*wait) < oreCost:
                     wait += 1
                     if time-1-wait < 0:
@@ -133,24 +176,32 @@ def bfs(bpIndex,blueprint,duration=24):
             if stop: continue
             newOres = [ores[i]+x*(1+wait)-(blueprint[j]+[0,0,0])[i] for i,x in enumerate(bots)]
             newBots = [x+(1 if j==i else 0) for i,x in enumerate(bots)]
-            queue[queueCount]=[time-1-wait, newOres, newBots]
+            storeQueue()
+            newNode = [time-1-wait, newOres, newBots]
+            key = (newNode[0],*newOres,*newBots)
+            if readCache(key): continue
+            queue[queueCount]=newNode
             queueCount+=1
         newOres = [ores[i]+x*(time) for i,x in enumerate(bots)]
-        queue[queueCount] = [0, newOres, bots]
+        storeQueue()
+        newNode = [0, newOres, bots]
+        key = (newNode[0],*newOres,*newBots)
+        if readCache(key): continue
+        queue[queueCount] = newNode
         queueCount+=1
+    print("final answer:",maxGeodes)
+    readQueue,queue,cache=None,None,None
     geodesPerBP.append(maxGeodes)
-    #write to txt file
     with open(f'c:/temp/19/{dateTime}-answer.txt', 'w') as f:
         f.write(str(geodesPerBP))
 # for i,blueprint in enumerate(blueprints):
 #     bfs(i,blueprint)
 # print("geodesPerBP",geodesPerBP)
-# print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)]))#part1
+# print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)])) #part1
 
-#979 too low
 #1009 win!
 
 for i,blueprint in enumerate(blueprints[:3]):
     bfs(i,blueprint,duration=32)
 print("geodesPerBP",geodesPerBP)
-print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)]))#part2
+print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)])) #part2
