@@ -31,7 +31,7 @@ Blueprint 30: Each ore robot costs 4 ore. Each clay robot costs 4 ore. Each obsi
 
 test="""Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
-a=test
+#a=test
 blueprints = []
 import datetime
 dateTime = str(datetime.datetime.now())[:19].replace(":", "-")
@@ -62,20 +62,21 @@ def bfs(bpIndex,blueprint,duration=24):
     queue={0:(duration,[0,0,0,0],[1,0,0,0])}
     readQueue = queue
     readQueueMil = 0
-    cache = {}
+    geodeCache = {}
+    visitedCache = {}
     times = [datetime.now()]
     durations = []
     maxProductionNeeded = [max([(blueprint[j]+[0,0])[i] for j in range(4)]) for i in range(3)]  #[[x[i] for x in y+[0,0]] for y in blueprint]
     print(maxProductionNeeded)
 
-    def writeCache(key):
+    def writeCache(key,cache):
         node = cache
         for x in key:
             if x not in node:
                 node[x] = {}
             node = node[x]
 
-    def readCache(key):
+    def readCache(key,cache):
         node = cache
         for x in key:
             if x not in node:
@@ -106,7 +107,6 @@ def bfs(bpIndex,blueprint,duration=24):
         if force:
             mil = ( iterations // pickleSize ) + 1
             if readQueueMil < mil:
-                #print(f"unpickling #{mil} @{iterations}")
                 picklePath = f'c:/temp/19/{dateTime}-{bpIndex}-{mil}.pkl'
                 if not os.path.isfile(picklePath):
                     print("ERROR: file not found")
@@ -148,13 +148,19 @@ def bfs(bpIndex,blueprint,duration=24):
                 except: pass
             print(bpIndex,iterations,queueCount,queueCount/(iterations if iterations else 1),minTime,time,ores,bots,"duration:",durations[-1],"avg:",str(sum(durations)/len(durations))[:4])#,f"{getSize(cache)//1_000_000}mb")
         key = (time,*ores,*bots)
-        #if readCache(key): continue
-        writeCache(key)
+        #if readCache(key,visitedCache): continue
+        writeCache(key,visitedCache)
         if time == 0:
             if ores[3] > maxGeodes:
                 maxGeodes = max(maxGeodes, ores[3])
                 print(f"new max geodes:{maxGeodes}, ores:{ores}, bots:{bots}, blueprint:{blueprint},")
             continue
+        geodeKey = (time,ores[3])
+        if ores[3] > 0:
+            if readCache(geodeKey[:1],geodeCache):
+                if geodeKey[1] < list(geodeCache[geodeKey[0]].keys())[0]: continue
+            else:
+                writeCache(geodeKey,geodeCache)
         for j in range(3,-1,-1):
             stop = False
             if j<3:
@@ -179,14 +185,14 @@ def bfs(bpIndex,blueprint,duration=24):
             storeQueue()
             newNode = [time-1-wait, newOres, newBots]
             key = (newNode[0],*newOres,*newBots)
-            if readCache(key): continue
+            if readCache(key,visitedCache): continue
             queue[queueCount]=newNode
             queueCount+=1
         newOres = [ores[i]+x*(time) for i,x in enumerate(bots)]
         storeQueue()
         newNode = [0, newOres, bots]
         key = (newNode[0],*newOres,*newBots)
-        if readCache(key): continue
+        if readCache(key,visitedCache): continue
         queue[queueCount] = newNode
         queueCount+=1
     print("final answer:",maxGeodes)
@@ -204,4 +210,7 @@ def bfs(bpIndex,blueprint,duration=24):
 for i,blueprint in enumerate(blueprints[:3]):
     bfs(i,blueprint,duration=32)
 print("geodesPerBP",geodesPerBP)
-print("answer:",sum([x*(i+1) for i,x in enumerate(geodesPerBP)])) #part2
+answer = 1
+for x in geodesPerBP: answer *= x
+print("answer:",answer) #part2
+#18816 win!
