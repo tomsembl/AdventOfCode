@@ -11,10 +11,34 @@ def collisionCheck(cube1,cube2):
         r,s = cube2[i]
         edgeCheck = [int(x) for x in [p>=r, p>s, q>=r, q>s]]
         edgeChecks.append(edgeCheck)
-        if sum(edgeCheck) in [0,4]: collides=False
+        if sum(edgeCheck) in [0,4]: 
+            collides=False
+            return collides, edgeChecks
     return collides, edgeChecks
         
-for i,x in enumerate(b):
-    for j,y in enumerate(b):
+for i,cube1 in enumerate(b):
+    hasCollisions = False
+    for j,cube2 in enumerate(cubes):
         if i==j: continue
-        print(i,j,collisionCheck(x,y))
+        collides, edgeChecks = collisionCheck(cube1,cube2)
+        if not collides: continue
+        hasCollisions = True
+        print("collision",i,j,edgeChecks)
+        for p,q,r,s in edgeChecks: #remove cube2 in some cases
+            if [p,q,r,s] in [[0, 0, 1, 0],[1, 0, 1, 1],[0, 0, 1, 1]]: cubes=cubes[:j]+cubes[j+1:]
+        cubeQueue=[]
+        while cubeQueue:
+    if not hasCollisions: cubes.append(cube1)
+for cube in cubes:
+    print(cube)
+#[p, q, r, s]        
+#[0, 0, 0, 0] left, right,   no collision. insert cube1 if no other collisions
+#[1, 1, 1, 1] right, left,   no collision. insert cube1 if no other collisions
+#[0, 0, 1, 0] left, right,      collision. delete cube2. split each into 2
+#[1, 0, 1, 1] right, left,      collision. delete cube2. split each into 2
+#[1, 0, 1, 0] inside, outside,  collision. split cube2 into 3. insert 4
+#[0, 0, 1, 1] outside, inside,  collision. split cube1 into 3. delete cube2, insert 4
+
+# for p,q,r,s in [[-2,-1,1,2],[4,5,1,2],[0,1,1,2],[1,2,0,1],[1,3,0,4],[0,4,1,3]]:
+#     edgeCheck = [int(x) for x in [p>=r, p>s, q>=r, q>s]]
+#     print(p,q,r,s,edgeCheck)
