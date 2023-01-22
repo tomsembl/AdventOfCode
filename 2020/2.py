@@ -998,6 +998,10 @@ a="""1-14 b: bbbbbbbbbbbbbbbbbbb
 8-9 q: qssqqxqqcqqgkzbq
 3-8 m: tmmmmmmmmmmmj
 2-5 f: mmcfxtk"""
+test="""1-3 a: abcde
+1-3 b: cdefg
+2-9 c: ccccccccc"""
+#a=test
 b=[x.split() for x in a.splitlines()]
 b=[[*[int(y) for y in x[0].split("-")],x[1][0],x[2]] for x in b]
 
@@ -1010,5 +1014,5 @@ print(count)#part1
 count=0
 for x in b: 
 	y, z, char, password = x
-	count += 1 if password[y-1:z+1].count(char)==1 else 0
+	count += 1 if [password[y-1],password[z-1]].count(char)==1 else 0
 print(count)#part2
