@@ -18,7 +18,7 @@ for i in range(1,1000000000,6):
         break
 print(min(s1,s2)*count)#part1
 
-#part 2
+``#part 2
 p1,p2=[8,5]
 p1,p2=[4,8]
 p1-=1
