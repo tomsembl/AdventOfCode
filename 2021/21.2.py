@@ -1,5 +1,3 @@
-import sys
-
 #part 2
 goal=21
 p1,p2=[8,5]
