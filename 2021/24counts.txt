@@ -1,0 +1,154 @@
+
+i: 0
+1 count: 920
+2 count: 0
+3 count: 0
+4 count: 0
+5 count: 0
+6 count: 0
+7 count: 0
+8 count: 0
+9 count: 0
+
+i: 1
+1 count: 47
+2 count: 606
+3 count: 47
+4 count: 44
+5 count: 42
+6 count: 47
+7 count: 45
+8 count: 34
+9 count: 8
+
+i: 2
+1 count: 58
+2 count: 62
+3 count: 358
+4 count: 55
+5 count: 65
+6 count: 53
+7 count: 62
+8 count: 96
+9 count: 111
+
+i: 3
+1 count: 46
+2 count: 52
+3 count: 1
+4 count: 0
+5 count: 37
+6 count: 43
+7 count: 41
+8 count: 39
+9 count: 661
+
+i: 4
+1 count: 37
+2 count: 43
+3 count: 41
+4 count: 41
+5 count: 744
+6 count: 3
+7 count: 4
+8 count: 3
+9 count: 4
+
+i: 5
+1 count: 0
+2 count: 0
+3 count: 0
+4 count: 713
+5 count: 37
+6 count: 39
+7 count: 45
+8 count: 42
+9 count: 44
+
+i: 6
+1 count: 627
+2 count: 49
+3 count: 40
+4 count: 41
+5 count: 36
+6 count: 41
+7 count: 40
+8 count: 46
+9 count: 0
+
+i: 7
+1 count: 0
+2 count: 627
+3 count: 49
+4 count: 40
+5 count: 41
+6 count: 36
+7 count: 41
+8 count: 40
+9 count: 46
+
+i: 8
+1 count: 779
+2 count: 55
+3 count: 49
+4 count: 37
+5 count: 0
+6 count: 0
+7 count: 0
+8 count: 0
+9 count: 0
+
+i: 9
+1 count: 0
+2 count: 0
+3 count: 0
+4 count: 0
+5 count: 0
+6 count: 779
+7 count: 55
+8 count: 49
+9 count: 37
+
+i: 10
+1 count: 44
+2 count: 38
+3 count: 599
+4 count: 35
+5 count: 50
+6 count: 35
+7 count: 40
+8 count: 42
+9 count: 37
+
+i: 11
+1 count: 44
+2 count: 38
+3 count: 599
+4 count: 35
+5 count: 50
+6 count: 35
+7 count: 40
+8 count: 42
+9 count: 37
+
+i: 12
+1 count: 713
+2 count: 37
+3 count: 39
+4 count: 45
+5 count: 42
+6 count: 44
+7 count: 0
+8 count: 0
+9 count: 0
+
+i: 13
+1 count: 0
+2 count: 41
+3 count: 643
+4 count: 42
+5 count: 39
+6 count: 40
+7 count: 45
+8 count: 41
+9 count: 29
