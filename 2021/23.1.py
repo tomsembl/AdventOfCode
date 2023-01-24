@@ -126,9 +126,4 @@ while True:
         path, cost = distances[i2+8][home]
         if validatePath(boxState,hallState,path):
             queue.append([boxState[:home]+[amphipod2]+boxState[home+1:], hallState[:i2]+[0]+hallState[i2+1:], energy+cost*costMultiplier(amphipod2)])
-        # if not validateHome(boxState, i, amphipod):
-        #     for x in distances[i]:
-        #         path, cost = distances[i][x]
-        #         if validatePath(boxState,hallState,path):
-        #             queue.append([boxState[:i]+[0]+boxState[i+1:], hallState[:x]+[amphipod]+hallState[x+1:],energy+cost])
 print(minEnergy)

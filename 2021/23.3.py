@@ -85,10 +85,9 @@ def validateHome(boxState,i,amphipod):
 def getHome(boxState,amphipod):
     homeBottomLocation = 2*amphipod-2
     homeBottomContents = boxState[homeBottomLocation]
-    if foundSearch: print("homeCheck",boxState,amphipod,homeBottomLocation,homeBottomContents)
     if homeBottomContents==0: return homeBottomLocation
     if homeBottomContents==amphipod: return homeBottomLocation+1
-    return None
+    return -1
 
 def validatePath(state,path):
     for step in path:
@@ -99,7 +98,6 @@ def validateNode(state,node):
     return state[node] == 0
 
 def cacheCheck(boxState,hallState,energy,returnHit=False):
-    if foundSearch: print(boxState,hallState,energy)
     tbs,ths=tuple(boxState),tuple(hallState)
     if tbs in cache:
         if ths in cache[tbs]:
@@ -118,23 +116,13 @@ minEnergy=999999999999
 queue=[[boxState,hallState,0]]
 cache={}
 iterations=0
-global foundSearch
-foundSearch=False
 while True:
-    foundSearch=False
     try: boxState, hallState, energy = queue.pop()
     except IndexError: break
     iterations+=1
     if not iterations % 100_000: print(iterations,len(queue))
-    #if energy >= 100_000: continue
-    if boxState==[0,0,3,4,1,0,3,4] and hallState==[2,2,1,0,0,0,0]:
-        print("found")
-        foundSearch=True
-    if energy >= minEnergy:
-        #print("energy too high")
-        continue
+    if energy >= minEnergy:continue
     if boxState == endState: 
-        #print("found endstate", energy)
         if energy < minEnergy:
             print("new minEnergy", energy)
             minEnergy = energy
@@ -161,20 +149,18 @@ while True:
                 if cacheCheck(*newQueueItem): queue.append(newQueueItem)
 
             #go home -> home
-            if (home := getHome(boxState,amphipod)):
-                path, cost = distancesHome2Home[i][home]
-                if validatePath(state,path):
-                    newBoxState = boxState[:]
-                    newBoxState[i]=0
-                    newBoxState[home]=amphipod
-                    newQueueItem = [newBoxState, hallState, energy+cost*costMultiplier(amphipod)]
-                    if cacheCheck(*newQueueItem): queue.append(newQueueItem)
+            if (home := getHome(boxState,amphipod)) == -1: continue
+            path, cost = distancesHome2Home[i][home]
+            if validatePath(state,path):
+                newBoxState = boxState[:]
+                newBoxState[i]=0
+                newBoxState[home]=amphipod
+                newQueueItem = [newBoxState, hallState, energy+cost*costMultiplier(amphipod)]
+                if cacheCheck(*newQueueItem): queue.append(newQueueItem)
 
     for i2,amphipod2 in enumerate(hallState):
         if amphipod2 == 0: continue
-        if not (home := getHome(boxState,amphipod2)): 
-            
-            continue
+        if (home := getHome(boxState,amphipod2)) == -1: continue
 
         #go hall -> home
         path, cost = distances[i2+8][home]
@@ -182,14 +168,5 @@ while True:
             newQueueItem = [boxState[:home]+[amphipod2]+boxState[home+1:], hallState[:i2]+[0]+hallState[i2+1:], energy+cost*costMultiplier(amphipod2)]
             if cacheCheck(*newQueueItem): queue.append(newQueueItem)
 
-print(minEnergy)
-while True:
-    try:
-        in1=input("type boxState:")
-        in2=input("type hallState:")
-        exec(f"boxState=({','.join(list(str(in1)))});hallState=({','.join(list(str(in2)))})")
-        print("not found" if (cc:=cacheCheck(boxState,hallState,999999999999,True))==True else ("found with energy",cc))
-    except: pass
-
-
-# tried 12312 - too high
+print("Minimum Energy:", minEnergy) #part 1
+#print("cacheSize:",sum([len(cache[x]) for x in cache]))
