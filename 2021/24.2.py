@@ -251,15 +251,13 @@ add y 12
 mul y x
 add z y"""
 ops=["inp","add","mul","div","mod","eql"]
-print(sum([1 for x in a.splitlines() if any([x[:3]=="mul" and x[-2:]==" 1",x[:3]=="add" and x[-2:]==" 0",x[:3]=="div" and x[-2:]==" 1"])]))
 instr=[[int(y) if y.isnumeric() or "-" in y else y for y in x.split()]+([-1] if x[0]=="i" else []) for x in a.splitlines() if x[0]!="#"]
 instr=[[ops.index(op),"wxyz".index(a),c:=type(b)==int,b if c else "wxyz".index(b)] for op,a,b in instr]
-def runForward(input,outputDic=False):
+
+def runOps(input,outputDic=False):
     dic={0:0,1:0,2:0,3:0}
     i=0
     for x in instr: 
-        # try:
-        #print(x)
         op,a,c,b = x
         if op == 0: 
             dic[a] = int(input[i])
@@ -271,101 +269,97 @@ def runForward(input,outputDic=False):
             else: print("div0"); break
         elif op == 4: dic[a] %= b if c else dic[b]
         elif op == 5: dic[a] = 1 if (b if c else dic[b]) == dic[a] else 0
-        # except:
-        #     print("lose",i,x)
-        #     break
-    #print(input,list(dic.values()))
     if outputDic: return dic
     return dic[3]
 
-lowest=12395412163313
-#12395412163313
-#12373567167723
-def randomMethod1():
-    from random import randint
-    global lowest
-    while True:
-        # string=""
-        # for x in range(14): string+=str(randint(1,9))
-        string=str(randint(11111111111111,99999999999999))
-        if "0" in string: continue
-        if string[-3]!=string[-4]: continue
-        if string[0]!="1": continue
-        try:
-            answer = runForward(string)
-            if answer < lowest:
-                lowest=answer
-                print(F"{string} win {answer}")
-        except: pass
-#randomMethod1()
+def isInput(x): return all([x[0]=="i", x[1:].isnumeric(), len(x) in [2,3]])
 
-def scrambleMethod1():
-    global lowest
-    initial="12395412163313"
+def getType(a,b):
+    if (AisVar := a in ["w","x","y","z"]): a = dic[a]
+    if (BisVar := b in ["w","x","y","z"]): b = dic[b]
+    AisInt,BisInt = type(a) == int, type(b) == int
+    if AisInt and BisInt: return a,b,AisInt,BisInt, False, False
+    a,b = str(a),str(b)
+    #AisEquation, BisEquation = "(" in a, "(" in b
+    AisInput, BisInput = isInput(a), isInput(b)
+    return a,b,AisInt,BisInt,AisInput,BisInput#,AisEquation,BisEquation
 
-    for i in range(14): 
-        print("\ni:",i)
-        for j in range(1,10): 
-            string=initial[:i]+str(j)+initial[i+1:]
-            try:
-                answer = runForward(string)
-                if answer < lowest:
-                    lowest=answer
-                    print(F"{string} win {answer}")
-                print(string,answer)
-            except: pass
-#scrambleMethod1()
+def execRange1to9(a,b,equationStr,AisInt):
+    answers=[]
+    for i in range(1,10):
+        s = equationStr
+        for j in range(14):
+            s = s.replace(f"i{j}",str(i))
+        answers.append(eval(s))
+    if len(set(answers)) == 1: return answers[0],True
+    return None,False
 
-def scrambleMethod2():
-    from random import randint
-    global lowest
-    initial="12395412163313"
-    seen=[initial]
-    for i in range(2,15):#number of digits to change
+dic={"w":0,"x":0,"y":0,"z":0}
+def generateEquation():
+    i=0
+    rowCount=-1
+    for op,a,c,b in instr:
+        rowCount+=1 
+        a="wxyz"[a]
+        if not c: b="wxyz"[b]
+        
+        ops=["inp","add","mul","div","mod","eql"]
+        if op == 0:  #inp
+            dic[a] = f"i{i}"
+            i+=1
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, answer:{dic[a]}")
 
-        print("\ni:",i)
-        countSinceWin=0
-        while countSinceWin<100000: #number of tries
-            string=initial
-            positsToChange=[]
-            for _ in range(i): #loop on positions to change
-                while True:
-                    ii=randint(0,13)
-                    if ii not in positsToChange: break
-                positsToChange.append(randint(0,13))
-            for ii in positsToChange:
-                string=string[:ii]+str(randint(1,9))+string[ii+1:]
+        elif op == 1: #add
+            add = (b if c else dic[b])
+            valA, add, AisInt, BisInt, AisInput, BisInput = getType(dic[a],add)
+            if valA in [0,'0']: dic[a] = add ; continue
+            if AisInt and BisInt: dic[a] = valA + add
+            else: dic[a] = f"({valA}) + ({add})"
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{add}, answer:{dic[a]}")
 
-            answer = runForward(string)
-            countSinceWin+=1
-            if answer == lowest and string not in seen: 
-                countSinceWin=0
-                seen.append(string)
-                print(F"{string} win {answer}")
-            if answer < lowest:
-                lowest=answer
-                print(F"{string} win {answer}")
-            #print(string,answer)
-    freq={x:{y:0 for y in range(1,10)} for x in range(14)}
-    for s in seen:
-        for i in range(14):
-            freq[i][int(s[i])]+=1
-    for i in freq:
-        print("\ni:",i)
-        for x in freq[i]:
-            print(x,"count:",freq[i][x])
+        elif op == 2: #mul
+            mul = (b if c else dic[b])
+            valA, mul, AisInt, BisInt, AisInput, BisInput = getType(dic[a],mul)
+            if valA in [0,'0'] or mul in [1,'1']: continue
+            if mul in [0,'0']: dic[a] = 0 ; continue
+            if AisInt and BisInt: dic[a] = valA * mul
+            else: dic[a] = f"({valA}) * ({mul})"
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{mul}, answer:{dic[a]}")
 
-#scrambleMethod2()
+        elif op == 3: #div
+            div = (b if c else dic[b])
+            valA, div, AisInt, BisInt, AisInput, BisInput = getType(dic[a],div)
+            if valA in [0,'0'] or div in [1,'1']: continue
+            if div in [0,'0']: print("div0"); break
+            if AisInt and BisInt: dic[a] = valA // div
+            else: dic[a] = f"({valA}) // ({div})"
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{div}, answer:{dic[a]}")
 
-def inputMethod():
-    while True:
-        try:
-            x=runForward(input("input:"),True)
-            print(F"win {x}")
-        except: pass
-inputMethod()
-45295867270056
-49814645545579
+        elif op == 4: #mod
+            mod = (b if c else dic[b])
+            valA, mod, AisInt, BisInt, AisInput, BisInput = getType(dic[a],mod)
+            if valA in [0,'0'] or mod in [0,'0']: continue
+            if AisInt and BisInt: dic[a] = valA % mod
+            else: dic[a] = f"({valA}) % ({mod})"
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{mod}, answer:{dic[a]}")
 
-# 0: [a, 1, 9+a, 9+a]
-# 1: [b, 1, 4+b, 24*ab+b]
+        elif op == 5: #eql
+            eql = (b if c else dic[b])
+            valA, eql, AisInt, BisInt, AisInput, BisInput = getType(dic[a],eql)
+            if valA in [0,'0'] or eql in [1,'1']: continue
+            if AisInt and BisInt: dic[a] = int(valA == eql)
+            else: 
+                equationStr = f"({valA}) == ({eql})"
+                if valA == eql: dic[a] = 1 #strings match
+                elif isInput(eql): #if eql is an input, try range 1-9 with exec
+                    answer, isAlways = execRange1to9(valA,eql,equationStr,AisInt)
+                    if isAlways: 
+                        if type(answer)==bool: 
+                            answer = int(answer)
+                        dic[a] = answer
+                else: dic[a] = equationStr
+            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{eql}, answer:{dic[a]}")
+
+    return dic["z"]
+p=generateEquation()
+print(p.count("i"))
