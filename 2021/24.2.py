@@ -295,58 +295,59 @@ def execRange1to9(a,b,equationStr,AisInt):
     return None,False
 
 dic={"w":0,"x":0,"y":0,"z":0}
+ops=["inp","add","mul","div","mod","eql"]
 def generateEquation():
     i=0
-    rowCount=-1
+    rowCount=0
     for op,a,c,b in instr:
         rowCount+=1 
         a="wxyz"[a]
         if not c: b="wxyz"[b]
+        print(f"\n{rowCount}: {ops[op]} {a} {b}")
         
-        ops=["inp","add","mul","div","mod","eql"]
         if op == 0:  #inp
             dic[a] = f"i{i}"
             i+=1
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, answer:{dic[a]}")
+            print(f"answer:{dic[a]}")
 
         elif op == 1: #add
             add = (b if c else dic[b])
             valA, add, AisInt, BisInt, AisInput, BisInput = getType(dic[a],add)
-            if valA in [0,'0']: dic[a] = add ; continue
+            if valA in [0,'0']: dic[a] = add ; print(f"{valA} {add}, answer:{dic[a]}") ; continue
             if AisInt and BisInt: dic[a] = valA + add
             else: dic[a] = f"({valA}) + ({add})"
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{add}, answer:{dic[a]}")
+            print(f"{valA} {add}, answer:{dic[a]}")
 
         elif op == 2: #mul
             mul = (b if c else dic[b])
             valA, mul, AisInt, BisInt, AisInput, BisInput = getType(dic[a],mul)
-            if valA in [0,'0'] or mul in [1,'1']: continue
-            if mul in [0,'0']: dic[a] = 0 ; continue
+            if valA in [0,'0'] or mul in [1,'1']: print(f"{valA} {mul}, answer:{dic[a]}") ; continue
+            if mul in [0,'0']: dic[a] = 0 ; print(f"{valA} {mul}, answer:{dic[a]}") ; continue
             if AisInt and BisInt: dic[a] = valA * mul
             else: dic[a] = f"({valA}) * ({mul})"
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{mul}, answer:{dic[a]}")
+            print(f"{valA} {mul}, answer:{dic[a]}")
 
         elif op == 3: #div
             div = (b if c else dic[b])
             valA, div, AisInt, BisInt, AisInput, BisInput = getType(dic[a],div)
-            if valA in [0,'0'] or div in [1,'1']: continue
-            if div in [0,'0']: print("div0"); break
+            if valA in [0,'0'] or div in [1,'1']: print(f"{valA} {div}, answer:{dic[a]}") ; continue
+            if div in [0,'0']: print("div0"); print(f"{valA} {div}, answer:{dic[a]}") ; break
             if AisInt and BisInt: dic[a] = valA // div
             else: dic[a] = f"({valA}) // ({div})"
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{div}, answer:{dic[a]}")
+            print(f"{valA} {div}, answer:{dic[a]}")
 
         elif op == 4: #mod
             mod = (b if c else dic[b])
             valA, mod, AisInt, BisInt, AisInput, BisInput = getType(dic[a],mod)
-            if valA in [0,'0'] or mod in [0,'0']: continue
+            if valA in [0,'0'] or mod in [0,'0']: print(f"{valA} {mod}, answer:{dic[a]}") ; continue
             if AisInt and BisInt: dic[a] = valA % mod
             else: dic[a] = f"({valA}) % ({mod})"
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{mod}, answer:{dic[a]}")
+            print(f"{valA} {mod}, answer:{dic[a]}")
 
         elif op == 5: #eql
             eql = (b if c else dic[b])
             valA, eql, AisInt, BisInt, AisInput, BisInput = getType(dic[a],eql)
-            if valA in [0,'0'] or eql in [1,'1']: continue
+            if valA in [0,'0'] or eql in [1,'1']: print(f"{valA} {eql}, answer:{dic[a]}") ; continue
             if AisInt and BisInt: dic[a] = int(valA == eql)
             else: 
                 equationStr = f"({valA}) == ({eql})"
@@ -357,8 +358,9 @@ def generateEquation():
                         if type(answer)==bool: 
                             answer = int(answer)
                         dic[a] = answer
+                    else: dic[a] = equationStr
                 else: dic[a] = equationStr
-            print(f"{rowCount}, op:{ops[op]}, a:{a}, b:{b}, a2:{valA}, b2:{eql}, answer:{dic[a]}")
+            print(f"{valA} {eql}, answer:{dic[a]}")
 
     return dic["z"]
 p=generateEquation()
