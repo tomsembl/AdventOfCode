@@ -1144,6 +1144,18 @@ hgt:179cm
 
 hcl:#cfa07d eyr:2025 pid:166559648
 iyr:2011 ecl:brn hgt:59in"""
+test="""pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+hcl:#623a2f
+
+eyr:2029 ecl:blu cid:129 byr:1989
+iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
+
+hcl:#888785
+hgt:164cm byr:2001 iyr:2015 cid:88
+pid:545766238 ecl:hzl
+eyr:2022
+
+iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"""
 #a=test
 b=[]
 for doc in a.split("\n\n"): b.append({ x.split(":")[0]:x.split(":")[1] for x in doc.replace("\n"," ").split(" ")})
@@ -1154,7 +1166,11 @@ for x in b:
 	if (byr:=int(x["byr"])) < 1920 or byr > 2002: continue
 	if (iyr:=int(x["iyr"])) < 2010 or iyr > 2020: continue
 	if (eyr:=int(x["eyr"])) < 2020 or eyr > 2030: continue
-	
+	if (hgtType:=(hgt:=x["hgt"])[-2:]) not in ["cm","in"] or not (hgtVal:=hgt[:-2]).isnumeric(): continue
+	if (int(hgtVal) < 150 or int(hgtVal) > 193) if hgtType=="cm" else (int(hgtVal) < 59 or int(hgtVal) > 76): continue
+	if (hcl:=x["hcl"])[0]!="#" or any([True for x in  hcl[1:] if x not in "0123456789abcdef"]): continue
+	if (ecl:=x["ecl"]) not in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]: continue
+	if not (pid:=x["pid"]).isnumeric() or len(pid)!=9: continue
 	validCount += 1
 	
 print(validCount)
