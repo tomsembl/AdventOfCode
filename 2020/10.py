@@ -102,7 +102,7 @@ a="""152
 94
 77
 65"""
-test="""16
+test1="""16
 10
 15
 5
@@ -155,3 +155,11 @@ for i,x in enumerate(b):
 print(diffs)  
 for diff in set(diffs):
 	print(diff,diffs.count(diff))#part1
+times={0:1}
+for i,x in enumerate(b):
+	times[x]
+	for c in range(x+1,x+4):
+		if c in b:
+			if c not in times: times[c]=0
+			times[c]+=times[x]
+print(times[b[-1]]) #part2
