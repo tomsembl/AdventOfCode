@@ -133,8 +133,11 @@ def getNeighCount(x,y):
     for xx,yy in [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]:
         i=1
         while (0 <= x+xx*i < w) and (0 <= y+yy*i < h):
-            if b[y+yy*i][x+xx*i] == 2: 
+            neigh = b[y+yy*i][x+xx*i]
+            if neigh == 2: 
                 neighCount+=1
+                break
+            if neigh == 1: 
                 break
             i+=1
     return neighCount
@@ -143,6 +146,7 @@ new=[[0 for _ in range(w)] for _ in range(h)]
 breakFlag=False
 iterations=0
 while True:
+    print(iterations)
     iterations+=1
     for j,y in enumerate(b):
         for i,x in enumerate(y):
@@ -151,12 +155,14 @@ while True:
             if x == 1 and neighCount == 0: new[j][i]=2; continue
             if x == 2 and neighCount > 4: new[j][i]=1; continue
             new[j][i]=x
+    # for y in new:
+    #     print("".join([".L#"[x] for x in y]))
     if b==new: breakFlag=True
     b=new
     new=[[0 for _ in range(w)] for _ in range(h)]
     if breakFlag: break
 
 print(sum([y.count(2) for y in b]))#part2
-print(iterations,"iterations")
+# print(iterations,"iterations")
 
 
