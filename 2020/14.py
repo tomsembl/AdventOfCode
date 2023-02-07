@@ -551,28 +551,75 @@ test="""mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X
 mem[8] = 11
 mem[7] = 101
 mem[8] = 0"""
+test="""mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1"""
 #a=test
 intLen = 36
 
-def strToBin(string):
+def intToBin(string,leng=intLen):
     binstr = bin(string)[2:]
-    return "0"*(intLen - len(binstr)) + binstr
+    return "0"*(leng - len(binstr)) + binstr
 
 def parseMask(mask):
     orMask = int(f"0b{mask.replace('X','0')}",2) # or the 1's
     andMask = int(f"0b{mask.replace('X','1')}",2) # and the 0's
     return orMask, andMask
 
+def parseMaskPerms(mask):
+    masks=[] 
+    perms = 2**mask.count("X")
+    for x in range(perms):
+        binX = intToBin(x,mask.count("X"))
+        newMask = [c for c in mask]
+        i=0
+        for j,y in enumerate(newMask):
+            if y=="X":
+                newMask[j] = binX[i]
+                i+=1
+        newMask = "".join(newMask)
+        masks.append( int(f"0b{newMask}",2) )
+    return masks
+        
+
 orMask, andMask = None,None
 dicti = {}
+xCount = 0
 for instruction, val in [x.split(" = ") for x in a.splitlines()]:
     if instruction == "mask": 
         orMask, andMask = parseMask(val)
+        xCount += 2**val.count("X")
         continue
     location = int(instruction[4:-1])
     val = int(val)
     val |= orMask
     val &= andMask
-    print(val)
+    #print(val)
     dicti[location] = val
-print(sum(dicti.values()))
+print(sum(dicti.values()))#part1
+
+mask=None
+dicti={}
+for instruction, val in [x.split(" = ") for x in a.splitlines()]:
+    if instruction == "mask": 
+        mask = val
+        continue
+    location = int(instruction[4:-1])
+    masks=[] 
+    perms = 2**mask.count("X")
+    for x in range(perms):
+        binX = intToBin(x,mask.count("X"))
+        tempMask = ''.join([x if x!='X' else '0' for x in mask])
+        location |= int(f"0b{tempMask}",2)
+        location = [c for c in intToBin(location)]
+        i=0
+        for j,y in enumerate(mask):
+            if y=="X":
+                location[j] = binX[i]
+                i+=1
+        location = int(f"0b{''.join(location)}",2)
+        dicti[location] = int(val)
+print(sum(dicti.values()))#part2
+
+#128483795964 too low
