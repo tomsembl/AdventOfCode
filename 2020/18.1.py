@@ -381,21 +381,24 @@ test="""1 + 2 * 3 + 4 * 5 + 6
 5 + (8 * 3 + 9 + 3 * 4 * 3)
 5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))
 ((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"""
-a=test
+#a=test
 
 def solveWithoutBracketsP2(inp):
     inp = inp.split(" ")
     while len(inp) != 1:
         op=[]
-        if "+" in inp:
-            ii=inp.index("+")
-            for i in range(ii-1,ii+2):
-                op.append(inp.pop(i))
-        else:
-            for _ in range(3):
-                op.append(inp.pop(0))
+        if "+" in inp: ii=inp.index("+")-1
+        else: ii=0
+            # for _ in range(3):
+            #     op.append(inp.pop(0))
+            # answer = eval(" ".join(op))
+            # inp.insert(0,str(answer))
+                
+        for _ in range(3):
+            op.append(inp.pop(ii))
         answer = eval(" ".join(op))
-        inp.insert(0,str(answer))
+        inp.insert(ii,str(answer))
+
     return inp[0]
 
 def getBracketPos(inp):
