@@ -1840,6 +1840,18 @@ def flip(x): return [ y[::-1] for y in x ]
 def getNesw(x): 
     normal, rot90 = dic[x]["normal"], rotate(dic[x]["normal"])
     dic[x]["NESW"] = [ normal[0] , rot90[-1][::-1] , normal[-1][::-1] , rot90[0] ]
+def rotatePiece(piece):
+    dic[piece]["normal"] = rotate(dic[piece]["normal"])
+    getNesw(piece)
+
+def flipPiece(piece,dir):
+    dic[piece]["normal"] = flip(dic[piece]["normal"]) if dir in [0,2] else rotate(rotate(rotate(flip(rotate(dic[piece]["normal"])))))
+    getNesw(piece)
+
+def printPiece(piece):
+    for x in dic[piece]["normal"]:
+        print(x)
+    print()
 
 
 b=[x.splitlines() for x in a.split("\n\n")]
@@ -1855,15 +1867,13 @@ for x in dic:
 seen=[]
 joins={}
 for x in edges:
+    if x in ["#....##.##","##.##....#"]:
+        print(edges[x])
     if x not in seen and x[::-1] not in seen:
         val=edges[x]
         seen.append(x)
         if len(val)>=2:
             joins[x] = val
-    else:
-        key = x if x in seen else x[::-1]
-        if edges[x]!=edges[key] and edges[x]!=edges[key][::-1]:
-            print(val,seen[key])
 for x in joins:
     print(x, joins[x])
 numberOfJoins=[[x,len([y for y in joins.values() if x in y])] for x in dic]
@@ -1874,18 +1884,6 @@ for x in numberOfJoins:
 print(cornerTotal)#part1
 
 
-def rotatePiece(piece):
-    dic[piece]["normal"] = rotate(dic[piece]["normal"])
-    getNesw(piece)
-
-def flipPiece(piece,dir):
-    dic[piece]["normal"] = flip(dic[piece]["normal"]) if dir in [0,2] else rotate(rotate(rotate(flip(rotate(dic[piece]["normal"])))))
-    getNesw(piece)
-
-def printPiece(piece):
-    for x in dic[piece]["normal"]:
-        print(x)
-    print()
 
 start=x[0]
 #rotate starting piece until E and S are joins
@@ -1906,25 +1904,45 @@ locations[(i,j)] = piece
 dir=2#south
 leftSide=True
 while True:
+    if (i,j)==(0,2):
+        print()
     edge = dic[piece]["NESW"][dir]
     polarity =  edge in joins
     if not polarity and edge[::-1] not in joins:
         if leftSide: 
-            maxJ, leftSide, i,j, dir = j, False, 0,0, 1
-        else:  i,j = 0,j+1
+            maxJ = j
+            leftSide = False
+            i,j=0,0
+            dir=1
+        else: 
+            j+=1
+            i=0
         if j>maxJ: break
         piece=locations[(i,j)]
         continue
     join = joins[edge] if polarity else joins[edge[::-1]]
     piece2 = join[1-join.index(piece)]
     dir2=(dir+2)%4
-    while dic[piece2]["NESW"][dir2] not in [edge,edge[::-1]]: rotatePiece(piece2)
+    print("piece1:", (i,j))
+    printPiece(piece)
+    while dic[piece2]["NESW"][dir2] not in [edge,edge[::-1]]:
+        print(f"piece2 {'NESW'[dir]} before rotate")
+        printPiece(piece2)
+        rotatePiece(piece2)
+        print("piece2 after")
+        printPiece(piece2)
     needsFlip = edge == dic[piece2]["NESW"][dir2]
-    if needsFlip: flipPiece(piece2,dir2)
+    if needsFlip:
+        print(f"piece2 {'NESW'[dir]} before flip")
+        printPiece(piece2)
+        flipPiece(piece2,dir2)
+        print("piece2 after")
+        printPiece(piece2)
     ii,jj = [[0,-1],[1,0],[0,1],[-1,0]][dir]
     i,j = i+ii, j+jj
     locations[(i,j)] = piece2
     piece=piece2
+    #break
     
 for x in locations:print(x, [locations[x]])
 
