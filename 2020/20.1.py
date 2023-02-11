@@ -1877,15 +1877,9 @@ for x in edges:
 for x in joins:
     print(x, joins[x])
 numberOfJoins=[[x,len([y for y in joins.values() if x in y])] for x in dic]
-cornerTotal=1
-for x in numberOfJoins: 
-    if x[1]==2:    
-        cornerTotal *= x[0]
-print(cornerTotal)#part1
+corners=[x[0] for x in numberOfJoins if x[1]==2]
 
-
-
-start=x[0]
+start=corners[0]
 #rotate starting piece until E and S are joins
 startJoins=[x for x in joins if start in joins[x]]
 startJoins+=[x[::-1] for x in startJoins]
@@ -1923,28 +1917,42 @@ while True:
     join = joins[edge] if polarity else joins[edge[::-1]]
     piece2 = join[1-join.index(piece)]
     dir2=(dir+2)%4
-    print("piece1:", (i,j))
-    printPiece(piece)
+    # print("piece1:", (i,j))
+    # printPiece(piece)
     while dic[piece2]["NESW"][dir2] not in [edge,edge[::-1]]:
-        print(f"piece2 {'NESW'[dir]} before rotate")
-        printPiece(piece2)
+        # print(f"piece2 {'NESW'[dir]} before rotate")
+        # printPiece(piece2)
         rotatePiece(piece2)
-        print("piece2 after")
-        printPiece(piece2)
+        # print("piece2 after")
+        # printPiece(piece2)
     needsFlip = edge == dic[piece2]["NESW"][dir2]
     if needsFlip:
-        print(f"piece2 {'NESW'[dir]} before flip")
-        printPiece(piece2)
+        # print(f"piece2 {'NESW'[dir]} before flip")
+        # printPiece(piece2)
         flipPiece(piece2,dir2)
-        print("piece2 after")
-        printPiece(piece2)
+        # print("piece2 after")
+        # printPiece(piece2)
     ii,jj = [[0,-1],[1,0],[0,1],[-1,0]][dir]
     i,j = i+ii, j+jj
     locations[(i,j)] = piece2
     piece=piece2
     #break
     
-for x in locations:print(x, [locations[x]])
+for x in locations:print(x, locations[x])
+size=10
+qty=12
+matrix={i:{i:[] for i in range((size-2)*qty)} for i in range((size-2)*qty)}
+for j in range(qty):
+    for i in range(qty):
+        piece = locations[(i,j)]
+        normal = dic[piece]["normal"]
+        cropped = [x[1:-1] for x in normal[1:-1]]
+        #print(i,j,len(cropped),len(cropped[0]))
+        for k,line in enumerate(cropped):
+            for l,x in enumerate(line):
+                print(k,l)
+                matrix[j*size+k][j].append(line)
+    for line in matrix: print(line)
 
 
 
