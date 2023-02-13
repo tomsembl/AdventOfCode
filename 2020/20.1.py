@@ -1,3 +1,6 @@
+monster="""                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   """
 a="""Tile 2129:
 .#.#..##..
 ..#..#....
@@ -1941,7 +1944,7 @@ while True:
 for x in locations:print(x, locations[x])
 size=10
 qty=12
-matrix={i:{i:[] for i in range((size-2)*qty)} for i in range((size-2)*qty)}
+matrix=["" for _ in range((size-2)*qty)]
 for j in range(qty):
     for i in range(qty):
         piece = locations[(i,j)]
@@ -1949,10 +1952,53 @@ for j in range(qty):
         cropped = [x[1:-1] for x in normal[1:-1]]
         #print(i,j,len(cropped),len(cropped[0]))
         for k,line in enumerate(cropped):
-            for l,x in enumerate(line):
-                print(k,l)
-                matrix[j*size+k][j].append(line)
-    for line in matrix: print(line)
+            #if j*(size-2)+k not in matrix: matrix[j*(size-2)+k]=""
+            matrix[j*(size-2)+k]+=line
+for line in matrix: print(line)
+def hashToBin(h): return int("0b"+"".join(["".join(["1" if y=="#" else "0" for y in x]) for x in h]),2)
+# def boolToHash(h): return ["".join(["#" if y  else "." for y in x]) for x in h]
 
+monster = monster.splitlines()
+# mh,mw = len(monster), len(monster[0])
+monsters=[monster,flip(monster)]
+for m in monsters[::]:
+    for _ in range(3):
+        m = rotate(m)
+        monsters.append(m)
+monsters={hashToBin(x):{"str":x,"h":len(x)} for x in monsters}
 
+# for monster in monsters:
+#     for row in monster: print(row)
+monstersFound=[]
+w,h=len(matrix[0]),len(matrix)
+for j,row in enumerate(matrix):
+    for i,x in enumerate(row):
+        for mi,monster in enumerate(monsters):
+            mh = monsters[monster]["h"]
+            mw = 20 if mh==3 else 3
+            section = [[x for x in y[i:i+mw]] for y in matrix[j:j+mh]]
+            # for line in section: print("".join(line))
+            if i+mw > w-1 or j+mh > h-1: continue #it's off the edge of the map
+            # print("monster")
+            # for line in monsters[monster]["str"]: print(line)
+
+            if monster & hashToBin(section) == monster:
+                monstersFound.append([i,j,monster])
+                print(f"found one: i,j {i},{j}. monster, {monster}")
+
+monsterCount=len(monstersFound)
+newMatrix=[[x for x in y] for y in matrix]
+for i,j,monster in monstersFound:
+    newMatrix[j][i]="█"
+    # for line in monsters[monster]["str"]:
+    #     print("".join(x))
+for line in newMatrix:
+    print("".join(line))
+monsterStr=monsters[monster]["str"]
+for x in monsterStr:
+    print("".join(x))
+hashCount = sum([sum([1 for x in y if x=="#"]) for y in matrix])
+monsterHashCount= sum([sum([1 for x in y if x=="#"]) for y in monsterStr])
+print(hashCount-(monsterHashCount*monsterCount))
+#4343 too high
 
