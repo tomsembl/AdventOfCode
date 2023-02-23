@@ -7,14 +7,15 @@ test="109,2000,109,19,204,-34,99"
 b=[int(x) for x in a.split(",")]+[0 for _ in range(10000)]
 #print([x for x in b if x>=1000])
 i=0
-input=1
+input=1#part1
+input=2#part2
 base=0
 while b[i]!=99:
     jumped=False
     opcode=str(b[i])
     opcode=(5-len(opcode))*"0"+opcode
     op = int(opcode[-2:])
-    print(["","add","mul","inp","out","jm1","jm0","grt","eql","bas"][op], b[i+1:i+(4 if op in [1,2,7,8] else 3 if op in [5,6] else 2)])
+    #print(["","add","mul","inp","out","jm1","jm0","grt","eql","bas"][op], b[i+1:i+(4 if op in [1,2,7,8] else 3 if op in [5,6] else 2)])
     p3,p2,p1=[int(x) for x in opcode[:-2]]
     if op in [1,2,7,8]:
         opLength = 4
