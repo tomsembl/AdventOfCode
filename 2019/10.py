@@ -51,8 +51,28 @@ test="""......#.#.
 .##.#..###
 ##...#..#.
 .#....####"""
+test=""".#..##.###...#######
+##.############..##.
+.#.######.########.#
+.###.#######.####.#.
+#####.##.#.##.###.##
+..#####..#.#########
+####################
+#.####....###.#.#.##
+##.#################
+#####.##.###..####..
+..######..##.#######
+####.##.####...##..#
+.#####..#.######.###
+##...#.##########...
+#.##########.#######
+.####.#.###.###.#.##
+....##.##.###..#####
+.#.#.###########.###
+#.#.#.#####.####.###
+###.##.####.##.#..##"""
 #a=test
-b=a.splitlines()
+b=[[x for x in y] for y in a.splitlines()]
 
 def lcd(i,j):
     minimum = min([abs(i),abs(j)])
@@ -64,33 +84,59 @@ def lcd(i,j):
             break
     return div
 
+def scan(i,j,relative=False):
+    answer=[]
+    for j2,y2 in enumerate(b):
+        for i2,x2 in enumerate(y2):
+            if i2 == i and j2 == j: continue #skip main asteroid
+            if x2 == "#":
+                xDiff, yDiff = i2-i, j2-j
+                lcd_ = lcd(xDiff,yDiff)
+                xLCD,yLCD = xDiff//lcd_, yDiff//lcd_
+                multiple = 1
+                inShadow = False
+                while multiple < lcd_:
+                    if b[j+yLCD*multiple][i+xLCD*multiple] == "#": 
+                        inShadow = True
+                        break
+                    multiple += 1
+                if not inShadow:
+                    if relative: answer.append((xDiff,yDiff))
+                    else: answer.append((i2,j2))
+    return answer
+
 dic={}
 for j,y in enumerate(b):
     for i,x in enumerate(y):
-        if x=="#":
-            dic[(i,j)]=[]
-            for j2,y2 in enumerate(b):
-                for i2,x2 in enumerate(y2):
-                    if i2 == i and j2 == j:continue #skip main asteroid
-                    if x2 == "#":
-                        xDiff, yDiff = i2-i, j2-j
-                        lcd_ = lcd(xDiff,yDiff)
-                        xLCD,yLCD = xDiff//lcd_, yDiff//lcd_
-                        #print(xDiff,yDiff,xLCD,yLCD)
-                        multiple = 1
-                        #maxMultiple = xLCD//multiple
-                        inShadow = False
-                        while multiple < lcd_:
-                            if b[j+yLCD*multiple][i+xLCD*multiple] == "#": 
-                                inShadow = True
-                                break
-                            multiple += 1
-                        if not inShadow:
-                            dic[(i,j)].append((i2,j2))
+        if x=="#": 
+            dic[(i,j)] = scan(i,j)
 
-for x in dic:
-    print(x,len(dic[x]))
-print(len(sorted(dic.values(),key=lambda x: len(x))[-1]))
+coords,scannedAsteroids = sorted(list(dic.items()),key=lambda x: len(x[1]))[-1]
+print(len(scannedAsteroids))#part1
+
+def getQuadrant(x,y):  return [x>=0 and y<0,  x>0 and y>=0,  x<=0 and y>0,  x<0 and y<=0].index(True)
+
+def getRatio(x,y,quad):  return -x/y if quad in [0,2] else y/x
+
+def sortClockwise(item): 
+    x,y = item
+    quadrant = getQuadrant(x,y)
+    ratio = getRatio(x,y,quadrant)
+    return (quadrant,ratio)
+
+asteroidTotal = sum([sum([1 for x in y if x=="#"]) for y in b])
+deletionCount = 0
+while deletionCount < asteroidTotal-1:
+    i,j=coords
+    asteroidsToDelete = scan(i,j,relative=True)
+    asteroidsToDelete.sort(key=sortClockwise)
+    for xDiff, yDiff in asteroidsToDelete:
+        i2, j2 = i+xDiff, j+yDiff
+        deletionCount += 1
+        b[j2][i2] = "."
+        if deletionCount==200: 
+            print(i2*100 + j2) #part2
+            break
                         
 
 
