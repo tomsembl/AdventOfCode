@@ -21,6 +21,32 @@ def getNeighs(x,y):
     global matrix
     neighs = [[x+dx,y+dy] for dx,dy in dirs]
     return [matrix[yy+ho][xx+wo] for xx,yy in neighs]
+def findTangent():
+    for j,y in enumerate(matrix):
+        for i,x in enumerate(y):
+            if x==3:#undiscovered
+                for xx,yy in[[i+dx,j+dy] for dx,dy in dirs]:
+                    if xx<0 or yy<0 or xx>=w or yy>=h: continue
+                    if matrix[yy][xx]==1:#air
+                        return (xx,yy)
+def bfs(start,end):
+    queue=[[start,0,[]]]
+    seen=set()
+    while True:
+        node,depth,path = queue.pop(0)
+        if node==end:
+            # print("end found:",depth)
+            return path
+            # break
+        if node not in seen:
+            seen.add(node)
+            x,y=node
+            for i,dir in enumerate(dirs):
+                dx,dy=dir
+                neigh=(x+dx,y+dy)
+                xx,yy=neigh
+                if matrix[yy][xx] not in [0,3]:
+                    queue.append([neigh,depth+1,path+[i]])
 
 def run():
     global matrix
@@ -74,7 +100,12 @@ def run():
                 unknownNeighs=[j+1 for j,w in enumerate(origNeighs) if w==3]
                 if unknownNeighs:
                     inp=unknownNeighs[0]
-                else: inp=randint(1,4)
+                else: 
+                    #inp=randint(1,4)
+                    end = findTangent()
+                    inputQueue = bfs((xx+wo,yy+ho),end)
+                    inp=inputQueue.pop(0)
+
             if inp==0:
                 print(inputQueue)
                 inp=1
@@ -125,23 +156,11 @@ start=(ox,oy)
 end=(wo,ho)
 print(start,end)
 
-def bfs():
-    queue=[[start,0]]
-    seen=set()
-    while True:
-        node,depth = queue.pop(0)
-        if node==end:
-            print("end found:",depth)
-            break
-        if node not in seen:
-            seen.add(node)
-            x,y=node
-            for neigh in [(x+dx,y+dy) for dx,dy in dirs]:
-                xx,yy=neigh
-                if matrix[yy][xx] not in [0,3]:
-                    queue.append([neigh,depth+1])
 
 
 
-bfs()
+
+
+
+bfs(start,end)
         
