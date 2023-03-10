@@ -5,8 +5,6 @@ b=[int(x) for x in a.split(",")]+[0 for _ in range(10000)]
 #print([x for x in b if x>=1000])
 grid=[[]]
 i=0
-input=1#part1
-input=2#part2
 base=0
 while b[i]!=99:
     jumped=False
@@ -80,7 +78,7 @@ def getNeigh(x,y,dir):
 
 def readNeigh(neigh):
     xx,yy = neigh
-    if -1<x<w and -1<y<h:
+    if -1<xx<w and -1<yy<h:
         return grid[yy][xx]
     else: return ord(".")
 
@@ -88,10 +86,106 @@ def readNeigh(neigh):
 dir=">v<^".index(chr(startDir))
 instructions=[]
 x,y=start
+forwardCount=0
 while True:
     leftDir,_,rightDir=[x%4 for x in range(dir-1,dir+2)]
-    forwardNeigh = getNeigh(x,y,dir)
-    if readNeigh(leftNeigh:=getNeigh(x,y,leftDir)) == 35: instructions.append("L")
-    if readNeigh(rightNeigh:=getNeigh(x,y,rightDir)) == 35: instructions.append("R")
-    #print(dir,left,middle,right,start)
-    break
+    if readNeigh(forwardNeigh:=getNeigh(x,y,dir)) == 35 or forwardNeigh in intersections:
+        forwardCount += 1
+        x,y=forwardNeigh
+    else:
+        if forwardCount: instructions.append(forwardCount)
+        if readNeigh(leftNeigh:=getNeigh(x,y,leftDir)) == 35: 
+            instructions.append("L")
+            dir=(dir-1)%4
+        elif readNeigh(rightNeigh:=getNeigh(x,y,rightDir)) == 35: 
+            instructions.append("R")
+            dir=(dir+1)%4
+        else: break
+        forwardCount=0
+print(instructions)
+maxInstructions=20
+joined=",".join(map(str,instructions))
+print(len(joined),joined)
+seen={}
+for n in range(maxInstructions,0,-1):
+    for i in range(0,len(joined)-n+1):
+        segment = joined[i:i+n]
+        if (count_:=joined.count(segment)) > 1:
+            if segment not in seen and segment[0]!=",":
+                seen[segment] = count_
+                print(count_,segment)
+
+main="A,B,C,A,B,C,A"
+functions=["L,12","L,6,L,8,R,6,L,8","L,8,R,4,R,6,R,6"]
+
+
+
+
+b=[int(x) for x in a.split(",")]+[0 for _ in range(10000)]
+b[0]=2
+#print([x for x in b if x>=1000])
+grid=[[]]
+inputs=[]
+i=0
+base=0
+outputs=[]
+grid2=[[]]
+while b[i]!=99:
+    jumped=False
+    opcode=str(b[i])
+    opcode=(5-len(opcode))*"0"+opcode
+    op = int(opcode[-2:])
+    #print(["","add","mul","inp","out","jm1","jm0","grt","eql","bas"][op], b[i+1:i+(4 if op in [1,2,7,8] else 3 if op in [5,6] else 2)])
+    p3,p2,p1=[int(x) for x in opcode[:-2]]
+    if op in [1,2,7,8]:
+        opLength = 4
+        x,y,z = b[i+1:i+opLength]
+        if p1==2: x+=base
+        if p2==2: y+=base
+        if p3==2: z+=base
+        x = x if p1 == 1 else b[x]
+        y = y if p2 == 1 else b[y] 
+    elif op in [5,6]:
+        opLength = 3
+        x,y  = b[i+1:i+opLength]
+        if p1==2: x+=base
+        if p2==2: y+=base
+        x = x if p1 == 1 else b[x]
+        y = y if p2 == 1 else b[y] 
+    elif op in [3,4,9]:
+        opLength = 2
+        x = b[i+1]
+        if p1==2: x+=base
+        if op in [4,9]:
+            x = x if p1 == 1 else b[x] 
+
+
+    if op==1: b[z] = x + y
+    if op==2: b[z] = x * y
+    if op==3: 
+        if len(inputs)==0:
+            inputs = list(map(ord,input()))+[10]
+        inp=inputs.pop(0)
+        b[x] = inp
+    if op==4: 
+        if x==10: grid2.append([])
+        else: grid2[-1].append(x)
+        outputs.append(x)
+        print(chr(x),x)
+    if op==5 and x!=0:
+        jumped = True
+        i=y
+    if op==6 and x==0:
+        jumped = True
+        i=y
+    if op==7: b[z] = int(x < y)
+    if op==8: b[z] = int(x == y)
+    if op==9: base+=x
+    if not jumped: i+=opLength
+grid2=[x for x in grid2 if x!=[]]
+for line in grid2:
+    print("".join(map(chr,line)))
+
+
+
+#434795 too low
