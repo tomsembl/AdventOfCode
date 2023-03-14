@@ -79,6 +79,7 @@ a="""###########################################################################
 #.#######.#.#.#####.#.#########.#######.#.###.###.###.#####.#.###.#####.#.#######
 #.....L.....#.......#.............G..i..#.....#.....#.......#.........#.........#
 #################################################################################"""
+
 a=a.replace("#","▒").replace("."," ")
 grid=[[x for x in y] for y in a.splitlines()]
 
@@ -97,9 +98,9 @@ def readNeigh(neigh):
 
 def getConnectionCount(x,y): return 4-[readNeigh(neigh) for neigh in getNeighs(x,y)].count("▒")
 
-def isJunction(x,y): return getConnectionCount(x,y) > 2 and readNeigh((x,y)) not in "█▒"
+def isJunction(x,y): return getConnectionCount(x,y) > 2 and readNeigh((x,y)) not in "▒"
 
-def isDeadEnd(x,y): return getConnectionCount(x,y) == 1 and (readNeigh((x,y)) not in "█▒" and not readNeigh((x,y)).isalpha() )
+def isDeadEnd(x,y): return getConnectionCount(x,y) == 1 and readNeigh((x,y)) not in "█▒"
 
 def isHall(x,y): return getConnectionCount(x,y) == 2 and readNeigh((x,y)) not in "█▒"
 
@@ -130,18 +131,81 @@ def countAlphs():
     return counter
 print(countAlphs())
 
+#delete dead ends
 for j,y in enumerate(grid):
     for i,x in enumerate(y):
         if x not in "█▒":
-            if isDeadEnd(i,j): trim(i,j)
-                
+            if isDeadEnd(i,j) and not readNeigh((i,j)).isalpha(): trim(i,j)
+
+#delete dead ends
 for j,y in enumerate(grid):
     for i,x in enumerate(y):
         if x not in "█▒":
-            if isJunction(i,j): grid[j][i]="█"
+            if isDeadEnd(i,j) and readNeigh((i,j)).upper() == readNeigh((i,j)): trim(i,j)
+
+for j,line in enumerate(grid):
+    if "@" in line:
+        start = (line.index("@"),j)
+k,l=start
+grid[l][k] = "▒"
+
+#light up junctions
+for j,y in enumerate(grid):
+    for i,x in enumerate(y):
+        if x not in "█▒":
+            if isJunction(i,j) and not start==(i,j): grid[j][i]="█"
 
 for line in grid:
     print("".join([x*2 for x in line]))
 
+def walk(x,y):
+    original = (x,y)
+    paths={}
+    neighs = getNeighs(x,y)
+    for neigh in neighs:
+        if readNeigh(neigh)=="▒": continue
+        xx,yy = neigh
+        path=[neigh]
+        breakFlag = False
+        while True:
+            for neigh in getNeighs(xx,yy):
+                xx,yy = neigh
+                if any([ neigh in path, neigh == original, readNeigh(neigh)=="▒" ]): continue
+                if isJunction(xx,yy) or readNeigh(neigh).isalpha():
+                    path.append(neigh)
+                    breakFlag=True
+                    break
+                if  isHall(xx,yy): 
+                    path.append(neigh)
+                    xx,yy=neigh
+                    break
+            if breakFlag: break
+        paths[neigh] = len(path)
+    return paths
+
+def bfs():
+    k,l=start
+    tree={}
+    queue=[(k-1,l-1)]
+    while queue:
+        node = queue.pop(0)
+        x,y=node
+        if readNeigh(node).isalpha(): node=readNeigh(node)
+        if node not in tree: tree[node] = {}
+        dic=walk(x,y)
+        for dest,dist in dic.items():
+            char = readNeigh(dest)
+            if not char.isalpha():char=dest
+            if char not in tree:
+                tree[char] = {}
+                queue.append(dest)
+            tree[char][node] = dist
+            tree[node][char] = dist
+    return tree
+
+
+tree = bfs()
+for x in sorted(list([x for x in tree.keys() if type(x)==tuple])): print(x,tree[x])
+for x in sorted(list([x for x in tree.keys() if type(x)==str])): print(x,tree[x])
 print(countAlphs())
 
