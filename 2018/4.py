@@ -1019,6 +1019,8 @@ test="""[1518-11-01 00:00] Guard #10 begins shift
 [1518-11-05 00:45] falls asleep
 [1518-11-05 00:55] wakes up"""
 #a=test
+for x in a.splitlines():
+    if "00:00" in x and "asleep" in x: print(x)
 b=sorted(a.splitlines())
 guards={}
 guardSleepTotals={}
@@ -1056,18 +1058,20 @@ guardSleepTotals={guard:0 for guard in guards}
 
 for guard in guards:
     for monthDay in guards[guard]:
+            for x in guards[guard][monthDay]: print(monthDay,x,guards[guard][monthDay][x])
         #print(monthDay,guards[guard][monthDay])
-        minute = 0
-        awake = True
-        for hourMinute in guards[guard][monthDay]:
-            if not awake:
-                start = minute
-                end = hourMinute[1]
-                guardSleepTotals[guard] += end - start
-                for minute2 in range(start, end):
-                    guardMinuteTotals[guard][minute2] += 1
-            awake = bool(guards[guard][monthDay][hourMinute])
-            minute=hourMinute[1]
+        # minute = 0
+        # awake = True
+        # for hourMinute in guards[guard][monthDay]:
+        #     if not awake:
+        #         start = minute
+        #         end = hourMinute[1]
+        #         guardSleepTotals[guard] += end - start
+        #         for minute2 in range(start, end):
+        #             guardMinuteTotals[guard][minute2] += 1
+        #     awake = bool(guards[guard][monthDay][hourMinute])
+        #     minute=hourMinute[1]
+
 
     
 #for x in guardSleepTotals: print(x,guardSleepTotals[x])
@@ -1078,5 +1082,5 @@ print(sleepiestGuard*sleepiestMinute) #part1
 sleepiestGuard2 = max(guardMinuteTotals, key=lambda x: max(guardMinuteTotals[x],key=lambda y: guardMinuteTotals[x][y]))
 sleepiestMinute2 = max(guardMinuteTotals[sleepiestGuard2],key=lambda x: guardMinuteTotals[sleepiestGuard2][x])
 
-print(sleepiestGuard2*sleepiestMinute2) #part1
+print(sleepiestGuard2*sleepiestMinute2) #part2
 #125616 too low
