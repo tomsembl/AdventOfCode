@@ -1019,98 +1019,40 @@ test="""[1518-11-01 00:00] Guard #10 begins shift
 [1518-11-05 00:45] falls asleep
 [1518-11-05 00:55] wakes up"""
 #a=test
-# for x in a.splitlines():
-#     if "00:00" in x and "asleep" in x: print(x)
-#print(b[0],b[-1])
+from datetime import datetime, timedelta
 b=sorted(a.splitlines())
-guards={}
-guardSleepTotals={}
-days=set()
-for x in b:
-    date = x.split()[0][1:]
-    year,month,day = (int(y) for y in date.split("-"))
-    days.add((month,day))
-days=sorted(list(days))
-
+datetimes={}
+guards=[]
+guard=None
 for x in b:
     date = x.split()[0][1:]
     time = x.split()[1][:-1]
     year,month,day = (int(y) for y in date.split("-"))
     hour,minute = (int(y) for y in time.split(":"))
-    #print(year,month,day,hour,minute)
-    if "#" in x:
+    DateTimeStamp = datetime(year,month,day,hour,minute)
+    isStart = "begins" in x
+    isAwake = "wakes" in x or isStart
+    if isStart:
         guard = int(x.split()[3][1:])
-        monthDay = (month,day)
-        if hour > 0: 
-            monthDay = days[days.index(monthDay)+1]
-            hour-=23
-            minute-=60
-        if guard not in guards:
-            guards[guard]={}
-        if monthDay not in guards[guard]:
-            guards[guard][monthDay] = {}
-        guards[guard][monthDay][(hour,minute)] = 1
-    elif "wakes up" in x: guards[guard][monthDay][(hour,minute)] = 1
-    elif "asleep" in x: guards[guard][monthDay][(hour,minute)] = 0
-    else: print("PANIC!")
+    datetimes[DateTimeStamp] = {"guard":guard,"isAwake":isAwake}
+    if guard not in guards: guards.append(guard)
 
-guardMinuteTotals={guard:{x:0 for x in range(-60,60)} for guard in guards}
-guardSleepTotals={guard:0 for guard in guards}
-minuteGuards={minute:{guard:0 for guard in guards} for minute in range(-60,60)}
+guardsMinutes={guard:{x:0 for x in range(60)} for guard in guards}
+for i,time in enumerate(datetimes):
+    if i>=len(datetimes)-1: continue
+    nextTime = list(datetimes)[i+1]
+    isAwake = datetimes[time]["isAwake"]
+    guard = datetimes[time]["guard"]
+    currentTime = time
+    while currentTime < nextTime:
+        guardsMinutes[guard][currentTime.minute] += int(not isAwake)
+        currentTime += timedelta(minutes=1)
+        
+sleepiestGuard = max(guards, key=lambda guard: sum(guardsMinutes[guard].values()))
+sleepiestGuardsSleepiestMinute = max(guardsMinutes[sleepiestGuard],key=lambda minute: guardsMinutes[sleepiestGuard][minute])
+print(sleepiestGuard*sleepiestGuardsSleepiestMinute) #part 1
 
-for guard in guards:
-    for monthDay in guards[guard]:
-        hourMinutes = guards[guard][monthDay]
-        for i,hourMinute in enumerate(hourMinutes): 
-            #print(monthDay,hourMinute,guards[guard][monthDay][hourMinute])
-            awake = hourMinutes[list(hourMinutes)[i-1]]
-            if i==0:
-                awake = hourMinutes[hourMinute]
-                continue
-            for minute in range(list(hourMinutes)[i-1][1],hourMinute[1]):
-                guardMinuteTotals[guard][minute] += 1-awake
-                guardSleepTotals[guard] += 1-awake
-
-        #print(monthDay,guards[guard][monthDay])
-        # minute = 0
-        # awake = True
-        # for hourMinute in guards[guard][monthDay]:
-        #     if not awake:
-        #         start = minute
-        #         end = hourMinute[1]
-        #         guardSleepTotals[guard] += end - start
-        #         for minute2 in range(start, end):
-        #             guardMinuteTotals[guard][minute2] += 1
-        #     awake = bool(guards[guard][monthDay][hourMinute])
-        #     minute=hourMinute[1]
-
-
-    
-#for x in guardSleepTotals: print(x,guardSleepTotals[x])
-sleepiestGuard = max(guards,key=lambda x: guardSleepTotals[x])
-sleepiestGuardsSleepiestMinute = max(guardMinuteTotals[sleepiestGuard],key=lambda x: guardMinuteTotals[sleepiestGuard][x])
-print(sleepiestGuard*sleepiestGuardsSleepiestMinute) #part1 #21956
-
-# sleepiestMinutePerGuard = {minute:{guard:guardMinuteTotals[guard][minute] for guard in guards} for minute in range(-60,60)}
-# # sleepiestMinute = max(sleepiestMinutePerGuard, key=lambda minute: max(sleepiestMinutePerGuard[minute],key=lambda guard: sleepiestMinutePerGuard[minute][guard]))
-# # sleepiestMinuteGuard = max(sleepiestMinutePerGuard[sleepiestMinute],key=lambda guard: sleepiestMinutePerGuard[sleepiestMinute][guard])
-# maxMinuteSleeps=0
-# maxMinute=0
-# maxGuard=None
-# for guard in guardMinuteTotals:
-#     for minute in guardMinuteTotals[guard]:
-#         currentSleeps = guardMinuteTotals[guard][minute] 
-#         if currentSleeps > maxMinuteSleeps:
-#             maxMinuteSleeps = currentSleeps
-#             maxMinute = minute
-#             maxGuard = guard
-
-
-# print(maxMinute*guard) #part2
-
-# print(sleepiestMinute*sleepiestMinuteGuard) #part2
-#125616 too low
-#125617 too low
-#40450 too low
-#131062
-#121641
+sleepMinutesTotalsPerGuard = {minute:{guard:guardsMinutes[guard][minute] for guard in guards} for minute in range(60)}
+sleepiestMinute = max(list(range(60)), key= lambda minute: max(sleepMinutesTotalsPerGuard[minute].values()))
+sleepiestMinuteGuard = max(guards, key=lambda guard: guardsMinutes[guard][sleepiestMinute])
+print(sleepiestMinute * sleepiestMinuteGuard) #part 2
