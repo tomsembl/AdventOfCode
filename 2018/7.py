@@ -1,90 +1,178 @@
-a="""162, 168
-86, 253
-288, 359
-290, 219
-145, 343
-41, 301
-91, 214
-166, 260
-349, 353
-178, 50
-56, 79
-273, 104
-173, 118
-165, 47
-284, 235
-153, 69
-116, 153
-276, 325
-170, 58
-211, 328
-238, 346
-333, 299
-119, 328
-173, 289
-44, 223
-241, 161
-225, 159
-266, 209
-293, 95
-89, 86
-281, 289
-50, 253
-75, 347
-298, 241
-88, 158
-40, 338
-291, 156
-330, 88
-349, 289
-165, 102
-232, 131
-338, 191
-178, 335
-318, 107
-335, 339
-153, 156
-88, 119
-163, 268
-159, 183
-162, 134"""
-test="""1, 1
-1, 6
-8, 3
-3, 4
-5, 5
-8, 9"""
+a="""Step X must be finished before step M can begin.
+Step A must be finished before step R can begin.
+Step C must be finished before step K can begin.
+Step H must be finished before step G can begin.
+Step R must be finished before step Z can begin.
+Step S must be finished before step K can begin.
+Step K must be finished before step G can begin.
+Step O must be finished before step Z can begin.
+Step Q must be finished before step G can begin.
+Step E must be finished before step Y can begin.
+Step U must be finished before step I can begin.
+Step G must be finished before step N can begin.
+Step M must be finished before step P can begin.
+Step Y must be finished before step I can begin.
+Step I must be finished before step V can begin.
+Step Z must be finished before step B can begin.
+Step W must be finished before step V can begin.
+Step D must be finished before step P can begin.
+Step L must be finished before step J can begin.
+Step N must be finished before step T can begin.
+Step T must be finished before step P can begin.
+Step B must be finished before step F can begin.
+Step F must be finished before step P can begin.
+Step J must be finished before step V can begin.
+Step V must be finished before step P can begin.
+Step Z must be finished before step F can begin.
+Step B must be finished before step J can begin.
+Step B must be finished before step P can begin.
+Step X must be finished before step F can begin.
+Step Y must be finished before step N can begin.
+Step W must be finished before step D can begin.
+Step G must be finished before step B can begin.
+Step L must be finished before step V can begin.
+Step K must be finished before step L can begin.
+Step W must be finished before step P can begin.
+Step E must be finished before step F can begin.
+Step Y must be finished before step J can begin.
+Step J must be finished before step P can begin.
+Step A must be finished before step O can begin.
+Step O must be finished before step E can begin.
+Step T must be finished before step V can begin.
+Step S must be finished before step E can begin.
+Step I must be finished before step L can begin.
+Step E must be finished before step B can begin.
+Step G must be finished before step J can begin.
+Step Z must be finished before step J can begin.
+Step K must be finished before step T can begin.
+Step L must be finished before step F can begin.
+Step X must be finished before step S can begin.
+Step U must be finished before step G can begin.
+Step K must be finished before step N can begin.
+Step Q must be finished before step W can begin.
+Step H must be finished before step F can begin.
+Step O must be finished before step P can begin.
+Step M must be finished before step D can begin.
+Step T must be finished before step J can begin.
+Step G must be finished before step T can begin.
+Step N must be finished before step P can begin.
+Step O must be finished before step V can begin.
+Step Q must be finished before step I can begin.
+Step Z must be finished before step T can begin.
+Step C must be finished before step J can begin.
+Step D must be finished before step J can begin.
+Step G must be finished before step W can begin.
+Step U must be finished before step L can begin.
+Step R must be finished before step B can begin.
+Step H must be finished before step K can begin.
+Step X must be finished before step I can begin.
+Step X must be finished before step B can begin.
+Step I must be finished before step P can begin.
+Step L must be finished before step N can begin.
+Step O must be finished before step Y can begin.
+Step F must be finished before step J can begin.
+Step E must be finished before step I can begin.
+Step G must be finished before step M can begin.
+Step Q must be finished before step E can begin.
+Step D must be finished before step F can begin.
+Step A must be finished before step Z can begin.
+Step I must be finished before step D can begin.
+Step B must be finished before step V can begin.
+Step U must be finished before step J can begin.
+Step Y must be finished before step T can begin.
+Step O must be finished before step M can begin.
+Step M must be finished before step B can begin.
+Step M must be finished before step L can begin.
+Step N must be finished before step B can begin.
+Step X must be finished before step U can begin.
+Step E must be finished before step Z can begin.
+Step Z must be finished before step L can begin.
+Step R must be finished before step E can begin.
+Step M must be finished before step I can begin.
+Step H must be finished before step N can begin.
+Step X must be finished before step J can begin.
+Step C must be finished before step S can begin.
+Step R must be finished before step I can begin.
+Step E must be finished before step D can begin.
+Step Y must be finished before step L can begin.
+Step S must be finished before step D can begin.
+Step U must be finished before step Z can begin.
+Step A must be finished before step C can begin.
+Step Y must be finished before step W can begin."""
+test="""Step C must be finished before step A can begin.
+Step C must be finished before step F can begin.
+Step A must be finished before step B can begin.
+Step A must be finished before step D can begin.
+Step B must be finished before step E can begin.
+Step D must be finished before step E can begin.
+Step F must be finished before step E can begin."""
 #a=test
-b=[[int(x.strip()) for x in y.split(",")] for y in a.splitlines()]
-maxX=max(b,key=lambda x:x[0])[0]
-maxY=max(b,key=lambda x:x[1])[1]
-grid=[[" " for x in range(maxX+1)] for y in range(maxY+1)]
+# for x in a.splitlines(): print(x)
+#(y[1],y[7])
+b=[[x.split(" ")[1],x.split(" ")[7]] for x in a.splitlines()]
+tree={}
+prerequisites={}
+for x,y in b: 
+    # print(x,y)
+    if x not in tree: tree[x]=[]
+    tree[x].append(y)
+    if y not in prerequisites: prerequisites[y]=[]
+    prerequisites[y].append(x)
+# for x in tree: print(x,tree[x])
+# print("________________________________________")
+# for x in prerequisites: print(x,prerequisites[x])
+# print("________________________________________")
+completed = []
 
-def manhattanDistance(xy,xxyy):
-    x,y=xy
-    xx,yy=xxyy
-    return abs(x-xx) + abs(y-yy)
+end = [letter for letter in prerequisites if letter not in tree][0]
+stack = set([letter for letter in tree if letter not in prerequisites])
+current = sorted(list(stack))[0]
+while True:
+    completed.append(current)
+    if current == end: break
+    for x in tree[current]: 
+        if x not in completed: stack.add(x)
+    stack.remove(current)
+    for candidate in sorted(list(stack)):
+        if candidate not in prerequisites or all([prereq in completed for prereq in prerequisites[candidate]]):
+            current = candidate
+            #print(candidate)
+            #if candidate in prerequisites: print(prerequisites[candidate])
+            break
 
-for y, row in enumerate(grid):
-    for x in range(len(row)):
-        distances = [(i,manhattanDistance([x,y],location)) for i,location in enumerate(b)]
-        minDist = min(distances,key=lambda x:x[1])
-        if [x[1] for x in distances].count(minDist[1]) == 1:
-            grid[y][x] = minDist[0]
+print("".join(completed)) #part 1
 
-largestArea = 0
-for i in range(len(b)):
-    if i in grid[0]+grid[-1]: continue #top bottom
-    if i in [y[0] for y in grid]+[y[-1] for y in grid]: continue #left right
-    area = sum([y.count(i) for y in grid])
-    if area > largestArea: largestArea = area
-print(largestArea) #part1
+numWorkers = 5
+ordNum = ord("A") - 61
+if a==test: 
+    ordNum = ord("A") - 1
+    numWorkers = 2
 
-safeArea = 0
-for y, row in enumerate(grid):
-    for x in range(len(row)):
-        distances = [manhattanDistance([x,y],location) for location in b]
-        if sum(distances) < 10_000:safeArea+=1
-print(safeArea)
+completed = []
+workers = {}
+end = [letter for letter in prerequisites if letter not in tree][0]
+stack = set([letter for letter in tree if letter not in prerequisites])
+seconds=0
+while True:
+    for candidate in sorted(list(stack)):
+        if len(workers)>=numWorkers: break
+        if candidate not in prerequisites or all([prereq in completed for prereq in prerequisites[candidate]]):
+            if candidate not in workers:
+                time = ord(candidate) - ordNum
+                workers[candidate] = time
+                stack.remove(candidate)
+                
+    seconds+=1
+    for worker in list(workers.keys()):
+        workers[worker] -= 1
+        if workers[worker] == 0:
+            workers.pop(worker)
+            completed.append(worker)
+            if worker in tree:
+                for x in tree[worker]: 
+                    if x not in completed and x not in workers: 
+                        stack.add(x)
 
-
+    if len(workers)==0 and end in completed: break
+    
+print(seconds) #part 2
