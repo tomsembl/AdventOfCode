@@ -1,5 +1,5 @@
 players=405
-last=71700
+last=71700*100
 # players=9
 # last=25
 
@@ -9,7 +9,6 @@ class Node:
         self.value = value
         self.next = next
         self.prev = prev
-
 
 
 marble = 1
