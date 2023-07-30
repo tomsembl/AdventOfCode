@@ -4,41 +4,35 @@ a=test
 b=list(map(int,a.split()))
 allMetadata = []
 
-numChildrenStack = [1]
-numMetadataStack = [0]
+class Node:
+  def __init__(self, parent, header):
+    self.parent = parent
+    self.numChildren = header[0]
+    self.numMetadata = header[1]
+    self.children = []
+    self.metadata = []
+
+def getNodeValue(node:Node):
+    if len(node.children) == 0: return sum(node.metadata)
+    return sum([getNodeValue(node.children[index-1]) for index in node.metadata if index <= len(node.children)])
+      
+
+rootNode = Node(None,[1,0])
+node = rootNode
 while True:
-    if numChildrenStack[-1] > 0: 
-        numChildren, numMetadata = b[:2]
-        numMetadataStack.append(numMetadata)
-        numChildrenStack.append(numChildren)
+    if node.numChildren > 0: 
+        newNode = Node(node, b[:2])
+        node.children.append(newNode)
+        node = newNode
         b = b[2:]
     else:
-        numChildrenStack.pop()
-        numMetadata = numMetadataStack.pop()
-        allMetadata += b[:numMetadata]
-        b = b[numMetadata:]
-        if len(numChildrenStack) == 0: 
+        node.metadata = b[:node.numMetadata]
+        b = b[node.numMetadata:]
+        allMetadata += node.metadata
+        node = node.parent
+        if node==rootNode: 
             break
-        numChildrenStack[-1] -= 1
+        node.numChildren -= 1
         
 print(sum(allMetadata)) #part 1
-
-
-numChildrenStack = [1]
-numMetadataStack = [0]
-while True:
-    if numChildrenStack[-1] > 0: 
-        numChildren, numMetadata = b[:2]
-        numMetadataStack.append(numMetadata)
-        numChildrenStack.append(numChildren)
-        b = b[2:]
-    else:
-        numChildrenStack.pop()
-        numMetadata = numMetadataStack.pop()
-        allMetadata += b[:numMetadata]
-        b = b[numMetadata:]
-        if len(numChildrenStack) == 0: 
-            break
-        numChildrenStack[-1] -= 1
-        
-print(sum(allMetadata)) #part 1
+print(getNodeValue(rootNode.children[0])) #part 2
