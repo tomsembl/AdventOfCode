@@ -148,12 +148,21 @@ a=r"""                         /------------------------------------------------
                                       |             |                     \-------------+----------/                                        |         
                                       \-------------/                                   |                                                   |         
                                                                                         \---------------------------------------------------/         """
+
 test=r"""/->-\        
 |   |  /----\
 | /-+--+-\  |
 | | |  | v  |
 \-+-/  \-+--/
   \------/   """
+
+test=r"""/>-<\  
+|   |  
+| /<+-\
+| | | v
+\>+</ |
+  |   ^
+  \<->/"""
 
 #a=test
 b=[[x for x in y] for y in a.splitlines()]
@@ -171,7 +180,7 @@ class Cart:
         self.turnIndex = turnIndex
         self.isCollided = False
     
-    def move(self, deleteCrashes = False):
+    def move(self, deleteCrashes=False):
         global b, carts
         dx,dy = dirDeltas[self.direction]
         self.x += dx
@@ -181,11 +190,9 @@ class Cart:
             for cart in collidedCarts:
                 cart.isCollided = True
                 collisionCoordinates = f"{cart.x},{cart.y}"
-                print(collisionCoordinates)
                 if collisionCoordinates not in collisions:collisions.append(collisionCoordinates)
                 if deleteCrashes:
-                    for cart in collidedCarts:
-                        carts.remove(cart)
+                    carts.remove(cart)
         nextSquare = b[self.y][self.x]
         if nextSquare == "+": 
             self.direction += self.turnIndex - 1
@@ -205,15 +212,15 @@ def printCarts():
 
 [[carts.append(Cart(position=(i,j), direction=dirs.index(x), turnIndex=0)) for i,x in enumerate(y) if x in dirs] for j,y in enumerate(b)]
 for cart in carts: b[cart.y][cart.x] = tracks[cart.direction]
-#for x in b: print("".join(x))
 
 uncollidedCarts = carts
 while len(uncollidedCarts)>1:
     #printCarts()
     carts.sort(key=lambda x: (x.x,x.y))
-    uncollidedCarts = [cart for cart in carts if not cart.isCollided]
     for cart in uncollidedCarts:
-        cart.move()
+        cart.move(deleteCrashes=True)
+    uncollidedCarts = [cart for cart in carts if not cart.isCollided]
 
-print(collisions[0])
+lastCart = carts[0]
+print(f"{lastCart.x},{lastCart.y}")
         
