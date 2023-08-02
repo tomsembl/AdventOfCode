@@ -74,14 +74,14 @@ class Unit:
         self.isAlive = True
 
     def target(self):
-        rangeSquares = set()
-        for candidate in [x for x in units if x.isElf  != self.isElf]:
+        candidateSquares = set()
+        for candidateEnemy in [x for x in units if x.isElf  != self.isElf]:
             for dx,dy in dirDeltas: 
-                x,y = candidate.x+dx, candidate.y+dy
+                x,y = candidateEnemy.x+dx, candidateEnemy.y+dy
                 if b[y][x] == ".":
-                    rangeSquares.add((x,y))
-        rangeSquares = sorted(list(rangeSquares))
-        for x in rangeSquares:
+                    candidateSquares.add((x,y))
+        candidateSquares = sorted(list(candidateSquares))
+        for x in candidateSquares:
             print(canWalkDirect(x))
         #print(rangeSquares)
 
