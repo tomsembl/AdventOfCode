@@ -63,6 +63,8 @@ def manhattan(a,b):
     xx,yy=b
     return abs(xx-x)+abs(yy-y)
 
+def getOpenSquares(c):
+    return [(c[0]+dx, c[1]+dy) for dx,dy in dirDeltas if b[c[1]][c[0]] == "."]
 
 class Unit:
     def __init__(self, position, isElf):
@@ -74,15 +76,13 @@ class Unit:
         self.isAlive = True
 
     def target(self):
-        candidateSquares = set()
+        enemyOpenSquares = set()
         for candidateEnemy in [x for x in units if x.isElf  != self.isElf]:
-            for dx,dy in dirDeltas: 
-                x,y = candidateEnemy.x+dx, candidateEnemy.y+dy
-                if b[y][x] == ".":
-                    candidateSquares.add((x,y))
-        candidateSquares = sorted(list(candidateSquares))
-        for x in candidateSquares:
-            print(canWalkDirect(x))
+            for x in getOpenSquares((candidateEnemy.x,candidateEnemy.y)):
+                enemyOpenSquares.add(x)
+        enemyOpenSquares = sorted(list(enemyOpenSquares))
+        for square in enemyOpenSquares:
+            print(canWalkDirect((self.x,self.y),square))
         #print(rangeSquares)
 
     def move(self, position):
