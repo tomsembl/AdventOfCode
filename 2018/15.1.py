@@ -47,13 +47,23 @@ test="""#######
 #..G#E#
 #.....#   
 ####### """
+test="""#######
+#.G...#
+#...EG#
+#.#.#G#
+#..G#E#
+#.....#
+#######"""
+test="""#######
+#E..EG#
+#.#G.E#
+#E.##E#
+#G..#.#
+#..E#.#
+#######"""
 #a=test
 
-grid=[[x for x in y] for y in a.splitlines()]
-round = 1
-units = []
 dirDeltas = [(0,-1),(1,0),(0,1),(-1,0)]
-elvesAttackPower = 3
 
 def dijkstraSelectTarget(a,candidates):
     queue = [(a,0)]
@@ -145,34 +155,43 @@ class Unit:
         self.isAlive = False
         grid[self.y][self.x] = "."
 
-    
-
-[[units.append(Unit(position=(i,j), isElf=(x=="E"))) for i,x in enumerate(y) if x in "GE"] for j,y in enumerate(grid)]
-units.sort(key=lambda x:(x.y,x.x))
-endFlag=False
-while True:
-    # for y in grid:
-    #     print(" ".join(y))
-    # #print(", ".join([f"{'GE'[int(x.isElf)]}({x.hitPoints})" for x in units]))
-    # print(f"\nAfter {round} rounds:")
-    for unit in units: 
-        if not unit.isAlive: continue
-        if not unit.getEnemies():
-            endFlag=True
+for elvesAttackPower in range(3,100):
+    grid=[[x for x in y] for y in a.splitlines()]
+    round = 1
+    units = []
+    [[units.append(Unit(position=(i,j), isElf=(x=="E"))) for i,x in enumerate(y) if x in "GE"] for j,y in enumerate(grid)]
+    elvesBefore = len([unit for unit in units if unit.isElf])
+    units.sort(key=lambda x:(x.y,x.x))
+    endFlag=False
+    while True:
+        # for y in grid:
+        #     print(" ".join(y))
+        # #print(", ".join([f"{'GE'[int(x.isElf)]}({x.hitPoints})" for x in units]))
+        # print(f"\nAfter {round} rounds:")
+        for unit in units: 
+            if not unit.isAlive: continue
+            if not unit.getEnemies():
+                endFlag=True
+                break
+            if not unit.getAdjacentEnemies():
+                target = unit.getTarget()
+                if target:
+                    unit.move(target)
+            adjacentEnemies = unit.getAdjacentEnemies()
+            if adjacentEnemies:
+                enemy = min(adjacentEnemies,key=lambda x:(x.hitPoints,x.y,x.x))
+                unit.attack(enemy)
+                continue
+        if endFlag: 
+            outcome = sum([x.hitPoints for x in units if x.isAlive])
+            outcome*= (round-1)
+            #print(outcome) #part 1
             break
-        if not unit.getAdjacentEnemies():
-            target = unit.getTarget()
-            if target:
-                unit.move(target)
-        adjacentEnemies = unit.getAdjacentEnemies()
-        if adjacentEnemies:
-            enemy = min(adjacentEnemies,key=lambda x:(x.hitPoints,x.y,x.x))
-            unit.attack(enemy)
-            continue
-    if endFlag: 
+        round += 1
+        units.sort(key=lambda x:(x.y,x.x))
+    elvesAfter = len([unit for unit in units if unit.isElf and unit.isAlive])
+    if elvesBefore==elvesAfter:
         outcome = sum([x.hitPoints for x in units if x.isAlive])
         outcome*= (round-1)
-        print(outcome) #part 1
+        print(outcome) #part 2 #50724 too low
         break
-    round += 1
-    units.sort(key=lambda x:(x.y,x.x))
