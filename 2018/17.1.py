@@ -1530,6 +1530,7 @@ y=13, x=498..504"""
 a=test
 #b = [sorted(x.split(",")) for x in a.splitlines()]
 clayLines = [[tuple(map(int,x.split("=")[1].split(".."))) if ".." in x else int(x.split("=")[1]) for x in sorted(x.split(", "))] for x in a.splitlines()]
+clayLines.sort(key=lambda x:((x[1][0],x[0]) if type(x[0])==int else (x[1],x[0][0])))
 #for x in b:print(x)
 buffer = 1
 minX = min([x[0] if type(x[0])==int else min(x[0]) for x in clayLines]) - buffer
@@ -1538,23 +1539,24 @@ minY = min([x[1] if type(x[1])==int else min(x[1]) for x in clayLines])
 maxY = max([x[1] if type(x[1])==int else max(x[1]) for x in clayLines]) + 1
 matrix = [[0 for x in range(minX,maxX)] for y in range(minY,maxY)]
 clayLines = [[y-[minX,minY][i] if type(y)==int else tuple([z-[minX,minY][i] for z in y]) for i,y in enumerate(x)] for x in clayLines]
-print(clayLines)
-#graph stuff
-from matplotlib import pyplot as plt
+#print(clayLines)
+
+import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-import time
-plt.ion()
-plt.register_cmap(cmap=LinearSegmentedColormap.from_list(name='sand',colors=[[255.0, 221.0, 0.0, 1.0],
-                                                                             [132.0, 102.0, 0.0, 1.0],
-                                                                             [215.0, 167.0, 0.0, 1.0],
-                                                                             [0.0, 215.0, 192.0, 1.0]]))
+# plt.register_cmap(cmap=LinearSegmentedColormap.from_list(name='sand',colors=[[255.0, 221.0, 0.0, 1.0],
+#                                                                              [132.0, 102.0, 0.0, 1.0],
+#                                                                              [215.0, 167.0, 0.0, 1.0],
+#                                                                              [0.0, 215.0, 192.0, 1.0]]))
+
 fig, ax = plt.subplots()
-plt.figure(figsize = (10,10))
-plot = plt.imshow(matrix, interpolation='nearest',vmin=0,vmax=3,cmap="sand")
-plt.show()
-def updateGraph(plot,data):
-    plot.set_data(data)
-    fig.canvas.flush_events()
+im = ax.imshow(matrix, vmax=3, vmin=0)#, cmap='sand'
+cbar = ax.figure.colorbar(im, ax=ax)
+def update_visualization(new_matrix):
+    im.set_array(new_matrix)
+    fig.canvas.draw()
+    plt.pause(0.001)  # Pause to allow time for the plot to update
+
+
 for x,y in clayLines:
     if type(x)==int:
         for j in range(y[0],y[1]+1):
@@ -1562,5 +1564,57 @@ for x,y in clayLines:
     else:
         for i in range(x[0],x[1]+1):
             matrix[y][i] = 1
-    updateGraph(plot,matrix)
-time.sleep(3)
+matrix[0][500-minX] = 2
+# 0 sand
+# 1 clay
+# 2 wet sand
+# 3 water at rest
+getSq = lambda x: matrix[x[1]][x[0]]
+dirs = [(0,-1),(1,0),(0,1),(-1,0)]
+wetSand = [(500-minX,0)]
+
+def edit(square,num):
+    x,y = square
+    if num==1: wetSand.append(square)
+    matrix[y][x] = num
+    update_visualization(matrix)
+        
+def fall(square):
+    x,y = square
+    while getSq((x,y+1)) == 0:
+        y+=1
+        edit((x,y),2)
+        
+def spread(square):
+    x,y = square
+    lrx = (x,x)
+    walls = (False,False)
+    dxs = [-1,1]
+    for lr in [0,1]:
+        dx = dxs[lr]
+        while True:
+            below = getSq((lrx[lr],y+1))
+            if below&3: 
+                break
+            if getSq((lrx[lr]+dx,y)) == 1:
+                walls[lr]=True
+                break
+            lrx[lr] += dx
+    for sq in range(lrx[0],lrx[1]+1):
+        edit(sq, 3 if all(walls) else 2)
+
+
+for _ in range(100):
+    for square in wetSand:
+        x,y = square
+        above,right,below,left = [(x+dx,y+dy) for dx,dy in dirs]
+        a,r,b,l = [getSq(a) for a in [above,right,below,left]]
+        if b == 0: fall(square)
+        if b in (1,3): spread(square)
+
+
+
+
+#update_visualization(matrix)
+
+plt.show()
