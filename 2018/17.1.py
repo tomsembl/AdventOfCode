@@ -1527,11 +1527,9 @@ x=506, y=1..2
 x=498, y=10..13
 x=504, y=10..13
 y=13, x=498..504"""
-a=test
-#b = [sorted(x.split(",")) for x in a.splitlines()]
+#a=test
 clayLines = [[tuple(map(int,x.split("=")[1].split(".."))) if ".." in x else int(x.split("=")[1]) for x in sorted(x.split(", "))] for x in a.splitlines()]
 clayLines.sort(key=lambda x:((x[1][0],x[0]) if type(x[0])==int else (x[1],x[0][0])))
-#for x in b:print(x)
 buffer = 1
 minX = min([x[0] if type(x[0])==int else min(x[0]) for x in clayLines]) - buffer
 maxX = max([x[0] if type(x[0])==int else max(x[0]) for x in clayLines]) + 1 + buffer
@@ -1539,22 +1537,15 @@ minY = min([x[1] if type(x[1])==int else min(x[1]) for x in clayLines])
 maxY = max([x[1] if type(x[1])==int else max(x[1]) for x in clayLines]) + 1
 matrix = [[0 for x in range(minX,maxX)] for y in range(minY,maxY)]
 clayLines = [[y-[minX,minY][i] if type(y)==int else tuple([z-[minX,minY][i] for z in y]) for i,y in enumerate(x)] for x in clayLines]
-#print(clayLines)
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
-# plt.register_cmap(cmap=LinearSegmentedColormap.from_list(name='sand',colors=[[255.0, 221.0, 0.0, 1.0],
-#                                                                              [132.0, 102.0, 0.0, 1.0],
-#                                                                              [215.0, 167.0, 0.0, 1.0],
-#                                                                              [0.0, 215.0, 192.0, 1.0]]))
-
 fig, ax = plt.subplots()
-im = ax.imshow(matrix, vmax=3, vmin=0)#, cmap='sand'
+im = ax.imshow(matrix, vmax=3, vmin=0)#, cmap='sand')
 cbar = ax.figure.colorbar(im, ax=ax)
 def update_visualization(new_matrix):
     im.set_array(new_matrix)
     fig.canvas.draw()
-    plt.pause(0.001)  # Pause to allow time for the plot to update
+    plt.pause(0.001)
 
 
 for x,y in clayLines:
@@ -1569,52 +1560,61 @@ matrix[0][500-minX] = 2
 # 1 clay
 # 2 wet sand
 # 3 water at rest
-getSq = lambda x: matrix[x[1]][x[0]]
+
+def getSq(x): 
+    try:
+        return matrix[x[1]][x[0]]
+    except: return -1
 dirs = [(0,-1),(1,0),(0,1),(-1,0)]
-wetSand = [(500-minX,0)]
+wetSand = {(500-minX,0)}
 
 def edit(square,num):
     x,y = square
-    if num==1: wetSand.append(square)
     matrix[y][x] = num
-    update_visualization(matrix)
+    #update_visualization(matrix)
         
 def fall(square):
     x,y = square
     while getSq((x,y+1)) == 0:
         y+=1
         edit((x,y),2)
+    wetSand.add((x,y))
         
 def spread(square):
     x,y = square
-    lrx = (x,x)
-    walls = (False,False)
+    lrx = [x,x]
+    walls = [False,False]
     dxs = [-1,1]
     for lr in [0,1]:
         dx = dxs[lr]
         while True:
-            below = getSq((lrx[lr],y+1))
-            if below&3: 
+            if getSq((lrx[lr],y-1)) == 2: wetSand.add((lrx[lr],y-1))
+            if getSq((lrx[lr],y+1)) in (0,2): #below
                 break
-            if getSq((lrx[lr]+dx,y)) == 1:
+            if getSq((lrx[lr]+dx,y)) == 1: #to the side
                 walls[lr]=True
                 break
             lrx[lr] += dx
-    for sq in range(lrx[0],lrx[1]+1):
-        edit(sq, 3 if all(walls) else 2)
+    for x in range(lrx[0],lrx[1]+1):
+        edit((x,y), 3 if all(walls) else 2)
+    for i in range(2):
+        if not walls[i]:
+            wetSand.add((lrx[i],y))
 
 
-for _ in range(100):
-    for square in wetSand:
-        x,y = square
-        above,right,below,left = [(x+dx,y+dy) for dx,dy in dirs]
-        a,r,b,l = [getSq(a) for a in [above,right,below,left]]
-        if b == 0: fall(square)
-        if b in (1,3): spread(square)
+i=0
+while wetSand:
+    print(i,len(wetSand))
+    i+=1
+    square = wetSand.pop()
+    x,y = square
+    below = getSq((x,y+1))
+    if below == 0: fall(square)
+    if below in (1,3): spread(square)
+    if not i%3: pass#update_visualization(matrix)
+update_visualization(matrix)
+print( sum([sum([1 for x in y if x in (2,3)]) for y in matrix]) )#part 1
+print( sum([sum([1 for x in y if x == 3]) for y in matrix]) )#part 2
 
-
-
-
-#update_visualization(matrix)
 
 plt.show()

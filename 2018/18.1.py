@@ -77,8 +77,8 @@ def getAdj(x,y):
     return adjs
 
 update_visualization(b)
-
-for _ in range(10):
+matrices = [b]
+for _ in range(1000):
     bCopy = [y[::] for y in b[::]]
     for j,y in enumerate(b):
         for i,x in enumerate(y):
@@ -88,10 +88,19 @@ for _ in range(10):
             if x == 2:
                 if not (adj.count(1) >= 1 and adj.count(2) >= 1): bCopy[j][i] = 0
     b = bCopy
-    update_visualization(b)
+    if b in matrices:
+        firstRepeatIndex = matrices.index(b)
+        repeatDistance = len(matrices) - firstRepeatIndex
+        target = 1_000_000_000
+        endIndex = (target - firstRepeatIndex) % repeatDistance
+        print(i,repeatDistance,endIndex)
+        b = matrices[firstRepeatIndex + endIndex]
+        break
+    matrices.append(b)
+    #update_visualization(b)
     
 wood = sum([sum([1 for x in y if x == 1]) for y in b])
 lumberyards = sum([sum([1 for x in y if x == 2]) for y in b])
-print(wood*lumberyards) #part 1
+print(wood*lumberyards)
 
-plt.show(
+plt.show()
