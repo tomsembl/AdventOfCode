@@ -93,7 +93,7 @@ for _ in range(1000):
         repeatDistance = len(matrices) - firstRepeatIndex
         target = 1_000_000_000
         endIndex = (target - firstRepeatIndex) % repeatDistance
-        print(i,repeatDistance,endIndex)
+        print(firstRepeatIndex,repeatDistance,endIndex)
         b = matrices[firstRepeatIndex + endIndex]
         break
     matrices.append(b)

@@ -44,7 +44,7 @@ setr 1 0 0
 seti 8 0 4
 seti 9 0 5"""
 #a=test
-reg = [0,0,0,0,0,0]
+reg = [1,0,0,0,0,0]
 ip = int(a.splitlines()[0][-1])
 instructions=[[int(x) if x.isnumeric() else x for x in y.split()] for y in a.splitlines()[1:]]
 
@@ -72,14 +72,17 @@ eqrr = lambda reg,inst: edit(reg, inst[2], int(reg[inst[0]] == reg[inst[1]]) )
 ops = [addr,addi,mulr,muli,banr,bani,borr,bori,setr,seti,gtir,gtri,gtrr,eqir,eqri,eqrr]
 opNames = ["addr","addi","mulr","muli","banr","bani","borr","bori","setr","seti","gtir","gtri","gtrr","eqir","eqri","eqrr"]
 
-iterations=0
 ipCounts={x:0 for x in range(len(instructions))}
 while True:
-    iterations += 1
     try: opName,a,b,c = instructions[reg[ip]]
     except IndexError: break
     ipCounts[reg[ip]] += 1
     op = ops[opNames.index(opName)]
+    if reg[ip] == 3 and reg[3] != 0:
+        print(reg[4]) #copy this output to clipboard
+        break
     reg = op(reg,(a,b,c))
     reg[ip]+=1
-print(reg[0]) #part 1
+# paste the number from reg[4] into here:
+# https://allmathsymbols.com/sum-of-factors-calculator/
+# answer to part 2 is sum of factors
