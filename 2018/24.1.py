@@ -72,58 +72,68 @@ class Group():
         if other.qty < 0: other.qty = 0
         self.attacking = None
         other.defendingAgainst = None
-
-
-groups = []
-for x in a.splitlines():
-    #print(x)
-    if x=="":  continue
-    if ":" in x:
-        army = x[:-1]
-        id=1
-        continue
-    qty = int(x.split()[0])
-    hp = int(x.split()[4])
-    weakTo, immuneTo = [],[]
-    if "(" in x:
-        brackets = x.split("(")[1].split(")")[0]
-        for y in brackets.split("; "):
-            y = y.split(" to ")
-            array = weakTo if y[0] == "weak" else immuneTo
-            array += [x for x in y[1].split(", ")]
-    attackDmg = int(x.split()[-6])
-    attackType = x.split()[-5]
-    initiative = int(x.split()[-1])
-    groups.append(Group(id,army,qty,hp,weakTo,immuneTo,attackType,attackDmg,initiative))
-    id+=1
-    #print("army:",army,"qty:",qty,"hp:",hp,"attackType:",attackType,"attackDmg:",attackDmg,"initiative:",initiative,"weakTo",weakTo,"immuneTo:",immuneTo)
-
+boost = 0
 while True:
-    [x.resetRound() for x in groups]
-    #print()
-    #print(set([x.army for x in groups if x.qty > 0]))
-    if len(set([x.army for x in groups if x.qty > 0])) < 2: break
-    groups.sort(key=lambda x: (x.effectivePower(), x.initiative), reverse=True)
-    # for g in sorted(groups,key = lambda g: (g.army,g.id)):
-    #     if g.qty == 0: continue
-        #print(f"{g.army} group {g.id} contains {g.qty} units")
-    for g1 in groups:
-        if g1.qty == 0: continue
-        candidates = [g2 for g2 in groups if g1.army!=g2.army and g2.qty > 0 and g2.defendingAgainst == None]
-        #print(len(candidates), "candidates")
-        if not candidates: continue
-        #for g2 in sorted(candidates,key = lambda g2: g1.qualifyTarget(g2)):
-            #print(f"{g1.army} group {g1.id} would deal defending group {g2.id} {g1.qualifyTarget(g2)}")
-        target = max(candidates,key = lambda g2: g1.qualifyTarget(g2))
-        if g1.calculateDamage(target) == 0: continue
-        g1.setTarget(target)
-    groups.sort(key=lambda x: (x.initiative), reverse=True)
-    for g1 in groups:
-        if g1.attacking and g1.qty > 0: 
-            g2 = g1.attacking
-            before = g2.qty
-            g1.attack()
-            unitsKilled = before - g2.qty
-            #print(f"{g1.army} group {g1.id} attacks defending group {g2.id} killing {unitsKilled} units")
-print(sum(set([x.qty for x in groups]))) #part 1
-# 10797 too low
+    print(boost)
+    groups = []
+    for x in a.splitlines():
+        #print(x)
+        if x=="":  continue
+        if ":" in x:
+            army = x[:-1]
+            id=1
+            continue
+        qty = int(x.split()[0])
+        hp = int(x.split()[4])
+        weakTo, immuneTo = [],[]
+        if "(" in x:
+            brackets = x.split("(")[1].split(")")[0]
+            for y in brackets.split("; "):
+                y = y.split(" to ")
+                array = weakTo if y[0] == "weak" else immuneTo
+                array += [x for x in y[1].split(", ")]
+        attackDmg = int(x.split()[-6]) + (boost if army == "Immune System" else 0)
+        attackType = x.split()[-5]
+        initiative = int(x.split()[-1])
+        groups.append(Group(id,army,qty,hp,weakTo,immuneTo,attackType,attackDmg,initiative))
+        id+=1
+        #print("army:",army,"qty:",qty,"hp:",hp,"attackType:",attackType,"attackDmg:",attackDmg,"initiative:",initiative,"weakTo",weakTo,"immuneTo:",immuneTo)
+    while True:
+        stalemate=[]
+        [x.resetRound() for x in groups]
+        #print()
+        #print(set([x.army for x in groups if x.qty > 0]))
+        if len(set([x.army for x in groups if x.qty > 0])) < 2: break
+        groups.sort(key=lambda x: (x.effectivePower(), x.initiative), reverse=True)
+        # for g in sorted(groups,key = lambda g: (g.army,g.id)):
+        #     if g.qty == 0: continue
+            #print(f"{g.army} group {g.id} contains {g.qty} units")
+        for g1 in groups:
+            if g1.qty == 0: continue
+            candidates = [g2 for g2 in groups if g1.army!=g2.army and g2.qty > 0 and g2.defendingAgainst == None]
+            #print(len(candidates), "candidates")
+            if not candidates: continue
+            #for g2 in sorted(candidates,key = lambda g2: g1.qualifyTarget(g2)):
+                #print(f"{g1.army} group {g1.id} would deal defending group {g2.id} {g1.qualifyTarget(g2)}")
+            target = max(candidates,key = lambda g2: g1.qualifyTarget(g2))
+            if g1.calculateDamage(target) == 0: 
+                stalemate.append(True)
+                continue
+            stalemate.append(False)
+            g1.setTarget(target)
+        if all(stalemate):
+            print("stalemate")
+            break
+        groups.sort(key=lambda x: (x.initiative), reverse=True)
+        for g1 in groups:
+            if g1.attacking and g1.qty > 0: 
+                g2 = g1.attacking
+                before = g2.qty
+                g1.attack()
+                unitsKilled = before - g2.qty
+                #print(f"{g1.army} group {g1.id} attacks defending group {g2.id} killing {unitsKilled} units")
+    boost+=1
+    armiesLeft = set([x.army for x in groups if x.qty > 0])
+    if list(armiesLeft) == ["Immune System"]:
+        print(sum(set([x.qty for x in groups]))) #part 2
+        break
