@@ -18,3 +18,10 @@ a="""1136	1129	184	452	788	1215	355	1109	224	1358	1278	176	1302	186	128	1148
 #a=test
 b=[[int(y) for y in x.split()] for x in a.splitlines()]
 print(sum([max(x)-min(x) for x in b])) #part 1: 37923
+total=0
+for x in b:
+    for y in x:
+        for z in set(x).difference({y}):
+            if (y/z) % 1 == 0:
+                total += y//z
+print(total) #part 2: 263

@@ -1111,3 +1111,14 @@ while 0 <= i < leng:
     b[i] += 1
     i += jump
 print(iterations)#part 1: 387096
+
+b=[int(x) for x in a.splitlines()]
+i=0
+leng = len(b)
+iterations = 0
+while 0 <= i < leng:
+    iterations += 1
+    jump = b[i]
+    b[i] += -1 if jump >= 3 else 1
+    i += jump
+print(iterations)#part 2: 28040648

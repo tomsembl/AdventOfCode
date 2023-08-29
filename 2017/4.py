@@ -512,3 +512,13 @@ dflx gdtb jyoj jyoj dflx aqhycgi xffnn
 inc mpys mzqmcwx vryz ibqrzc pmsy fat rojpxwy rcbqzi gjef"""
 b=[x.split() for x in a.splitlines()]
 print(len([1 for x in b if len(set(x)) == len(x)]))#part 1: 325
+total=0
+for passphrase in b:
+    passphraseIsCorrect = True
+    for j,word1 in enumerate(passphrase):
+        for i,word2 in enumerate(passphrase):
+            if i==j: continue
+            if sorted(word1) == sorted(word2): 
+                passphraseIsCorrect = False
+    total += 1 if passphraseIsCorrect else 0
+print(total) #part 2: 119

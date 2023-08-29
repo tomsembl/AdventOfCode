@@ -5,7 +5,13 @@ test="1111"
 test="1122"
 #a=test
 sum=0
+leng=len(a)
 for i,x in enumerate(a):
     if x==(a+a)[i+1]:
         sum+=int(x)
-print(sum) #part 1: 251 too low
+print(sum) #part 1: 1343
+sum=0
+for i,x in enumerate(a):
+    if x==(a+a)[i+leng//2]:
+        sum+=int(x)
+print(sum) #part 2: 2617 too high

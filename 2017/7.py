@@ -1300,9 +1300,30 @@ ugml (68) -> gyxo, ebii, jptl
 gyxo (61)
 cntj (57)"""
 #a=test
-#,(x.split(" -> ")[1].split(", ")) if " -> " in x else [])
+
 b=[(x.split()[0],int(x.split()[1][1:-1]),(x.split(" -> ")[1].split(", ") if " -> " in x else [])) for x in a.splitlines()]
 tree={x[0]:(x[2] if len(x)>2 else []) for x in b}
+weights={x[0]:x[1] for x in b}
+start = None
 for key in tree:
     if not any([key in leaves for leaves in tree.values()]):
-        print(key) #part 1: svugo
+        start = key
+        break
+print(start) #part 1: svugo
+
+def recurse(node):
+    weight = weights[node]
+    children = tree[node]
+    if children == []: return weight
+    childWeights = [recurse(child) for child in children]
+    if len(set(childWeights)) > 1:
+        adjustment = max(childWeights)-min(childWeights)
+        isMax = childWeights.count(max(childWeights)) == 1
+        problemChildIndex = childWeights.index(max(childWeights) if isMax else min(childWeights))
+        problemChild = children[problemChildIndex]
+        print(weights[problemChild] - adjustment)#part 2: 1152
+        # print(weight)# + )
+
+    return sum(childWeights) + weight
+    
+recurse(start)

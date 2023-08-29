@@ -29,3 +29,34 @@ def manhattan(x,y,xx,yy):
     return abs(x-xx) + abs(y-yy)
 
 print(manhattan(x,y,0,0)) #part 1: 480
+
+def doTheThing():
+    current = 1
+    dir = 0
+    x,y = 0,0
+    n=2
+    total=1
+    dict_={}
+    dirs2 = dirs+ [[1,1],[-1,-1],[-1,1],[1,-1]]
+
+    def getNeighSum(c):
+        x,y = c
+        return sum([dict_[(x+xx,y+yy)] for xx,yy in dirs2 if (x+xx,y+yy) in dict_])
+
+
+    while True:
+        mul = n//2
+        total += mul
+        if total > a:
+            mul -= total-a
+        for _ in range(mul):
+            dict_[(x,y)] = current
+            x,y = x+dirs[dir][0],y+dirs[dir][1]
+            current = getNeighSum((x,y))
+            if current > a: 
+                return current
+                
+        dir+=1
+        dir%=4
+        n+=1
+print(doTheThing())#part 2: 349975

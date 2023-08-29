@@ -1002,7 +1002,7 @@ test="""b inc 5 if a > 1
 a inc 1 if b < 5
 c dec -10 if a >= 1
 c inc -20 if c == 10"""
-a=test
+#a=test
 registers = {}
 for x in a.splitlines():
     registers[x.split()[0]]=0
@@ -1011,7 +1011,30 @@ instructions=[]
 for x in a.splitlines():
     command = x.replace("inc","+=").replace("dec","-=") + " else 0"
     command = command.split()
-    
-    print(stri)
-    instructions.append(stri)
-#[x.replace("inc","+=").replace("dec","-=") + "else 0" for x in a.splitlines()]
+    b,c = command[0],command[4]
+    if a not in registers: registers[b] = 0
+    if b not in registers: registers[c] = 0
+    command[0] = "registers[\"" + command[0] + "\"]"
+    command[4] = "registers[\"" + command[4] + "\"]"
+    command = " ".join(command)
+    exec(command)
+print(max(registers.values())) #part 1: 4902
+
+registers = {}
+for x in a.splitlines():
+    registers[x.split()[0]]=0
+    registers[x.split()[4]]=0
+instructions=[]
+maxestEver=0
+for x in a.splitlines():
+    command = x.replace("inc","+=").replace("dec","-=") + " else 0"
+    command = command.split()
+    b,c = command[0],command[4]
+    if b not in registers: registers[b] = 0
+    if c not in registers: registers[c] = 0
+    command[0] = "registers[\"" + command[0] + "\"]"
+    command[4] = "registers[\"" + command[4] + "\"]"
+    command = " ".join(command)
+    exec(command)
+    if max(registers.values()) > maxestEver: maxestEver = max(registers.values())
+print(maxestEver) #part 2: 4902
