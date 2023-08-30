@@ -6,18 +6,21 @@ test="ne,ne,s,s"
 #a=test
 b=[x for x in a.split(",")]
 dirs =  {"n":(0,-1),"s":(0,1),"ne":(1,0),"nw":(-1,-1),"se":(1,1),"sw":(-1,0)}
-#dirs2 = {"n":(1,-1),"s":(-1,1),"ne":(1,0),"nw":(0,-1),"se":(0,1),"sw":(-1,0)}
-x,y=0,0
-#x2,y2=0,0
-for dir in b:
-    dx,dy = dirs[dir]
-    #dx2,dy2 = dirs2[dir]
-    x,y = x+dx, y+dy
-    #x2,y2 = x+dx2, y+dy2
 def manhattan(c1,c2):
     x,y=c1
     xx,yy=c2
     return abs(x-xx) + abs(y-yy)
+x,y=0,0
+maxXY = (0,0)
+maxManhattan = 0
+for dir in b:
+    dx,dy = dirs[dir]
+    x,y = x+dx, y+dy
+    man = manhattan((0,0),(x,y))
+    if man > maxManhattan:
+        maxManhattan = man
+        maxXY = (x,y)
+
 print(x,y)#,x2,y2)
 distance = 0
 while x!=0 or y!=0:
@@ -26,4 +29,5 @@ while x!=0 or y!=0:
     x,y = best
     distance += 1
 print(distance)#part 1
-#395 too low
+print(maxManhattan)
+#395 too low        
