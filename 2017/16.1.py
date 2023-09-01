@@ -4,16 +4,28 @@ a="x15/1,s15,x2/3,s15,x11/1,pm/a,x6/0,s4,x8/7,s4,x12/9,pi/l,x10/2,s1,x8/15,s7,x1
 #line="abcde"
 line=list("abcdefghijklmnop")
 b=[x for x in a.split(",")]
-for x in b:
-    if x[0] == "s":
-        s = int(x[1:])
-        line = line[-s:] + line[:-s]
-    if x[0] in "xp":
-        if x[0] == "p":
-            ps = x[1:].split("/")
-            xs = [line.index(y) for y in ps]
-        else: 
-            xs = [int(y) for y in x[1:].split("/")]
-        xmin,xmax = sorted(xs)
-        line = line[:xmin] + line[xmax:xmax+1] + line[xmin+1:xmax] + line[xmin:xmin+1] + line[xmax+1:]
+last=line
+i=0
+j=999
+patternFound=False
+while j>1:
+    if patternFound: 
+        j-=1
+    if last==line and i!=0:
+        j = 1_000_000_000 % i
+        patternFound = True
+    for x in b:
+        if x[0] == "s":
+            s = int(x[1:])
+            line = line[-s:] + line[:-s]
+        if x[0] in "xp":
+            if x[0] == "p":
+                ps = x[1:].split("/")
+                xs = [line.index(y) for y in ps]
+            else: 
+                xs = [int(y) for y in x[1:].split("/")]
+            xmin,xmax = sorted(xs)
+            line = line[:xmin] + line[xmax:xmax+1] + line[xmin+1:xmax] + line[xmin:xmin+1] + line[xmax+1:]
+    i+=1
 print("".join(line))
+#hlacgpbkmoiefdnj
