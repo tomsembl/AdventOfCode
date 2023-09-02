@@ -1029,6 +1029,15 @@ for id,x in enumerate(b):
 
 locations = {}
 for t in range(100_000):
+    print("particles left:",len(particles))#part 2
+    for p in particles:
+        if p.p not in locations: locations[p.p] = []
+        locations[p.p].append(p)
+    for l in locations:
+        if len(locations[l])>1:
+            for x in locations[l]:
+                if x in particles:
+                    particles.remove(x)
     for p in particles:
         p.tickV()
         p.tickP()
