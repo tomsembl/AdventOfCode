@@ -63,12 +63,35 @@ test="""0/2
 0/1
 10/1
 9/10"""
-a=test
+#a=test
 ports=[(0,0)]+[tuple([int(y) for y in x.split("/")]) for x in a.splitlines()]
 allPortIDs = set(range(len(ports)))
-print(ports,allPortIDs)
-#end portID, usedPorts, total
-queue=[(0,1,{0},0)]
+
+queue=[(0,{0},0)]
 maximum = 0
 while queue:
     freePort, usedPorts, total = queue.pop()
+    if total > maximum:
+        maximum = total
+    availablePorts = allPortIDs.difference(usedPorts)
+    for portID in availablePorts:
+        port = ports[portID]
+        if port[0] == freePort or port[1] == freePort:
+            queue.append((port[0] if port[1] == freePort else port[1], usedPorts.union({portID}), total+sum(port)))
+print(maximum)#part 1
+
+queue=[(0,{0},0)]
+maximumStrength = 0
+maximumLength = 0
+while queue:
+    freePort, usedPorts, total = queue.pop()
+    if len(usedPorts) >= maximumLength:
+        maximumLength = len(usedPorts)
+        if total > maximumStrength:
+            maximumStrength = total
+    availablePorts = allPortIDs.difference(usedPorts)
+    for portID in availablePorts:
+        port = ports[portID]
+        if port[0] == freePort or port[1] == freePort:
+            queue.append((port[0] if port[1] == freePort else port[1], usedPorts.union({portID}), total+sum(port)))
+print(maximumStrength)#part 2
