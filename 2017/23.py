@@ -32,7 +32,7 @@ sub b -17
 jnz 1 -23"""
 b=[x.split() for x in a.splitlines()]
 regs={chr(x):0 for x in range(97,97+8)}
-regs["a"]=1
+regs["a"]=0
 dead=[False,False]
 total=0
 i=0
@@ -52,10 +52,10 @@ while True:
     if op == "set":
         regs[c] = d
     if op == "sub":
-        if d == -1 and i == 16:
-            regs[c] = regs["b"]
-            i+=1
-            continue
+        # if d == -1 and i == 16:
+        #     regs[c] = regs["b"]
+        #     i+=1
+        #     continue
         regs[c] -= d
     if op == "mul":
         regs[c] *= d
@@ -67,8 +67,3 @@ while True:
             continue
     i+=1
 print(total)#part 1
-print(regs["h"])#part 2
-
-#123500 too high
-#500 too low
-#501 too low

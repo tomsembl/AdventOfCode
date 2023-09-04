@@ -100,8 +100,9 @@ class Bit():
         if not self.prev:
             self.prev = Bit()
             self.prev.next = self
-        LEFTMOST = self.prev
+            LEFTMOST = self.prev
         return self.prev
+		
 
 STATE = 0
 NODE = Bit()
@@ -111,21 +112,20 @@ def f(v,d,s):
     NODE.val = v
     NODE = NODE.move(d)
     STATE = s
-
+#0,1,2,3,4,5
+#A,B,C,D,E,F
 fa = lambda x: f(1,1,1) if x==0 else f(0,0,1)
-fb = lambda x: f(1,0,0) if x==0 else f(1,1,0)
+fb = lambda x: f(1,0,2) if x==0 else f(0,1,4)
+fc = lambda x: f(1,1,4) if x==0 else f(0,0,3)
+fd = lambda x: f(1,0,0)
+fe = lambda x: f(0,1,0) if x==0 else f(0,1,5)
+ff = lambda x: f(1,1,4) if x==0 else f(1,1,0)
 
-iterations = 6
-funcs=[fa,fb]
-for _ in range(iterations):
+iterations = 12861455 
+funcs=[fa,fb,fc,fd,fe,ff]
+for i in range(iterations):
+    if i%1_000_000==0:print(i)
     funcs[STATE](NODE.val)
-    node = LEFTMOST
-    total = ""
-    while True:
-        total += str(node.val)
-        if not node.next: break
-        node = node.next
-    print(total)
 
 node = LEFTMOST
 total = 0
@@ -134,3 +134,4 @@ while True:
     if not node.next: break
     node = node.next
 print(total)
+#2556 too low
