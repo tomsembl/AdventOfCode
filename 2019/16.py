@@ -24,4 +24,4 @@ def fft(string):
 for x in range(100):
     print(x)
     a=fft(a)
-print(a)
+print(a[:10])
