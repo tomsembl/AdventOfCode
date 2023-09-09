@@ -9,12 +9,12 @@ a=[[(0,0),(0,1),(1,0),(2,0)],
     [(1,1),(2,1)],
     [(3,0),(3,1),(4,0),(4,1)]
 ]
-a=[[0,1,2,4],
+a=[[0,1,2,4,5,6,7,8],
     [3,5],
     [6,7,8,9],
     []
 ]
-size = 5
+size = 7
 
 test="""The first floor contains a hydrogen-compatible microchip and a lithium-compatible microchip.
 The second floor contains a hydrogen generator.
@@ -101,7 +101,9 @@ while queue:
                     seen[newState2] = steps + 1
                 elif seen[newState2] <= steps + 1: continue
                 queue.append(newState)
-# generator = 0, chip = 1 least significant bit
+# generator = 0, chip = 1
+# get same type chip from a generator +1
+# get same type generator from a chip -1
             
 
 #12207 too high
