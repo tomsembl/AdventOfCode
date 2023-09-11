@@ -1,4 +1,4 @@
-a=""""""
-test=""""""
+a="01000100010010111"
+test="110010110100"
 a=test
-b=[x for x in a.splitlines()]
+l=12
