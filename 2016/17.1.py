@@ -1,7 +1,7 @@
 a="pslxynzg"
 test="ulqzkmiv"
-#test="kglvqrro"
-#test="ihgpwlah"
+test="kglvqrro"
+test="ihgpwlah"
 #test="hijkl"
 #a=test
 dirs = "UDLR"
@@ -16,21 +16,21 @@ def getOpenDoors(path):
 
 end=(3,3)
 queue=[(0,0,"")]
-min = 99
-shortestPath = None
+max = 0
+longestPath = None
 while queue:
     node = queue.pop(0)
     x,y,path = node
     lp = len(path)
-    if lp >= min: continue
     if (x,y) == end:
-        if lp < min:
-            shortestPath = path
-            min = lp
-            print(min,shortestPath)
+        if lp > max:
+            longestPath = path
+            max = lp
+            print(max,longestPath)
+        continue
     for dir in getOpenDoors(path):
         dx,dy = dxdy[dir]
         xx,yy = x+dx,y+dy
         if 0<=xx<size and 0<=yy<size:
             queue.append((xx,yy,path+dirs[dir]))
-print(shortestPath)
+print(max)
