@@ -1031,28 +1031,86 @@ Filesystem            Size  Used  Avail  Use%
 /dev/grid/node-x2-y0   10T    6T     4T   60%
 /dev/grid/node-x2-y1    9T    8T     1T   88%
 /dev/grid/node-x2-y2    9T    6T     3T   66%"""
-
+a=test
 b=[x.split() for x in a.splitlines()[2:]]
 c=[]
+dirs=[(0,1),(1,0),(-1,0),(0,-1)]
 
 def manhattan(c1,c2):
     x,y = c1
     xx,yy = c2
     return abs(xx-x) + abs(yy-y)
 
+class Node():
+    def __init__(self,x,y,used,avail):
+        self.x=x
+        self.y=y
+        self.used=used
+        self.avail=avail
+        self.neighs = []
+        self.isTarget = False
+
+    def getNeighs(self,listOfNodes):
+        for dy,dx in dirs:
+            xx,yy = self.x+dx,self.y+dy
+            self.neighs.extend([node for node in listOfNodes if node.x==xx and node.y==yy])
+
+    def canDumpTo(self, destination):
+        return self.used <= destination.avail
+
+    def dumpTo(self, destination):
+        destination.used += self.used
+        destination.avail -= self.used
+        self.avail += self.used
+        self.used = 0
+        if self.isTarget:
+            self.isTarget = False
+            destination.isTarget = True
+    
+    def manhattan(self):
+        return abs(self.x) + abs(self.y)
+    
+    
+
 for x in b:
     y = {}
     y["Filesystem"],y["Size"],y["Used"],y["Avail"],y["Use%"] = x[0], int(x[1][:-1]), int(x[2][:-1]), int(x[3][:-1]), int(x[4][:-1])
-    y["coords"] = [int(x[1:]) for x in y["Filesystem"].split("-")[1:]]
-    c.append(y)
-    print(y)
-viableTotal = 0
-for j,y in enumerate(c):
-    for i,x in enumerate(c):
-        if i==j: continue
-        if y["Used"] <= x["Avail"] and y["Used"]>0:#manhattan(x["coords"],y["coords"])==1:
-            viableTotal += 1
-print(viableTotal)
-#2006 too high
+    used,avail=y["Used"],y["Avail"]
+    x,y = [int(x[1:]) for x in y["Filesystem"].split("-")[1:]]
+    c.append(Node(x,y,used,avail))
+w,h = max(c,key=lambda x: x.x).x+1,max(c,key=lambda x: x.y).y+1
+#targetIndex = [i for i,x in enumerate(c) if x.x==w-1 and x.y==0][0]
+target = (w-1,h-1)
+for x in c: 
+    x.getNeighs(c)
+    x.isTarget = (x.x,x.y)==target
+
+queue = [c]
+seen = {tuple([x.used for x in c]):0}
+maxManhattan = 99
+while queue:
+    c = queue.pop()
+    tup = tuple([x.used for x in c])
+    print(tup)
+    steps = seen[tup]
+    if c[0].isTarget:
+        print(steps)
+        break
+    for i,node in enumerate(c):
+        for j,neigh in enumerate(node.neighs):
+            if node.canDumpTo(neigh):
+                cCopy = c[::]
+                cCopy[i].dumpTo(cCopy[j])
+                target = [x for x in cCopy if x.isTarget][0]
+                if target.manhattan() <= maxManhattan:
+                    maxManhattan = target.manhattan()
+                    tup = tuple([x.used for x in cCopy])
+                    if tup in seen:
+                        if steps + 1 >= seen[tup]: continue
+                    seen[tup] = steps + 1
+                    queue.append(cCopy)
+
+
+                
 
 
