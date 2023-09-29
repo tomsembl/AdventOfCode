@@ -88,8 +88,9 @@ shortestPath=[]
 while queue:
     node,dist,path=queue.pop()
     if len(path)==len(locations):
-        if dist < shortestDistance:
-            shortestDistance = dist
+        dist2 = dist+distances[node][start]
+        if dist2 < shortestDistance:
+            shortestDistance = dist2
             shortestPath=path
     [queue.append([x,dist+distances[node][x],path+[x]]) for x in distances[node] if x not in path]
 print(shortestDistance)
