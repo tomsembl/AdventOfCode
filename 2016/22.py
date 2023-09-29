@@ -1045,7 +1045,7 @@ for x in b:
     y["Filesystem"],y["Size"],y["Used"],y["Avail"],y["Use%"] = x[0], int(x[1][:-1]), int(x[2][:-1]), int(x[3][:-1]), int(x[4][:-1])
     y["coords"] = [int(x[1:]) for x in y["Filesystem"].split("-")[1:]]
     c.append(y)
-    print(y)
+    #print(y)
 viableTotal = 0
 for j,y in enumerate(c):
     for i,x in enumerate(c):
