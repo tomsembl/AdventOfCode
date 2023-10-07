@@ -1031,7 +1031,7 @@ Filesystem            Size  Used  Avail  Use%
 /dev/grid/node-x2-y0   10T    6T     4T   60%
 /dev/grid/node-x2-y1    9T    8T     1T   88%
 /dev/grid/node-x2-y2    9T    6T     3T   66%"""
-a=test
+#a=test
 b=[x.split() for x in a.splitlines()[2:]]
 c=[]
 dirs=[(0,1),(1,0),(-1,0),(0,-1)]
@@ -1079,38 +1079,62 @@ for x in b:
     x,y = [int(x[1:]) for x in y["Filesystem"].split("-")[1:]]
     c.append(Node(x,y,used,avail))
 w,h = max(c,key=lambda x: x.x).x+1,max(c,key=lambda x: x.y).y+1
+
+for x in sorted(c,key=lambda x: x.used):
+    print(x.used, x.used+x.avail)
+d=[]
+for y in range(h):
+    row = sorted([x for x in c if x.y == y],key=lambda z: z.x)
+    row = "".join(["_" if x.used==0 else "." if x.used+x.avail<100 else "#"  for x in row])
+    d.append(row)
+    print(row)
+
+for j,y in enumerate(d):
+    if "#" in y:
+        wallGap = (y.index("#")-1,j)
+    for i,x in enumerate(y):
+        if x=="_":
+            empty = (i,j)
+target = (w-1,0)
+preTarget = (w-2,0)
+print(wallGap,empty)
+dist = manhattan(empty,wallGap) #walk to the gap
+dist += manhattan(wallGap,preTarget) #walk to target
+dist += (w-2)*5 #shimmy target from right to left across the top
+dist += 1 #final swap
+print(dist)
+
+# def getShortestPath():
+#     queue=[]
+#     while queue
+
 #targetIndex = [i for i,x in enumerate(c) if x.x==w-1 and x.y==0][0]
-target = (w-1,h-1)
-for x in c: 
-    x.getNeighs(c)
-    x.isTarget = (x.x,x.y)==target
+# target = (w-1,h-1)
+# for x in c: 
+#     x.getNeighs(c)
+#     x.isTarget = (x.x,x.y)==target
 
-queue = [c]
-seen = {tuple([x.used for x in c]):0}
-maxManhattan = 99
-while queue:
-    c = queue.pop()
-    tup = tuple([x.used for x in c])
-    print(tup)
-    steps = seen[tup]
-    if c[0].isTarget:
-        print(steps)
-        break
-    for i,node in enumerate(c):
-        for j,neigh in enumerate(node.neighs):
-            if node.canDumpTo(neigh):
-                cCopy = c[::]
-                cCopy[i].dumpTo(cCopy[j])
-                target = [x for x in cCopy if x.isTarget][0]
-                if target.manhattan() <= maxManhattan:
-                    maxManhattan = target.manhattan()
-                    tup = tuple([x.used for x in cCopy])
-                    if tup in seen:
-                        if steps + 1 >= seen[tup]: continue
-                    seen[tup] = steps + 1
-                    queue.append(cCopy)
-
-
-                
-
-
+# queue = [c]
+# seen = {tuple([x.used for x in c]):0}
+# maxManhattan = 99
+# while queue:
+#     c = queue.pop()
+#     tup = tuple([x.used for x in c])
+#     print(tup)
+#     steps = seen[tup]
+#     if c[0].isTarget:
+#         print(steps)
+#         break
+#     for i,node in enumerate(c):
+#         for j,neigh in enumerate(node.neighs):
+#             if node.canDumpTo(neigh):
+#                 cCopy = c[::]
+#                 cCopy[i].dumpTo(cCopy[j])
+#                 target = [x for x in cCopy if x.isTarget][0]
+#                 if target.manhattan() <= maxManhattan:
+#                     maxManhattan = target.manhattan()
+#                     tup = tuple([x.used for x in cCopy])
+#                     if tup in seen:
+#                         if steps + 1 >= seen[tup]: continue
+#                     seen[tup] = steps + 1
+#                     queue.append(cCopy)
