@@ -345,5 +345,35 @@ x LSHIFT 2 -> f
 y RSHIFT 2 -> g
 NOT x -> h
 NOT y -> i"""
-a=test
-b=[x for x in a.splitlines()]
+#a=test
+b=[x.split(" -> ") for x in a.splitlines()]
+c={x[1]:x[0] for x in b}
+solved={}
+def not2(x): return int("".join([str(1-int(x)) for x in ("0"*16+bin(x)[2:])[-16:]]),2)
+def solve(x):
+    if x.isnumeric(): return int(x)
+    if x in solved: return solved[x]
+    y=c[x].split()
+    if len(y) == 1:
+        solved[x]=solve(y[0])
+    if len(y) == 2:
+        solved[x]=int(not2(solve(y[1])))
+    if len(y) == 3:
+        y0 = solve(y[0])
+        y2 = solve(y[2])
+        if y[1] == "AND":
+            solved[x] = y0 & y2
+        if y[1] == "OR":
+            solved[x] = y0 | y2
+        if y[1] == "LSHIFT":
+            solved[x] = y0 << y2
+        if y[1] == "RSHIFT":
+            solved[x] = y0 >> y2
+    return solved[x]
+for x in c: solve(x)    
+
+p1 = solved["a"]
+print(p1) #part 1
+solved={"b":p1}
+for x in c: solve(x) 
+print(solved["a"])
