@@ -123,6 +123,10 @@ def getAdj(x,y):
     [[adjs.append(b[y+dy][x+dx]) for dx in range(-1,2) if -1 < x+dx < w and not (dx==0 and dy==0)] for dy in range(-1,2) if -1 < y+dy < h]
     return adjs
 
+def cornersOn():
+    b[0][0], b[0][-1], b[-1][0], b[-1][-1] = 1,1,1,1
+
+cornersOn()
 update_visualization(b)
 for _ in range(100):
     bCopy = [y[::] for y in b[::]]
@@ -132,8 +136,12 @@ for _ in range(100):
             if x == 1: bCopy[j][i] = 1 if adj.count(1) in (2,3) else 0
             if x == 0: bCopy[j][i] = 1 if adj.count(1) == 3 else 0
     b = bCopy
-    #update_visualization(b)
+    cornersOn()
+    # for y in b:
+    #     print("".join([".#"[x] for x in y]))
+    # print()
+    update_visualization(b)
 
-print(sum([sum(x) for x in b])) #part 1
+print(sum([sum(x) for x in b])) #part 2
 
 plt.show()
