@@ -72,7 +72,7 @@ for i,x in enumerate(splitElements(c)):
                 startElement = splitElements(c)
                 newElement = startElement[:i] + z + startElement[i+1:]
                 sett.add("".join(newElement))
-print(len(sett))
+print(len(sett))#part1
 
 def reduceOneMolecule(c):
     for i in range(len(c)-1,-1,-1): #going backwards instead of forwards magically fixed it
@@ -84,4 +84,4 @@ steps = 0
 while c!= "e":
     c = reduceOneMolecule(c)
     steps += 1
-print(steps)
+print(steps)#part2
