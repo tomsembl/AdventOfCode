@@ -36,6 +36,6 @@ cnxn.autocommit = True
 cursor = cnxn.cursor()
 
 cursor.execute("SELECT name FROM sys. databases")
-cursor.execute("drop database [3D Oil Limited HYR 31 December 2022_50830fac-24d0-4b91-bd05-b0d2b0e0321e_00000000-0000-0000-0000-000000000000]")
+cursor.execute("drop database [asdf]")
 for row in cursor.fetchall():
     print(row)
