@@ -1,5 +1,3 @@
-import sys
-sys.setrecursionlimit(1996)
 a="""2: 12 16 | 41 26
 55: 92 16 | 84 26
 107: 48 26 | 29 16
@@ -551,58 +549,44 @@ abbbab
 aaabbb
 aaaabbb"""
 #a=test
-b=a.split("\n\n")
-rulesStr,messages=b
-messages=messages.splitlines()
-def abToBin(ab): return "".join([str("ab".index(x)) for x in ab])
-messages = [abToBin(x) for x in messages]
-
-class Node():
-    def __init__(self, id, options=None, value=None):
-        self.id = id
-        self.value = value
-        self.options = options
-    def isLinked(self):
-        if self.value != None: return True
-        return type(self.options[0][0]) != int
-
-rules=[]
-for rule in rulesStr.splitlines():
-    x,y = rule.split(": ")
-    value = str("ab".index(y[1])) if '"' in y else None
-    options = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""] if not value else None
-    rules.append(Node(id=int(x), options=options, value=value))
-
-while any([not node.isLinked() for node in rules]):
-    for node in rules:
-        if node.isLinked(): continue
-        #allChildren = []
-        #for option in node.options: allChildren.extend(option)
-        #if all([rules[id].isLinked() for id in allChildren]):
-        node.options = [[rules[id] for id in option] for option in node.options]
-
-def traverse(string,rule,pos):
-    if rule.value: 
-        length = len(rule.value)
-        if string[pos:pos+length] == rule.value: 
-            return [length]
-        return []
-    finalValidLengths = []
-    for option in rule.options:
-        validLengths = [0]
-        for subRule in option:
-            validLengthsCopy = validLengths[::]
-            for length in validLengthsCopy:
-                validLengths = [x+length for x in traverse(string,subRule,pos+length)]
-        finalValidLengths.extend(validLengths)
-    return finalValidLengths
+b=[x.splitlines() for x in a.split("\n\n")]
+rules,messages=b
+known = {}
+while len(known)<len(rules):
+    for rule in rules:
+        x,y = rule.split(": ")
+        value = str("ab".index(y[1])) if '"' in y else None
+        options = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""] if not value else [value]
+        if value:
+            known[int(x)] = options
+            continue
+        if all([all([y in known for y in x]) for x in options]):
+            output1 = []
+            for option in options:
+                output2 = []
+                if len(option) == 1: 
+                    output2 = known[option[0]]
+                elif len(option) == 2:
+                    for xx in known[option[0]]:
+                        for y in known[option[1]]:
+                            output2.append(xx+y)
+                else: print("asdf")
+                output1.extend(output2)
+            known[int(x)] = output1
 
 
-   
-print(traverse("1",rules[5],0))
-# total = 0
-# for i,message in enumerate(messages):
-#     print(i,message)
-#     if len(message) in traverse(message,rules[0],0):
+    print(len(known))
+knownPile = []
+for x in known:
+    print(x,sum([len(y) for y in known[x]])//len(known[x]))
+
+messages = ["".join([str("ab".index(y)) for y in x]) for x in messages]
+total=0
+for x in messages:
+    if any([x.startswith(y) for y in known[42]]) and any([x.endswith(y) for y in known[31]] ):
+        total += 1
+           
+#     if x in known[0]:
 #         total += 1
-# print(total) #part 1
+print(total) #part 2
+
