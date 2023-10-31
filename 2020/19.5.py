@@ -595,9 +595,11 @@ aaaabbaaaabbaaa
 aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
 babaaabbbaaabaababbaabababaaab
 aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba"""
-a=test
-b=[x.splitlines() for x in a.split("\n\n")]
+#a=test
+b=[sorted(x.splitlines()) for x in a.split("\n\n")]
 rules,messages=b
+# rules[8] = "42 | 42 42 | 42 42 42 | 42 42 42 42"
+# rules[11] = "42 31 | 42 31 31 42 | 42 42 42 31 31 31 | 42 42 42 42"
 known = {}
 while len(known)<len(rules):
     for rule in rules:
@@ -626,54 +628,27 @@ for x in known:
     print(x,sum([len(y) for y in known[x]])//len(known[x]))
 
 messages = ["".join([str("ab".index(y)) for y in x]) for x in messages]
-
-def check11(x):
-    start = None
-    for y in known[42]:
-        if x.startswith(y):
-            start = y
-            break
-    if not start: return 0
-    end = None
-    for y in known[31]:
-        if x.endswith(y):
-            end = y
-            return x[len(start):-len(end)]
-    return 0
-
-def check8(x):
-    for y in known[42]:
-        if x.startswith(y):
-            start = y
-            return x[len(start):]
-    return 0
-    
-    
-def check0(c):
-    if c=="": return True
-    while True:
-        c11 = check11(c)
-        c8 = check8(c)
-        if c11 == "" or c8 == "":
-            return True
-        if c11 == 0 and c8 == 0:
-            return False
-        if c11 != 0:
-            c = c11
-            continue
-        if c8 != 0:
-            c = c8
         
+def check0(x):
+    size = len(known[42][0])
+    rulesFound=[]
+    for i in range(0,len(x)+1,size):
+        slice = x[i:i+size]
+        for ruleID in [31,42]:
+            if slice in known[ruleID]:
+                rulesFound.append(ruleID)
+    n31,n42 = rulesFound.count(31),rulesFound.count(42)
+    if n31 < 1: return False
+    if n42 <= n31: return False
+    if 42 in rulesFound[-n31:]: return False
+    return True
+
+
 total=0
 for x in messages:
-    c = check11(x)
-    if c==0: continue
-    if check0(c):
+    if check0(x):
         total += 1
-        print(x)
            
-#     if x in known[0]:
-#         total += 1
 print(total) #part 2
 #354 too high
 #323 too high --matched someone else's answer
