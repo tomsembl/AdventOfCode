@@ -548,61 +548,38 @@ bababa
 abbbab
 aaabbb
 aaaabbb"""
-a=test
-b=a.split("\n\n")
+#a=test
+b=[x.splitlines() for x in a.split("\n\n")]
 rules,messages=b
-messages=messages.splitlines()
-dicti = {}
-for rule in rules.splitlines():
-    x,y = rule.split(": ")
-    if '"' in y: y = str("ba".index(y[1]))
-    else: y = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""]
-    dicti[int(x)]=y
-print(dicti)
+known = {}
+while len(known)<len(rules):
+    for rule in rules:
+        x,y = rule.split(": ")
+        value = str("ab".index(y[1])) if '"' in y else None
+        options = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""] if not value else [value]
+        if value:
+            known[int(x)] = options
+            continue
+        if all([all([y in known for y in x]) for x in options]):
+            output1 = []
+            for option in options:
+                output2 = []
+                if len(option) == 1: 
+                    output2 = known[option[0]]
+                elif len(option) == 2:
+                    for xx in known[option[0]]:
+                        for y in known[option[1]]:
+                            output2.append(xx+y)
+                else: print("asdf")
+                output1.extend(output2)
+            known[int(x)] = output1
+knownPile = []
+# for x in known:
+#     print(x,sum([len(y) for y in known[x]]))
 
-known={x:[dicti[x]] for x in dicti if type(dicti[x])==int}
-        
-
-
-        
-
-def abToBin(ab): return "".join([str("ba".index(x)) for x in ab])
-
-def traverse(message,node=0):
-    node = dicti[node]
-    if type(node) == str: 
-        return [node]
-    for x in node:
-        options=[]
-        i=0
-        for y in x:
-            option=""
-            parts = traverse(message[i:],node=y)
-            for part in parts:
-                options.append([part,i])
-                i+= len(part)
-        if option == message: print("")
-            
-def dfs(start):
-    queue=[start,""]
-for msg in messages:
-    print(abToBin(msg))
-    traverse(abToBin(msg))
-
-# print(known)
-# while len(known) != len(dicti):
-#     for x in dicti:
-#         isknown = True
-#         y=dicti[x]
-#         if type(y)==int: continue
-#         for option in y:
-#             for z in option:
-#                 if z not in known: isknown = False
-#         if isknown:
-#             new=[]
-#             for option in y:
-#                 for z in option:
-#                     new2=""
-#                     for w in known[z]:
-
-#             known[x]=
+messages = ["".join([str("ab".index(y)) for y in x]) for x in messages]
+total=0
+for x in messages:
+    if x in known[0]:
+        total += 1
+print(total) #part 1

@@ -548,71 +548,104 @@ bababa
 abbbab
 aaabbb
 aaaabbb"""
+test="""42: 9 14 | 10 1
+9: 14 27 | 1 26
+10: 23 14 | 28 1
+1: "a"
+11: 42 31
+5: 1 14 | 15 1
+19: 14 1 | 14 14
+12: 24 14 | 19 1
+16: 15 1 | 14 14
+31: 14 17 | 1 13
+6: 14 14 | 1 14
+2: 1 24 | 14 4
+0: 8 11
+13: 14 3 | 1 12
+15: 1 | 14
+17: 14 2 | 1 7
+23: 25 1 | 22 14
+28: 16 1
+4: 1 1
+20: 14 14 | 1 15
+3: 5 14 | 16 1
+27: 1 6 | 14 18
+14: "b"
+21: 14 1 | 1 14
+25: 1 1 | 1 14
+22: 14 14
+8: 42
+26: 14 22 | 1 20
+18: 15 15
+7: 14 5 | 1 21
+24: 14 1
+
+abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
+bbabbbbaabaabba
+babbbbaabbbbbabbbbbbaabaaabaaa
+aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+bbbbbbbaaaabbbbaaabbabaaa
+bbbababbbbaaaaaaaabbababaaababaabab
+ababaaaaaabaaab
+ababaaaaabbbaba
+baabbaaaabbaaaababbaababb
+abbbbabbbbaaaababbbbbbaaaababb
+aaaaabbaabaaaaababaa
+aaaabbaaaabbaaa
+aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+babaaabbbaaabaababbaabababaaab
+aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba"""
 #a=test
-b=a.split("\n\n")
+b=[sorted(x.splitlines()) for x in a.split("\n\n")]
 rules,messages=b
-messages=messages.splitlines()
-dicti = {}
-class Node():
-    def __init__(self, id, options=None, value=None):
-        self.id = id
-        self.value = value
-        self.options = options
-    def isLinked(self):
-        if self.value != None: return True
-        return type(self.options[0][0]) != int
+known = {}
+while len(known)<len(rules):
+    for rule in rules:
+        x,y = rule.split(": ")
+        value = str("ab".index(y[1])) if '"' in y else None
+        options = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""] if not value else [value]
+        if value:
+            known[int(x)] = options
+            continue
+        if all([all([y in known for y in x]) for x in options]):
+            output1 = []
+            for option in options:
+                output2 = []
+                if len(option) == 1: 
+                    output2 = known[option[0]]
+                elif len(option) == 2:
+                    for xx in known[option[0]]:
+                        for y in known[option[1]]:
+                            output2.append(xx+y)
+                else: print("asdf")
+                output1.extend(output2)
+            known[int(x)] = output1
+knownPile = []
+# for x in known:
+#     print(x,sum([len(y) for y in known[x]])//len(known[x]))
 
-nodes=[]
-for rule in rules.splitlines():
-    x,y = rule.split(": ")
-    value = str("ba".index(y[1])) if '"' in y else None
-    options = [[int(z) for z in x.split(" ") if z!= ""] for x in y.split("|") if x!=""] if not value else None
-    nodes.append(Node(id=int(x), options=options, value=value))
-#print(nodes[0].options)
+messages = ["".join([str("ab".index(y)) for y in x]) for x in messages]
+        
+def check0(x):
+    size = len(known[42][0])
+    rulesFound=[]
+    for i in range(0,len(x)+1,size):
+        slice = x[i:i+size]
+        for ruleID in [31,42]:
+            if slice in known[ruleID]:
+                rulesFound.append(ruleID)
+    n31,n42 = rulesFound.count(31),rulesFound.count(42)
+    if n31 < 1: return False
+    if n42 <= n31: return False
+    if 42 in rulesFound[-n31:]: return False
+    return True
 
-while any([not node.isLinked() for node in nodes]):
-    for node in nodes:
-        if node.isLinked(): continue
-        allChildren = []
-        for option in node.options: allChildren.extend(option)
-        if all([nodes[id].isLinked() for id in allChildren]):
-            node.options = [[nodes[id] for id in option] for option in node.options]
 
-def traverse(node):
-    if node.value: return [node.value]
-    result=[]
-    for option in node.options:
-        for x in option:
-            if not result:
-                result.append(traverse(x))
-                continue
-            z = traverse(x)
-            newResult = []
-            for x in result:
-                for y in z:
-                    newResult.append(x+y)
-            result.append(newResult)
-    return result
-
-# def traverse(node):
-#     if node.value: return [node.value]
-#     result=[]
-#     if len(node.options) == 1:
-#         for x in node.options:
-#             if not result:
-#                 result.append(traverse(x))
-#                 continue
-#             new = traverse(x)
-#             newResult = []
-#             for x in result:
-#                 for y in new:
-#                     newResult.append(x+y)
-#     for option in node.options:
-#         a = traverse(option[0])
-#         b = traverse(option[1])
-#         new = a + b if type(a) == str else [a[0] + b[0], a[0] + b[1], a[1] + b[0], a[1] + b[1]]
-#         print(new)
-#         result.append(new)
-#     return result
-       
-print(traverse(nodes[1]))
+total=0
+for x in messages:
+    if check0(x):
+        total += 1
+           
+print(total) #part 2
+#354 too high
+#323 too high --matched someone else's answer
