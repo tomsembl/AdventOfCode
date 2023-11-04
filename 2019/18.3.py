@@ -79,16 +79,48 @@ a="""###########################################################################
 #.#######.#.#.#####.#.#########.#######.#.###.###.###.#####.#.###.#####.#.#######
 #.....L.....#.......#.............G..i..#.....#.....#.......#.........#.........#
 #################################################################################"""
+
+
 test="""#########
 #b.A.@.a#
 #########"""
+
+test="""########################
+#f.D.E.e.C.b.A.@.a.B.c.#
+######################.#
+#d.....................#
+########################"""
+
+test="""########################
+#...............b.C.D.f#
+#.######################
+#.....@.a.B.c.d.A.e.F.g#
+########################"""
+
+test="""#################
+#i.G..c...e..H.p#
+########.########
+#j.A..b...f..D.o#
+########@########
+#k.E..a...g..B.n#
+########.########
+#l.F..d...h..C.m#
+#################"""
+
+test="""########################
+#@..............ac.GI.b#
+###d#e#f################
+###A#B#C################
+###g#h#i################
+########################"""
+
+
 #a=test
 b=a.replace("#","▒").replace("."," ")
 grid=[[x for x in y] for y in b.splitlines()]
 
 
 w,h = len(grid[0]),len(grid)
-
 dirs = [[1,0],[0,1],[-1,0],[0,-1]]
 
 def getNeighs(x,y): return [(x+dx, y+dy) for dx,dy in dirs]
@@ -126,13 +158,6 @@ def trim(x,y):
                 trimList.append(neigh)
                 x,y=neigh
 
-def countAlphs():
-    counter=0
-    for j,y in enumerate(grid):
-        for i,x in enumerate(y):
-            if x.isalpha():counter+=1
-    return counter
-
 #delete dead ends
 while any([any([isDeadEnd(i,j) and readNeigh((i,j))==" " for i in range(w)]) for j in range(h)]):
     for j,y in enumerate(grid):
@@ -140,46 +165,38 @@ while any([any([isDeadEnd(i,j) and readNeigh((i,j))==" " for i in range(w)]) for
             if x not in "█▒":
                 if isDeadEnd(i,j) and readNeigh((i,j))==" ": trim(i,j)
 
-for j,line in enumerate(grid):
-    if "@" in line:
-        globalStart = (line.index("@"),j)
+globalStart = [(line.index("@"),j) for j,line in enumerate(grid) if "@" in line][0]
 k,l=globalStart
+grid[l][k]=" "
 #remove start tile
 # if test!=a:
 #     grid[l][k] = "▒"
 
-#light up junctions
-for j,y in enumerate(grid):
-    for i,x in enumerate(y):
-        if x not in "█▒":
-            if isJunction(i,j) : grid[j][i]="█" #and not (i,j)==globalStart
+# # light up junctions
+# for j,y in enumerate(grid):
+#     for i,x in enumerate(y):
+#         if x not in "█▒":
+#             if isJunction(i,j) : grid[j][i]="█" #and not (i,j)==globalStart
 
+gridRatio=1
 for line in grid:
-    print("".join([x*2 for x in line]))
+    print("".join([x*gridRatio for x in line]))
 
 def walk(x,y):
-    original = (x,y)
+    queue = [(x,y,0)]
+    seen = {(x,y):0}
     paths={}
-    neighs = getNeighs(x,y)
-    for neigh in neighs:
-        if readNeigh(neigh)=="▒": continue
-        xx,yy = neigh
-        path=[neigh]
-        breakFlag = False
-        while True:
-            for neigh in getNeighs(xx,yy):
-                xx,yy = neigh
-                if any([ neigh in path, neigh == original, readNeigh(neigh)=="▒" ]): continue
-                if isJunction(xx,yy) or readNeigh(neigh).isalpha():
-                    path.append(neigh)
-                    breakFlag=True
-                    break
-                if  isHall(xx,yy): 
-                    path.append(neigh)
-                    xx,yy=neigh
-                    break
-            if breakFlag: break
-        paths[neigh] = len(path)
+    while queue:
+        x,y,dist = queue.pop()
+        neighs = getNeighs(x,y)
+        for neigh in neighs:
+            xx,yy = neigh
+            if readNeigh(neigh)=="▒" or (xx,yy) in seen: continue
+            seen[neigh]=dist+1
+            if readNeigh(neigh)==" ":
+                queue.append((xx,yy,dist+1))
+            else:
+                paths[neigh]=dist+1
     return paths
 
 def bfs():
@@ -202,70 +219,90 @@ def bfs():
             tree[node][char] = dist
     return tree
 
-
 tree = bfs()
 for x in sorted(list([x for x in tree.keys() if type(x)==tuple])): print(x,tree[x])
 for x in sorted(list([x for x in tree.keys() if type(x)==str])): print(x,tree[x])
 
 def bfs2(start):
     seen={}
-    queue=[(start,0,[])]
+    queue=[(start,0,[],[])]
     while queue:
-        node,dist,doors = queue.pop()
-        if node not in seen: seen[node] = [dist,doors[::]]
+        node,dist,doors,keys = queue.pop()
+        if node not in seen: seen[node] = [dist,doors[::],keys[::]]
         elif seen[node][0] <= dist: continue
         for dest,dist2 in tree[node].items():
             newDoors=doors[::]
+            newKeys=keys[::]
             if type(dest)==str:
-                if dest.upper()==dest: newDoors=doors[::]+[dest]
-            queue.append((dest,dist+dist2,newDoors))
+                if dest.upper()==dest: newDoors.append(dest)
+                if dest.lower()==dest: newKeys.append(dest)
+            queue.append((dest,dist+dist2,newDoors,newKeys))
     return seen
 
-allDoors=sorted([y for y in [x for x in tree if type(x)==str] if y.upper()==y])
-allKeys=sorted([y.upper() for y in [x for x in tree if type(x)==str] if y.lower()==y and y.upper() not in allDoors]) + allDoors
-allKeys2 = allKeys[::-1]
-def doorsToBitwise(doors): return int("0b"+"".join(["1" if x in [y.upper() for y in doors] else "0" for x in allKeys]),2)
-allBits=doorsToBitwise(allDoors)
+allKeys = sorted([y for y in [x for x in tree if type(x)==str] if y.lower()==y])
+allDoors = sorted([y for y in [x for x in tree if type(x)==str] if y.upper()==y])
 
-alphs=[y for y in [x for x in tree if type(x)==str] if y.lower()==y]
-keys={}
+def doorsToBitwise(keys): return int("0b"+"".join(["1" if x in keys else "0" for x in allKeys]),2)
+allBits=doorsToBitwise(allKeys)
+
+keyDistTree={}
+keyTreeInTheWay={}
 sx,sy=globalStart
-startTiles = [(sx+1,sy+1),(sx-1,sy+1),(sx+1,sy-1),(sx-1,sy-1)]
-for start in alphs+startTiles:
-    keys[start]={}
+for start in allKeys+[globalStart]:
+    startBit = 0 if type(start)==tuple else doorsToBitwise([start])
+    keyDistTree[startBit]={}
+    keyTreeInTheWay[startBit]={}
     dic = bfs2(start)
     for key in dic:
         if type(key) != str: continue
-        if key==start or key not in alphs:continue
-        keys[start][key]={}
-        dist,doors = dic[key]
-        keys[start][key]["dist"] = dist
-        keys[start][key]["doors"] = doorsToBitwise(doors)
-for x in keys: print(x,keys[x])
+        if key==start or key not in allKeys:continue
+        bitKey = doorsToBitwise([key])
+        dist,doors,keys = dic[key]
+        keyDistTree[startBit][bitKey] = dist
+        doorsAndKeysInTheWay = sorted(list(set([x.lower() for x in doors]+[x.lower() for x in keys if x!=key])))
+        keyTreeInTheWay[startBit][bitKey] = doorsToBitwise(doorsAndKeysInTheWay)
 
-
+# for x in keyDistTree: 
+#     for y in keyDistTree[x]:
+#         print(x,"=>",y,keyDistTree[x][y])
+#     print()
+# oKey = doorsToBitwise(["o"])
+# qKey = doorsToBitwise(["q"])
+# print(keyDistTree[oKey][qKey])
+# print(bin(keyTreeInTheWay[oKey][qKey]))
+# print()
 def bfs3():
-    iterations=0
     seen={}
-    queue=[(node,2,0) for node in startTiles]
+    iterations=0
+    queue=[(0,0,0)]
+    best = 9999
     while queue:
-        node,dist,keysBits=queue.pop()
-        iterations+=1
-        if iterations%10_000==0:print(iterations,len(queue))
-        if keysBits in seen:
-            if dist > seen[keysBits]: continue
-        else:
-            seen[keysBits] = dist
-        if dist < seen[keysBits]: seen[keysBits] = dist
-        for neigh in keys[node]:
-            neighObj = keys[node][neigh]
-            if (doors:=neighObj['doors']) & keysBits == doors:
-                if not ( po2:=2**allKeys2.index(neigh.upper()) ) & keysBits:
-                    newKeysBits = po2 + keysBits
-                    queue.append((neigh,dist+neighObj["dist"],newKeysBits))
-    print(seen[doorsToBitwise(allKeys)]) #part1
+        node,dist,keysBits = queue.pop()
+        iterations += 1
+        if iterations % 1_000_000==0: print(iterations,len(queue),dist,f"{keysBits}/{allBits}")
+        for neighBit in keyDistTree[node]:
+            if neighBit & keysBits == neighBit: continue #exclude keys that have already been picked up
+            bitsInTheWay = keyTreeInTheWay[node][neighBit]
+            if bitsInTheWay & keysBits == bitsInTheWay:
+                newDist = dist + keyDistTree[node][neighBit]
+                if newDist >= best: continue
+                newKeysBits = neighBit + keysBits
+                seen.setdefault(neighBit,{})
+                seenDist = seen[neighBit].setdefault(newKeysBits,newDist)
+                if newDist > seenDist: continue
+                if newDist < seenDist: 
+                    if newKeysBits == allBits and newDist < best: 
+                        best = newDist
+                        print(newDist,neighBit)
+                    seen[neighBit][newKeysBits] = newDist
+                queue.append((neighBit, newDist, newKeysBits))
+    return min([seen[x][allBits] for x in seen if allBits in seen[x]])
+answer = bfs3()
+print("answer",answer)
+#6430 too LOW
+#7396 too LOW<<<
 
-bfs3()
-#6430 too low
 #7448 too high
 #7444 too high #-70
+#7436 too high
+#7432 too high
