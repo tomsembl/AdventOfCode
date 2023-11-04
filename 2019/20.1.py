@@ -121,6 +121,7 @@ JY..#.#.#...#.#.#.#...#.#.#.#...#                                               
   #####################################.#########.#####.#########.#####.#####.#######################################  
                                        X         E     A         M     L     G                                         
                                        Z         C     L         P     J     K                                         """
+
 test="""         A           
          A           
   #######.#########  
@@ -140,119 +141,129 @@ FG..#########.....#
   ###########.#####  
              Z       
              Z       """
-             
-test="""                   A               
-                   A               
-  #################.#############  
-  #.#...#...................#.#.#  
-  #.#.#.###.###.###.#########.#.#  
-  #.#.#.......#...#.....#.#.#...#  
-  #.#########.###.#####.#.#.###.#  
-  #.............#.#.....#.......#  
-  ###.###########.###.#####.#.#.#  
-  #.....#        A   C    #.#.#.#  
-  #######        S   P    #####.#  
-  #.#...#                 #......VT
-  #.#.#.#                 #.#####  
-  #...#.#               YN....#.#  
-  #.###.#                 #####.#  
-DI....#.#                 #.....#  
-  #####.#                 #.###.#  
-ZZ......#               QG....#..AS
-  ###.###                 #######  
-JO..#.#.#                 #.....#  
-  #.#.#.#                 ###.#.#  
-  #...#..DI             BU....#..LF
-  #####.#                 #.#####  
-YN......#               VT..#....QG
-  #.###.#                 #.###.#  
-  #.#...#                 #.....#  
-  ###.###    J L     J    #.#.###  
-  #.....#    O F     P    #.#...#  
-  #.###.#####.#.#####.#####.###.#  
-  #...#.#.#...#.....#.....#.#...#  
-  #.#####.###.###.#.#.#########.#  
-  #...#.#.....#...#.#.#.#.....#.#  
-  #.###.#####.###.###.#.#.#######  
-  #.#.........#...#.............#  
-  #########.###.###.#############  
-           B   J   C               
-           U   P   P               """
-           
-#a=test
+
+test = """             Z L X W       C                 
+             Z P Q B       K                 
+  ###########.#.#.#.#######.###############  
+  #...#.......#.#.......#.#.......#.#.#...#  
+  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  
+  #.#...#.#.#...#.#.#...#...#...#.#.......#  
+  #.###.#######.###.###.#.###.###.#.#######  
+  #...#.......#.#...#...#.............#...#  
+  #.#########.#######.#.#######.#######.###  
+  #...#.#    F       R I       Z    #.#.#.#  
+  #.###.#    D       E C       H    #.#.#.#  
+  #.#...#                           #...#.#  
+  #.###.#                           #.###.#  
+  #.#....OA                       WB..#.#..ZH
+  #.###.#                           #.#.#.#  
+CJ......#                           #.....#  
+  #######                           #######  
+  #.#....CK                         #......IC
+  #.###.#                           #.###.#  
+  #.....#                           #...#.#  
+  ###.###                           #.#.#.#  
+XF....#.#                         RF..#.#.#  
+  #####.#                           #######  
+  #......CJ                       NM..#...#  
+  ###.#.#                           #.###.#  
+RE....#.#                           #......RF
+  ###.###        X   X       L      #.#.#.#  
+  #.....#        F   Q       P      #.#.#.#  
+  ###.###########.###.#######.#########.###  
+  #.....#...#.....#.......#...#.....#.#...#  
+  #####.#.###.#######.#######.###.###.#.#.#  
+  #.......#.......#.#.#.#.#...#...#...#.#.#  
+  #####.###.#####.#.#.#.#.###.###.#.###.###  
+  #.......#.....#.#...#...............#...#  
+  #############.#.#.###.###################  
+               A O F   N                     
+               A A D   M                     """
+
+a=test
 grid=a.splitlines()
 w,h = len(grid[0]),len(grid)
 dirs = [[1,0],[0,1],[-1,0],[0,-1]]
 portals = {}
 
-    
+
 translate = {"#":"▒",".":" "}
 for y in grid:
-    print("".join([translate[x] if x in translate else x for x in y]))
+	print("".join([translate[x] if x in translate else x for x in y]))
 
 def getNeighs(x,y):
-    return [[x+dx,y+dy] for dx,dy in dirs if (0<=x+dx<w and 0<=y+dy<h)]
+	return [[x+dx,y+dy] for dx,dy in dirs if (0<=x+dx<w and 0<=y+dy<h)]
 
 for j,y in enumerate(grid):
-    for i,x in enumerate(y):
-        if x.isalpha():
-            portalID = None
-            portalCoords = None
-            queue = getNeighs(i,j)
-            while queue and not (portalID and portalCoords):
-                xx,yy = queue.pop(0)
-                if grid[yy][xx].isalpha() and [i,j]!=[xx,yy]:
-                    queue.extend(getNeighs(xx,yy))
-                    portalID = "".join([grid[ny][nx] for nx,ny in sorted([[i,j],[xx,yy]])])
-                if grid[yy][xx] == ".":
-                    portalCoords = (xx,yy)
-            portals.setdefault(portalID, set({})).add(portalCoords)
+	for i,x in enumerate(y):
+		if x.isalpha():
+			portalID = None
+			portalCoords = None
+			queue = getNeighs(i,j)
+			while queue and not (portalID and portalCoords):
+				xx,yy = queue.pop(0)
+				if grid[yy][xx].isalpha() and [i,j]!=[xx,yy]:
+					queue.extend(getNeighs(xx,yy))
+					portalID = "".join([grid[ny][nx] for nx,ny in sorted([[i,j],[xx,yy]])])
+				if grid[yy][xx] == ".":
+					portalCoords = (xx,yy)
+			portals.setdefault(portalID, set({})).add(portalCoords)
+
+for portalID in portals:
+	value = portals[portalID]
+	portals[portalID] = sorted(list(value),key=lambda x: 0 if (x[0] in (2,h-3) or x[1] in (2,w-3) ) else 1)
 
 coords={}
-    
+
 for x in portals:
-    print(x,portals[x])
-    for y in portals[x]:
-        coords[y]=x
-        
+	print(x,portals[x])
+	for y in portals[x]:
+		coords[y]=x
+
 tree = {}
 for portalID in portals:
-    for x,y in portals[portalID]:
-        seen = {(x,y):0}
-        queue = [[x,y,0]]
-        while queue:
-            xx,yy,distance = queue.pop(0)
-            for nx,ny in getNeighs(xx,yy):
-                if grid[ny][nx] != ".": continue
-                if (nx,ny) in seen: continue
-                seen[(nx,ny)] = distance+1
-                if (nx,ny) in coords:
-                    tree.setdefault((x,y), {})[(nx,ny)] = distance+1
-                queue.append([nx,ny,distance+1])
-                
+	for x,y in portals[portalID]:
+		seen = {(x,y):0}
+		queue = [[x,y,0]]
+		while queue:
+			xx,yy,distance = queue.pop(0)
+			for nx,ny in getNeighs(xx,yy):
+				if grid[ny][nx] != ".": continue
+				if (nx,ny) in seen: continue
+				seen[(nx,ny)] = distance+1
+				if (nx,ny) in coords:
+					tree.setdefault((x,y), {})[(nx,ny)] = distance+1
+				queue.append([nx,ny,distance+1])
+
 for x in tree:
-    print(x,tree[x])
-    
+	print(x,tree[x])
+
 start = list(portals["AA"])[0]
 goal = list(portals["ZZ"])[0]
 
+levelLimit = 11
 x,y = start
-seen = {start:0}
-queue = [[x,y,0]]
+seen = {0:{start:0}}
+queue = [[x,y,0,0]]
 while queue:
-    xx,yy,distance = queue.pop(0)
-    for nx,ny in tree[(xx,yy)]:
-        newDistance = distance + tree[(xx,yy)][(nx,ny)]
-        print(coords[(xx,yy)],"=>",coords[(nx,ny)],newDistance)
-        seen.setdefault((nx,ny),newDistance)
-        if (nx,ny) in seen: 
-            if newDistance <= seen[(nx,ny)]:
-                seen[(nx,ny)] = newDistance
-            else: continue
-        queue.append([nx,ny,newDistance])
-        twin = list(portals[coords[(nx,ny)]].difference(set({(nx,ny)})))
-        if twin:
-            tx,ty = twin[0]
-            queue.append([tx,ty,newDistance+1])
-
-print(seen[goal]) #part 1       
+	xx,yy,distance,level = queue.pop(0)
+	seenLevel = seen.setdefault(level,{})
+	seenNewCoord = seenLevel.setdefault((xx,yy),distance)
+	if distance <= seenNewCoord:
+		seenNewCoord = distance
+	else: continue
+	for nx,ny in tree[(xx,yy)]:
+		newDistance = distance + tree[(xx,yy)][(nx,ny)]
+		print(level,coords[(xx,yy)],"=>",coords[(nx,ny)],newDistance)
+		
+		queue.append([nx,ny,newDistance,level])
+		portalRelationship = portals[coords[(nx,ny)]]
+		if len(portalRelationship) == 1: continue
+		portalIndex = portalRelationship.index((nx,ny))
+		twin = portalRelationship[1-portalIndex]
+		tx,ty = twin
+		newLevel = level+(1 if portalIndex == 1 else -1)
+		if newLevel < 0: continue
+		if newLevel > levelLimit: continue
+		queue.append([tx,ty,newDistance+1,newLevel])
+print(seen[0][goal])
