@@ -180,11 +180,11 @@ RE....#.#                           #......RF
                A O F   N                     
                A A D   M                     """
 
-a=test
+#a=test
 grid=a.splitlines()
 w,h = len(grid[0]),len(grid)
 dirs = [[1,0],[0,1],[-1,0],[0,-1]]
-portals = {}
+portalIDs = {}
 
 
 translate = {"#":"▒",".":" "}
@@ -207,63 +207,82 @@ for j,y in enumerate(grid):
 					portalID = "".join([grid[ny][nx] for nx,ny in sorted([[i,j],[xx,yy]])])
 				if grid[yy][xx] == ".":
 					portalCoords = (xx,yy)
-			portals.setdefault(portalID, set({})).add(portalCoords)
+			portalIDs.setdefault(portalID, set({})).add(portalCoords)
 
-for portalID in portals:
-	value = portals[portalID]
-	portals[portalID] = sorted(list(value),key=lambda x: 0 if (x[0] in (2,h-3) or x[1] in (2,w-3) ) else 1)
+portals = []
+class Portal():
+	def __init__(self,coords,id,isOuter):
+		self.id = id
+		self.coords = coords
+		self.twin = None
+		self.isOuter = isOuter
+		self.neighs = []
+		self.index = None
 
-coords={}
+	def __repr__(self):
+		return f"index:{self.index} {self.id} {('outer' if self.isOuter else 'inner')}  neighs:{[(portals[x].id,('outer' if portals[x].isOuter else 'inner'),y) for x,y in self.neighs]} twin:{self.twin.index if self.twin else None}"
 
-for x in portals:
-	print(x,portals[x])
-	for y in portals[x]:
-		coords[y]=x
+for portalID in sorted(portalIDs):
+	value = portalIDs[portalID]
+	levels = sorted(list(value),key=lambda c: 0 if (c[1] in (2,h-3) or c[0] in (2,w-3) ) else 1)
+	outer = Portal(levels[0],portalID,True)
+	if len(levels) == 2:
+		inner=Portal(levels[1],portalID,False)
+		inner.twin = outer
+		outer.twin = inner
+		portals.append(inner)
+	portals.append(outer)
 
-tree = {}
-for portalID in portals:
-	for x,y in portals[portalID]:
-		seen = {(x,y):0}
-		queue = [[x,y,0]]
-		while queue:
-			xx,yy,distance = queue.pop(0)
-			for nx,ny in getNeighs(xx,yy):
-				if grid[ny][nx] != ".": continue
-				if (nx,ny) in seen: continue
-				seen[(nx,ny)] = distance+1
-				if (nx,ny) in coords:
-					tree.setdefault((x,y), {})[(nx,ny)] = distance+1
-				queue.append([nx,ny,distance+1])
+for portal in portals:
+	x,y = portal.coords
+	seen = {(x,y):0}
+	queue = [[x,y,0]]
+	while queue:
+		xx,yy,distance = queue.pop(0)
+		for nx,ny in getNeighs(xx,yy):
+			if grid[ny][nx] != ".": continue
+			if (nx,ny) in seen: continue
+			seen[(nx,ny)] = distance+1
+			if (nx,ny) in [x.coords for x in portals]:
+				portal2 = [x.coords for x in portals].index((nx,ny))
+				portal.neighs.append((portal2, distance+1))
+			queue.append([nx,ny,distance+1])
 
-for x in tree:
-	print(x,tree[x])
+for i,x in enumerate(portals):
+	portals[i].index=i
+for x in portals:print(x)
 
-start = list(portals["AA"])[0]
-goal = list(portals["ZZ"])[0]
+startIndex = [x.id for x in portals].index("AA")
+goalIndex = [x.id for x in portals].index("ZZ")
 
-levelLimit = 11
-x,y = start
-seen = {0:{start:0}}
-queue = [[x,y,0,0]]
-while queue:
-	xx,yy,distance,level = queue.pop(0)
-	seenLevel = seen.setdefault(level,{})
-	seenNewCoord = seenLevel.setdefault((xx,yy),distance)
-	if distance <= seenNewCoord:
-		seenNewCoord = distance
-	else: continue
-	for nx,ny in tree[(xx,yy)]:
-		newDistance = distance + tree[(xx,yy)][(nx,ny)]
-		print(level,coords[(xx,yy)],"=>",coords[(nx,ny)],newDistance)
-		
-		queue.append([nx,ny,newDistance,level])
-		portalRelationship = portals[coords[(nx,ny)]]
-		if len(portalRelationship) == 1: continue
-		portalIndex = portalRelationship.index((nx,ny))
-		twin = portalRelationship[1-portalIndex]
-		tx,ty = twin
-		newLevel = level+(1 if portalIndex == 1 else -1)
-		if newLevel < 0: continue
-		if newLevel > levelLimit: continue
-		queue.append([tx,ty,newDistance+1,newLevel])
-print(seen[0][goal])
+
+levelLimit = len(portals)
+seen = {0:{startIndex:0}}
+queues = {0:[[startIndex,0]]}
+while True:
+	level=0
+	while not queues[level]:
+		level+=1
+	portalIndex,distance = queues[level].pop()
+	portal = portals[portalIndex]
+	for neighIndex,neighDistance in portal.neighs:
+		neigh = portals[neighIndex]
+		newDistance = distance + neighDistance
+		if level == 0:
+			if neigh.id == "ZZ":
+				print("done",newDistance)
+				exit()
+			if neigh.isOuter: continue
+			if neigh.id == "AA": continue
+		elif neigh.id in ["AA","ZZ"]: continue
+		newLevel = level+(-1 if neigh.isOuter else 1)
+		newDistance += 1
+		print(newLevel,portal.id,"=>",neigh.id,neighDistance,newDistance)
+		newIndex = neigh.twin.index
+		seenLevel = seen.setdefault(newLevel,{})
+		seenNewIndex = seenLevel.setdefault(newIndex,newDistance)
+		if newDistance <= seenNewIndex:
+			seenNewIndex = newDistance
+		else: continue
+		if newLevel < 0 or newLevel > levelLimit: continue
+		queues.setdefault(newLevel,[]).append([newIndex,newDistance])
