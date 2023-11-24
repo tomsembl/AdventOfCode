@@ -62,16 +62,20 @@ def strToAscii(s):
 def asciiToStr(a):
     return "".join([chr(c) for c in a])
 
-input = """OR D J
-NOT C T
-AND T J
-NOT A T
+input = """NOT A J
+NOT B T
 OR T J
-WALK
+NOT C T
+OR T J
+NOT D T
+NOT T T
+AND T J
+AND H J
+RUN
 """
 output = computer(strToAscii(input))
 try:
     print(asciiToStr(output))
 except: 
     pass
-#part 1
+#part2
