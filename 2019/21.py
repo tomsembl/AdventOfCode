@@ -75,3 +75,23 @@ try:
 except: 
     pass
 #part 1
+print()
+input = """NOT A J
+NOT B T
+OR T J
+NOT C T
+OR T J
+NOT D T
+NOT T T
+AND T J
+AND H J
+NOT A T
+OR T J
+RUN
+"""
+output = computer(strToAscii(input))
+try:
+    print(asciiToStr(output))
+except: 
+    pass
+#part2
