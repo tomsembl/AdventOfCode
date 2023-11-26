@@ -122,8 +122,7 @@ deal with increment 3
 cut -1"""
 #a=test
 b=[x.split() for x in a.splitlines()]
-size = 10007
-#size = 10
+size = 119315717514047
 
 deck=[x for x in range(size)]
 for instr in b:
@@ -138,4 +137,4 @@ for instr in b:
     if instr[0:2] == ["deal","with"]:
         dicti = {(x*n%size):x for x in range(size)}
         deck = [deck[dicti[x]] for x in range(size)]
-print(deck.index(2019))
+print(deck.index(2020))
