@@ -998,10 +998,12 @@ cnktjkjmcg46fiverxlxkmxvkmnklsfive
 sevenfourfour99seven8
 ktgfiveone76ghj
 7zgzsevenftkdfour186"""
+
 test="""1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet"""
+
 test="""two1nine
 eightwothree
 abcone2threexyz
@@ -1009,23 +1011,23 @@ xtwone3four
 4nineeightseven2
 zoneight234
 7pqrstsixteen"""
+
 #a=test
-#b=[int([y for y in x if y.isnumeric()][0]+[y for y in x if y.isnumeric()][-1]) for x in a.splitlines()]
 
-#print(sum(b))
-numbers=["zero","one","two","three","four","five","six","seven","eight","nine"]
-b=[x for x in a.splitlines()]
-sums=0
-b2=[]
-for line in b:
-    newLine=[]
-    for i,x in enumerate(line):
-        if x.isnumeric(): newLine.append(int(x))
-        for n in numbers:
-            if line[i:].startswith(n):
-                newLine.append(numbers.index(n))
-    b2.append(newLine)
-b3=[int(str(x[0])+str(x[-1])) for x in b2]
+lines=a.splitlines()
+decodedLines=[[char for char in line if char.isnumeric()] for line in lines]
+firstAndLasts=[int(line[0]+line[-1]) for line in decodedLines]
+print(sum(firstAndLasts)) #part 1
 
-print(sum(b3))
-
+numberWords=["zero","one","two","three","four","five","six","seven","eight","nine"]
+decodedLines=[]
+for line in lines:
+    decodedLine=[]
+    for i,char in enumerate(line):
+        if char.isnumeric(): decodedLine.append(int(char))
+        for numberWord in numberWords:
+            if line[i:].startswith(numberWord):
+                decodedLine.append(numberWords.index(numberWord))
+    decodedLines.append(decodedLine)
+firstAndLasts=[int(str(line[0])+str(line[-1])) for line in decodedLines]
+print(sum(firstAndLasts)) #part 2
