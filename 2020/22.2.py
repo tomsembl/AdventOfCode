@@ -70,55 +70,58 @@ print(sorted(b[0]+b[1]))
 while len(b[0])!=0 and len(b[1])!=0:
     c1,c2=[b[0].pop(0),b[1].pop(0)]
     winner = int(c1<c2)
-    b[winner]+=sorted([c2,c1],reverse=True)
+    b[winner]+=[c2,c1] if winner else [c1,c2]
+
 print(sum([x*(i+1) for i,x in enumerate(b[winner][::-1])]))#part1
     
 
-# gameCounter=0
-# b=[[int(y) for y in x.splitlines()[1:]] for x in a.split("\n\n")]
-# def playGame(b):
-#     cache={}
-#     def writeCache(key): 
-#         parent=cache
-#         for player in key:
-#             for node in player:
-#                 if node not in parent: parent[node] = {}
-#                 parent=parent[node]
-#             parent[-1]={}
-#             parent=parent[-1]
-#     def readCache(key): 
-#         parent=cache
-#         for player in key:
-#             for node in player:
-#                 if node not in parent: return False
-#                 parent=parent[node]
-#             if -1 not in parent: return False
-#             parent=parent[-1]
-#         return True
+gameCounter=0
+b=[[int(y) for y in x.splitlines()[1:]] for x in a.split("\n\n")]
+def playGame(b):
+    cache={}
+    
+    def writeCache(key): 
+        parent=cache
+        for player in key:
+            for node in player:
+                if node not in parent: parent[node] = {}
+                parent=parent[node]
+            parent[-1]={}
+            parent=parent[-1]
 
-#     global gameCounter
-#     gameCounter+=1
-#     if not bool(gameCounter%1): print(gameCounter)
-#     while True:
-#         if readCache(b):
-#             return 0,b
-#         else: 
-#             writeCache(b)
-#         if len(b[0])==0 or len(b[1])==0:
-#             return int(len(b[0])==0),b
-#         c1,c2=[b[0].pop(0),b[1].pop(0)]
-#         if c1<=len(b[0]) and c2<=len(b[0]):
-#             winner,b2 = playGame([b[0][:c1],b[1][:c2]])
-#         else: winner = int(c1<c2)
-#         b[winner]+=[c2,c1] if winner else [c1,c2]
+    def readCache(key): 
+        parent=cache
+        for player in key:
+            for node in player:
+                if node not in parent: return False
+                parent=parent[node]
+            if -1 not in parent: return False
+            parent=parent[-1]
+        return True
 
-# winner,b2 = playGame(b)
-# print(winner,b2)
-# total=0
-# lenb=len(b[winner])
-# for x in range(lenb):
-#     total += (lenb-x)*b[winner][x]
-# print(total)#part2
+    global gameCounter
+    gameCounter+=1
+    if not bool(gameCounter%1): print(gameCounter)
+    while True:
+        if readCache(b):
+            return 0,b
+        else: 
+            writeCache(b)
+        if len(b[0])==0 or len(b[1])==0:
+            return int(len(b[0])==0),b
+        c1,c2=[b[0].pop(0),b[1].pop(0)]
+        if c1<=len(b[0]) and c2<=len(b[0]):
+            winner,b2 = playGame([b[0][:c1],b[1][:c2]])
+        else: winner = int(c1<c2)
+        b[winner]+=[c2,c1] if winner else [c1,c2]
 
-# #33455 too high
+winner,b2 = playGame(b)
+print(winner,b2)
+total=0
+lenb=len(b[winner])
+for x in range(lenb):
+    total += (lenb-x)*b[winner][x]
+print(total)#part2
+
+#33455 too high
 
