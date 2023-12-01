@@ -1010,14 +1010,14 @@ map = {
     "nine": "9"
 }
 
-def get_numbers_two(input: str):
+def get_numbers_two(input: str, isPrint: bool = False):
     original = input
     idx = {}
 
     for m in map.keys():
         if input.find(m) >= 0:
             idx[m] = input.find(m)
-
+    
     idx_sort = dict(sorted(idx.items(), key=lambda item: item[1]))
 
     for i in idx_sort.keys():
@@ -1026,9 +1026,24 @@ def get_numbers_two(input: str):
     numbers = [s for s in input if s.isdigit()]
     answer = int(numbers[0] + numbers[-1])
     
-    print(f"{original} : {answer}")
+    if isPrint: print(f"{original} : {answer} {input}")
     
     return answer
 
-print(sum([get_numbers_two(x) for x in a.splitlines()]))
-print(get_numbers_two(a.splitlines()[0]))
+def tomDecode(line):
+    numberWords=["zero","one","two","three","four","five","six","seven","eight","nine"]
+    decodedLine=[]
+    for i,char in enumerate(line):
+        if char.isnumeric(): decodedLine.append(int(char))
+        for numberWord in numberWords:
+            if line[i:].startswith(numberWord):
+                decodedLine.append(numberWords.index(numberWord))
+    firstAndLast=int(str(decodedLine[0])+str(decodedLine[-1]))
+    return firstAndLast
+
+for line in a.splitlines():
+    adam = get_numbers_two(line)
+    tom = tomDecode(line)
+    if adam != tom:
+        print(f"adam:{adam} tom:{tom} line:{line}")
+        get_numbers_two(line,isPrint=True)
