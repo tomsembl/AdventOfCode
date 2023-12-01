@@ -1022,7 +1022,12 @@ print(sum(firstAndLasts)) #part 1
 numberWords=["zero","one","two","three","four","five","six","seven","eight","nine"]
 decodedLines=[]
 for line in lines:
-    
+    decodedLine=[]
+    for i,char in enumerate(line):
+        if char.isnumeric(): decodedLine.append(int(char))
+        for numberWord in numberWords:
+            if line[i:].startswith(numberWord):
+                decodedLine.append(numberWords.index(numberWord))
     decodedLines.append(decodedLine)
 firstAndLasts=[int(str(line[0])+str(line[-1])) for line in decodedLines]
 print(sum(firstAndLasts)) #part 2
