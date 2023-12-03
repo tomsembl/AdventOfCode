@@ -138,63 +138,82 @@ a=""".679.....662....71............................805..........862.680.........
 ...........@.913.....168....=909..431......=......@..976.......+.......*..........155............................620.......250......@.......
 ......806.....*....................*...........@................45.....475...724..*......&45.........+202..-576.....*.........*.............
 ...............383...........................372..................................474...................................432.471......729...."""
-test="""467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598.."""
-a=test
-grid=[x for x in a.splitlines()]
-w,h = len(grid[0]),len(grid)
-dirs=[[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1]]
 
-def getneighs(c):
-    x,y = c
-    neighs = {}
-    for i,dir in enumerate(dirs):
-        dx,dy = dir
-        if 0 <= x+dx < w and 0 <= y+dy < h:
-            neighs[i]=(x+dx,y+dy)
-            #neighs.append(grid[y+dy][x+dx])
-    return neighs
+import numpy as np
+def main2(lines):
+    # part_numbers = set()
+    sum = 0
+    # make a numpy array of all characters that are not .
+    array = np.array([list(line) for line in lines.splitlines()])
+    width = len(array[0])
+    height = len(array)
+    mirror = np.full((height, width), ' ')
 
-total = 0
+    # find all coordinates that are digits
+    digits = np.argwhere(np.logical_and(array <= '9', array >= '0'))
+    print(digits)
+    # find all coordinates that are not digits or '.'
+    # print(symbols)
+    # gears = np.argwhere(array == '*')
+    symbols = np.argwhere(np.logical_and(array != '.', np.logical_or(array > '9', array < '0')))
+    # for each symbol, find adjacent digits (includes diagonals)
+    for (sy, sx) in symbols:
+        if array[sy][sx] != '*':
+            array[sy][sx] = '.'
+            continue
+        mirror[sy, sx] = '*'
+        symbol_char = array[sy][sx]
+        print(f"{sy=} {sx=}, {symbol_char=}")
+        symbol_parts = set()
+        for (ay, ax) in [
+            (sy-1, sx-1),
+            (sy-1, sx),
+            (sy-1, sx+1),
+            (sy, sx-1),
+            (sy, sx+1),
+            (sy+1, sx-1),
+            (sy+1, sx),
+            (sy+1, sx+1)
+        ]:
+            if ay < 0 or ay >= height or ax < 0 or ax >= width:
+                continue
+            if array[ay][ax].isdigit():
+                # print(f"{ay=} {ax=}", array[ay][ax])
+                row = array[ay]
+                print(''.join(row))
+                debug = [' ',] * width
+                debug[ax] = '^'
+                print(''.join(debug))
+                l = ax
+                while l > 0 and row[l-1].isdigit():
+                    l -= 1
+                r = ax+1
+                while r < width and row[r].isdigit():
+                    r += 1
+                number = int(''.join(row[l:r]))
+                # print(f"{l=} {r=} {number=}")
+                symbol_parts.add(number)
+                mirror[ay][l:r] = array[ay][l:r]
+                # array[ay][l:r] = ' '
+                # print(f"{symbol_char=} {number=}")
+        # array[sy][sx] = 'S'
+        # array[sy, sx] = ' '
+        if len(symbol_parts) == 2:
+            l, r = symbol_parts.pop(), symbol_parts.pop()
+            product = (l * r)
+            print(f"{symbol_char=} {l=} {r=} {product=}")
+            sum += product
+        else:
+            mirror[sy, sx] = '!'
+            print(f"gear with {len(symbol_parts)} parts {symbol_parts}")
+    print("mirror")
+    for row in mirror:
+        print(''.join(row))
+    print("remaining")
+    for row in array:
+        print(''.join(row))
 
-nums="0123456789"
-seenCoords = set()
-partNumbers = []
-for j,row in enumerate(grid):
-    for i,x in enumerate(row):
-        coord = (i,j)
-        if not x in nums or coord in seenCoords: continue
-        partNumber = ""
-        neighCords = set()
-        while x in nums:
-            partNumber += x
-            neighs = getneighs(coord)
-            for neigh in neighs:
-                neighCords.add(neighs[neigh])
-            try: 
-                coord = neighs[4]
-                seenCoords.add(coord)
-                nx,ny = coord
-                x = grid[ny][nx]
-            except: break
-        isPart = False
-        for x,y in neighCords:
-            value = grid[y][x]
-            if not value in nums and value != ".": isPart = True
-        if isPart: total += int(partNumber)
-        partNumbers.append(int(partNumber))
-print(partNumbers)
-
-
-  
-print(total)
-#321474 nope
-#528799
+    # print(np.sum(list(part_numbers)))
+    print(f"{sum=}")
+    
+main2(a)

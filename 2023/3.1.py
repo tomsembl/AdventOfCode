@@ -148,7 +148,7 @@ test="""467..114..
 ......755.
 ...$.*....
 .664.598.."""
-a=test
+#a=test
 grid=[x for x in a.splitlines()]
 w,h = len(grid[0]),len(grid)
 dirs=[[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1]]
@@ -168,6 +168,7 @@ total = 0
 nums="0123456789"
 seenCoords = set()
 partNumbers = []
+gears = {}
 for j,row in enumerate(grid):
     for i,x in enumerate(row):
         coord = (i,j)
@@ -185,16 +186,32 @@ for j,row in enumerate(grid):
                 nx,ny = coord
                 x = grid[ny][nx]
             except: break
-        isPart = False
+        part = None
+        partCoords = None
         for x,y in neighCords:
             value = grid[y][x]
-            if not value in nums and value != ".": isPart = True
-        if isPart: total += int(partNumber)
+            if not value in nums and value != ".": 
+                part = value
+                partCoords = (x,y)
+                if value=="*":
+                    gears.setdefault(partCoords,[]).append(int(partNumber))
+        if part: 
+            total += int(partNumber)
+            
         partNumbers.append(int(partNumber))
 print(partNumbers)
 
+globalGearTotal = 0
+for gear in gears:
+    partNumbers = gears[gear]
+    if len(partNumbers) == 2:
+        gearTotal = 1
+        for partNumber in partNumbers:
+            gearTotal *= partNumber
+        globalGearTotal += gearTotal
 
   
-print(total)
+print(total) #part 1
+print(globalGearTotal) #part 2
 #321474 nope
 #528799
