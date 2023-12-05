@@ -236,79 +236,75 @@ humidity-to-location map:
 1896801130 2525549997 14673957
 2623661520 1700925778 153791746"""
 
-# seeds="79 14 55 13"
-# a="""seed-to-soil map:
-# 50 98 2
-# 52 50 48
+seeds="79 14 55 13"
+a="""seed-to-soil map:
+50 98 2
+52 50 48
 
-# soil-to-fertilizer map:
-# 0 15 37
-# 37 52 2
-# 39 0 15
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
 
-# fertilizer-to-water map:
-# 49 53 8
-# 0 11 42
-# 42 0 7
-# 57 7 4
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
 
-# water-to-light map:
-# 88 18 7
-# 18 25 70
+water-to-light map:
+88 18 7
+18 25 70
 
-# light-to-temperature map:
-# 45 77 23
-# 81 45 19
-# 68 64 13
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
 
-# temperature-to-humidity map:
-# 0 69 1
-# 1 0 69
+temperature-to-humidity map:
+0 69 1
+1 0 69
 
-# humidity-to-location map:
-# 60 56 37
-# 56 93 4"""
+humidity-to-location map:
+60 56 37
+56 93 4"""
 
 maps={x.splitlines()[0]:[[int(z) for z in y.split()] for y in x.splitlines()[1:]] for x in a.split("\n\n")}
 seeds = [int(x) for x in seeds.split()]
-seedRanges = {}
-for i in range(0,len(seeds),2):
-    seedRanges[seeds[i]] = seeds[i+1]
-print(seedRanges)
-locations = []
-precision = 5000
-impreciseFindings = {}
-for seedStart in seedRanges:
-    seedEnd = seedRanges[seedStart]
-    impreciseFindings.setdefault(seedStart,{})
-    print(seedStart,seedRanges[seedStart])
-    for seed in range(seedStart,seedEnd,precision):
-        x = seed
-        for map in maps:
-            for row in maps[map]:
-                destStart,sourceStart,length = row
-                if x >= sourceStart and x < sourceStart+length:
-                    x = destStart + x - sourceStart
-                    break
-        impreciseFindings[seedStart][seed] = x
 
-for x in impreciseFindings: print(x,len(impreciseFindings[x]))
-for seedStart in impreciseFindings:
-    dict_ = impreciseFindings[seedStart]
-    for seedStart in sorted(dict_.keys(),key = lambda x: impreciseFindings[seedStart][x])[:len(dict_.keys())//10000]:
-        print(seedStart)
-        for seed in range(seedStart-precision,seedStart+precision+1):
-            x = seed
-            for map in maps:
-                for row in maps[map]:
-                    destStart,sourceStart,length = row
-                    if x >= sourceStart and x < sourceStart+length:
-                        x = destStart + x - sourceStart
-                        break
-            locations.append(x)
-print(min(locations))
+def rangeOverlap(x,y):
+    start = max(x[0], y[0])
+    end = min(x[1], y[1])
+    return (start, end-start+1)
+
+
+def recurseMaps(mapName,listOfRanges):
+    if listOfRanges == []: return
+    if mapName == "seed-to-soil map":
+        return listOfRanges
+    outputRanges = []
+    for seedStart,seedEnd in listOfRanges:
+        for row in maps[mapName]:
+            destStart,sourceStart,length = row
+            newDestStart, newLen = rangeOverlap([seedStart,seedEnd],[destStart,destStart+length-1])
+            if newLen < 1:
+                break
+            newSourceStart = sourceStart + newDestStart-destStart
+            outputRanges .append([newSourceStart, newSourceStart+newLen-1])
+    return recurseMaps(nextMap(mapName),outputRanges)
+
+def nextMap(mapName): 
+    return list(maps.keys())[list(maps.keys()).index(mapName)-1]
+
+mapName = list(maps.keys())[-1]
+for row in sorted(maps[mapName], key=lambda x: x[0]):
+    destStart,sourceStart,length = row
+    minRange = recurseMaps(nextMap(mapName),[[sourceStart,sourceStart+length-1]])
+    print(minRange)
+    # if x >= sourceStart and x < sourceStart+length:
+    #     x = destStart + x - sourceStart
+    #     break
 
 #34231411 no
 #396136072 no
 #223340676 no
-#34039469 yes
