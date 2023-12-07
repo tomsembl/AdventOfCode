@@ -1006,13 +1006,13 @@ QQQJA 483"""
 
 #a=test
 
-cardOrder="AKQJT98765432"
+cardOrder="AKQT98765432J"
 b=[[x.split()[0],int(x.split()[1])] for x in a.splitlines()]
 print(b)
 
 print([[cardOrder.index(x) for x in y[0]] for y in b])
 
-def sortt(x):
+def getType(x):
     type = 0
     ls = list(set(x))
     if len(ls) == 1:
@@ -1029,19 +1029,41 @@ def sortt(x):
         type = 5#One pair, where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
     elif len(ls) == len(x):
         type = 6#High card, where all cards' labels are distinct: 23456
-    return [type]+[cardOrder.index(y) for y in x]
+    return type
 
-sortedHands=sorted([x for x in b],key=lambda x: sortt(x[0]))
+def getTieBreaker(x): 
+    return [cardOrder.index(y) for y in x]
+
+def sort2(x):
+    type,tieBreaker = getType(x),getTieBreaker(x)
+    print(x,type)
+    if "J" not in x: 
+        return [type]+tieBreaker
+    newX = x[::]
+    perms=[]
+    for d in (cardOrder if x[0] == "J" else x[0]):
+        newX = d+newX[1:]
+        for e in (cardOrder if x[1] == "J" else x[1]):
+            newX = newX[:1]+e+newX[2:]
+            for f in (cardOrder if x[2] == "J" else x[2]):
+                newX = newX[:2]+f+newX[3:]
+                for g in (cardOrder if x[3] == "J" else x[3]):
+                    newX = newX[:3]+g+newX[4:]
+                    for h in (cardOrder if x[4] == "J" else x[4]):
+                        newX = newX[:4]+h
+                        perms.append(newX)
+    sortedPerms=sorted(perms,key=lambda y: [getType(y)]+tieBreaker)
+    result = [getType(sortedPerms[0])]+tieBreaker
+    print(sortedPerms[0],result)
+    return result
+
+sortedHands = sorted(b,key=lambda x: sort2(x[0]))
 print(sortedHands[::-1])
 total = 0
 for rank,x in enumerate(sortedHands[::-1]):
     hand,bid = x
     total += bid*(rank+1)
     print(hand,bid,rank+1)
-print(total)
-#252435285 nope
-#250946742 yep
+print(total) 
 
-
-
-
+#252017385 too high
