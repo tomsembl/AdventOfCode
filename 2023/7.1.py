@@ -1016,19 +1016,19 @@ def getType(x):
     type = 0
     ls = list(set(x))
     if len(ls) == 1:
-        type = 0#Five of a kind, where all five cards have the same label: AAAAA
+        type = 0 #Five of a kind, where all five cards have the same label: AAAAA
     elif [x.count(y) for y in ls].count(4) == 1:
-        type = 1#Four of a kind, where four cards have the same label and one card has a different label: AA8AA
+        type = 1 #Four of a kind, where four cards have the same label and one card has a different label: AA8AA
     elif [x.count(y) for y in ls].count(3) == 1 and [x.count(y) for y in ls].count(2) == 1:
-        type = 2#Full house, where three cards have the same label, and the remaining two cards share a different label: 23332
+        type = 2 #Full house, where three cards have the same label, and the remaining two cards share a different label: 23332
     elif len(ls) == 3 and [x.count(y) for y in ls].count(3) == 1:
-        type = 3#Three of a kind, where three cards have the same label, and the remaining two cards are each different from any other card in the hand: TTT98
+        type = 3 #Three of a kind, where three cards have the same label, and the remaining two cards are each different from any other card in the hand: TTT98
     elif len(ls) == 3 and [x.count(y) for y in ls].count(2) == 2:
-        type = 4#Two pair, where two cards share one label, two other cards share a second label, and the remaining card has a third label: 23432
+        type = 4 #Two pair, where two cards share one label, two other cards share a second label, and the remaining card has a third label: 23432
     elif len(ls) == 4 and [x.count(y) for y in ls].count(2) == 1:
-        type = 5#One pair, where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
+        type = 5 #One pair, where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
     elif len(ls) == len(x):
-        type = 6#High card, where all cards' labels are distinct: 23456
+        type = 6 #High card, where all cards' labels are distinct: 23456
     return type
 
 def getTieBreaker(x): 
