@@ -1007,12 +1007,12 @@ QQQJA 483"""
 #a=test
 
 cardOrder="AKQJT98765432"
-b=[[x.split()[0],int(x.split()[1])] for x in a.splitlines()]
-print(b)
+decks=[[x.split()[0],int(x.split()[1])] for x in a.splitlines()]
+print(decks)
 
-print([[cardOrder.index(x) for x in y[0]] for y in b])
+print([[cardOrder.index(x) for x in y[0]] for y in decks])
 
-def sortt(x):
+def getType(x):
     type = 0
     ls = list(set(x))
     if len(ls) == 1:
@@ -1029,9 +1029,12 @@ def sortt(x):
         type = 5#One pair, where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
     elif len(ls) == len(x):
         type = 6#High card, where all cards' labels are distinct: 23456
-    return [type]+[cardOrder.index(y) for y in x]
+    return type
 
-sortedHands=sorted([x for x in b],key=lambda x: sortt(x[0]))
+def getTieBreaker(x): 
+    return [cardOrder.index(y) for y in x]
+
+sortedHands=sorted(decks,key=lambda x: [getType(x[0])]+getTieBreaker(x[0]))
 print(sortedHands[::-1])
 total = 0
 for rank,x in enumerate(sortedHands[::-1]):

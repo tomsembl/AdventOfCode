@@ -1007,10 +1007,10 @@ QQQJA 483"""
 #a=test
 
 cardOrder="AKQT98765432J"
-b=[[x.split()[0],int(x.split()[1])] for x in a.splitlines()]
-print(b)
+hands=[[x.split()[0],int(x.split()[1])] for x in a.splitlines()]
+#print(b)
 
-print([[cardOrder.index(x) for x in y[0]] for y in b])
+#print([[cardOrder.index(x) for x in y[0]] for y in b])
 
 def getType(x):
     type = 0
@@ -1036,7 +1036,7 @@ def getTieBreaker(x):
 
 def sort2(x):
     type,tieBreaker = getType(x),getTieBreaker(x)
-    print(x,type)
+    #print(x,type)
     if "J" not in x: 
         return [type]+tieBreaker
     newX = x[::]
@@ -1054,16 +1054,16 @@ def sort2(x):
                         perms.append(newX)
     sortedPerms=sorted(perms,key=lambda y: [getType(y)]+tieBreaker)
     result = [getType(sortedPerms[0])]+tieBreaker
-    print(sortedPerms[0],result)
+    #print(sortedPerms[0],result)
     return result
 
-sortedHands = sorted(b,key=lambda x: sort2(x[0]))
-print(sortedHands[::-1])
+sortedHands = sorted(hands,key=lambda x: sort2(x[0]))
+#print(sortedHands[::-1])
 total = 0
 for rank,x in enumerate(sortedHands[::-1]):
     hand,bid = x
     total += bid*(rank+1)
-    print(hand,bid,rank+1)
+    #print(hand,bid,rank+1)
 print(total) 
 
 #252017385 too high
