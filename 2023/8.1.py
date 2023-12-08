@@ -743,18 +743,40 @@ DDD = (DDD, DDD)
 EEE = (EEE, EEE)
 GGG = (GGG, GGG)
 ZZZ = (ZZZ, ZZZ)"""
+
+test="""LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)"""
 #a=test
+
+from math import lcm
+
 lr = a.split("\n\n")[0]
 b=[x.split(" = ") for x in a.split("\n\n")[1].splitlines()]
 c={}
 for x,y in b:
     c[x] = y[1:-1].split(", ")
 #print(lr,b,c)
-current = "AAA"
+currentNodes = [x for x in c if x[-1]=="A"]
+
+patterns = {}
+#print(currentNodes)
 steps = 0
-while current != "ZZZ":
+while len(patterns) < len(currentNodes):
     for dir in lr:
         steps +=1
-        current = c[current]["LR".index(dir)]
-        if current == "ZZZ": break
-print(steps)
+        for i,current in enumerate(currentNodes):
+            currentNodes[i] = c[current]["LR".index(dir)]
+            if currentNodes[i][-1]=="Z":
+                patterns.setdefault(i,[]).append(steps)
+# for x in patterns: 
+#     print(x,patterns[x])
+
+print( lcm( *[patterns[x][0] for x in patterns] ) )
