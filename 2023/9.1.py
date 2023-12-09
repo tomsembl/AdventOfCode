@@ -217,12 +217,14 @@ for diff in diffs:
     diff=diff[::-1]
     for i,xx in enumerate(diff):
         if i==0: 
-            diff[i].append(0)
+            diff[i].insert(0,0)
         elif i < len(diff)-1:
-            diff[i+1].append(diff[i+1][-1] + xx[-1])
+            diff[i+1].insert(0,diff[i+1][0] - xx[0])
     newDiffs.append(diff)
 # print(getDiffs(b[0]))
 # print(b)
 #for x in diffs: print(x)
-print(sum([x[-1][-1] for x in newDiffs]))
+print(sum([x[-1][0] for x in newDiffs]))
 #for x in newDiffs: print(x)
+#939801360 too high
+#18959 too high
