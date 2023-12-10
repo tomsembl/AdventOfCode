@@ -138,23 +138,66 @@ J.|7-F7.LLJL|.77LL-JL-J7F-JLL7|.F7LJ7FL-J.FL|.|-.7.F|F-7.-7JJ|FL||-||.|7|-7-JJ|L
 -F7-||7JFFL|L|.|F-7L7J7JFFF---L7JJ.7-.FFJ7F.|LFJ--J.F7JFJJ.F-7--77.F|J|FF7LJF--7J|L7.|.FJLF-7LFJ|-|F-77.LF----7LLJL||.LLJLJFF7J7|-77.-.LJF-J
 LJ--|J7.LJFJ7|7FJ---L77LLF7J7.FJ7F7L77.J.FLF-FJJ.FL.F--FJ.F-FF7J|7FFJFF|-7|JLL--7J-J7|7LF7LLF---7F7--F7F-JL-.|7LF|7F|--.FJ.FJ|7F|-L77|L7FL-J
 |JL-JJ-|.FJ-LL7LF7-F-JL--LJL|---|JLJJJ.|-JLLJ|J.FJ.FLLJJLJ-J|L-.LF-J-LJLLJ-7.L--L..LLJ-.LJJFJ---JL7J.LFJLF-J7.|-JJLJ.|J-JJ|L7J|.|.LL-7.|J.-J"""
-test="""..F7.
-.FJ|.
-SJ.L7
-|F--J
-LJ..."""
+# test="""..F7.
+# .FJ|.
+# SJ.L7
+# |F--J
+# LJ..."""
+
+
 # test=""".....
 # .S-7.
 # .|.|.
 # .L-J.
 # ....."""
+
+test = """...........
+.S-------7.
+.|F-----7|.
+.||.....||.
+.||.....||.
+.|L-7.F-J|.
+.|..|.|..|.
+.L--J.L--J.
+..........."""
+
+test=""".F----7F7F7F7F-7....
+.|F--7||||||||FJ....
+.||.FJ||||||||L7....
+FJL7L7LJLJ||LJ.L-7..
+L--J.L7...LJS7F-7L7.
+....F-J..F7FJ|L7L7L7
+....L7.F7||L7|.L7L7|
+.....|FJLJ|FJ|F7|.LJ
+....FJL-7.||.||||...
+....L---J.LJ.LJLJ..."""
+sReplace = "F"
+
+
+test="""FF7FSF7F7F7F7F7F---7
+L|LJ||||||||||||F--J
+FL-7LJLJ||||||LJL-77
+F--JF--7||LJLJ7F7FJ-
+L---JF-JLJ.||-FJLJJ7
+|F|F-JF---7F7-L7L|7|
+|FFJF7L7F-JF7|JL---7
+7-L-JL7||F7|L7F-7F7|
+L.L7LFJ|||||FJL7||LJ
+L7JLJL-JLJLJL--JLJ.L"""
+sReplace = "7"
+
 #a=test
+
 conns={"|":[[0,-1],[0,1]],"-":[[-1,0],[1,0]],"L":[[0,-1],[1,0]],"J":[[0,-1],[-1,0]],"7":[[0,1],[-1,0]],"F":[[0,1],[1,0]]}
 grid = a.splitlines()
 w,h = len(grid[0]),len(grid)
 start = [[[i,j] for i,x in enumerate(y) if x=="S"] for j,y in enumerate(grid) if "S" in y][0][0]
 dirs=[[-1,0],[0,-1],[1,0],[0,1]]
 #L U R D
+
+#replace S
+sReplace = "J" #prod
+grid[start[1]] = grid[start[1]].replace("S",sReplace) 
 
 def getNewDir(conn,dirIndex):
     dir = dirs[dirIndex]
@@ -175,8 +218,8 @@ def getneighs(c):
             #neighs.append(grid[y+dy][x+dx])
     return neighs
     
-print(start)
-print(getneighs(start))
+#print(start)
+#print(getneighs(start))
 startNeighs =  getneighs(start)
 queue = []
 for startNeighIndex in startNeighs:
@@ -188,29 +231,148 @@ for startNeighIndex in startNeighs:
             newDir = getNewDir(value,getOppositeDir(startNeighIndex))
             newDirIndex = dirs.index(newDir)
             queue.append([nx,ny,newDirIndex,1])
-print(queue)
+#print(queue)
 
 distGrid = [[x for x in y[::]] for y in grid[::]]
         
-seen=set({})
-maxDist = 0
+seenLoop=set({tuple(start)})
+#maxDist = 0
 while queue:
     #for y in distGrid:
         #print("".join(y))
     x,y,dirIndex,dist = queue.pop(0)
-    if (x,y) in seen: continue
+    if (x,y) in seenLoop: continue
     distGrid[y][x] = str(dist)
-    seen.add((x,y))
-    if dist > maxDist:
-        maxDist = dist
+    seenLoop.add((x,y))
+    # if dist > maxDist:
+    #     maxDist = dist
     neighs = getneighs((x,y))
     nx,ny = neighs[dirIndex]
-    if (nx,ny) in seen: continue
+    if (nx,ny) in seenLoop: continue
     if grid[ny][nx] in ".S": continue
     newDir = getNewDir( grid[ny][nx], getOppositeDir(dirIndex) )
     newDirIndex = dirs.index(newDir)
     queue.append([nx,ny,newDirIndex,dist+1])
 
-for y in distGrid:
+
+#print(len(seenLoop))
+seenOutside = set({})
+firstRow = [[x,0] for x in range(w)]
+lastRow = [[x,h-1] for x in range(w)]
+firstColumn = [[0,y] for y in range(h)]
+lastColumn = [[w-1,y] for y in range(h)]
+edges = firstRow+lastRow+firstColumn+lastColumn
+for x,y in edges:
+    if grid[y][x]!=".": continue
+    if (x,y) in seenOutside: continue
+    seenOutside.add((x,y))
+outsideQueue = list(seenOutside)
+while outsideQueue:
+    x,y = outsideQueue.pop()
+    neighs = getneighs([x,y])
+    for neigh in neighs.values():
+        if neigh in seenOutside or neigh in seenLoop: continue
+        outsideQueue.append(neigh)
+        seenOutside.add(neigh)
+
+
+
+inOutGrid = [[x for x in y[::]] for y in grid[::]]
+for x,y in seenOutside:
+    inOutGrid[y][x] = " "
+for j,y in enumerate(inOutGrid):
+    for i,x in enumerate(y):
+        if x==".": inOutGrid[j][i] = "█"
+for y in inOutGrid:
     print("".join(y))
-print(maxDist)
+    
+#traverse the loop, pick which side is outside
+def getStartingDir():
+    for x,y in seenLoop:
+        if grid[y][x] != "|": continue
+        neighs = getneighs([x,y])
+        for dirIndex in neighs:
+            nx,ny = neighs[dirIndex]
+            if (nx,ny) in seenOutside:
+                #go clockwise
+                inOutGrid[ny][nx]="X"
+                inOutGrid[y][x]="X"
+                return dirIndex+1,(x,y)
+startingDir,loopStart = getStartingDir()
+#startingDir,loopStart = 1,(0,5)
+print(startingDir,loopStart)
+
+        
+
+for y in inOutGrid:
+    print("".join(y))
+    
+#dirIndex coming from mapped to dirIndexes of inside tiles (right side) (clockwise)
+dirsInsides = {
+    "J":{0:[2,3],1:[]},
+    "L":{1:[0,3],2:[]},
+    "F":{3:[],2:[0,1]},
+    "7":{0:[],3:[1,2]},
+    "|":{1:[0],3:[2]},
+    "-":{0:[3],2:[1]}
+}
+
+
+insideSet = set({})
+x,y = loopStart
+#loopSeen = set({loopStart})
+loopQueue = [[x,y,startingDir]]
+started = False
+while loopQueue:
+    x,y,dirIndex = loopQueue.pop()
+    if (x,y) == loopStart and started: break
+    started = True
+    value = grid[y][x]
+    if value in dirsInsides:
+        insideDirs = dirsInsides[value][dirs.index(getNewDir(value,dirIndex))]
+        for insideDir in insideDirs:
+            dx,dy = dirs[insideDir]
+            xx,yy = x+dx,y+dy
+            if 0<=xx<w and 0<=yy<h:
+                if (xx,yy) in seenOutside: continue
+                #if grid[yy][xx] == ".":
+                if (xx,yy) not in seenLoop:
+                    # if (xx,yy) == (3,2):
+                    #     print()
+                    insideSet.add((xx,yy))
+    neighs = getneighs([x,y])
+    nx,ny = neighs[dirIndex]
+    #if (nx,ny) in loopSeen: continue
+    #if grid[ny][nx] in ".S": continue
+    newDir = getNewDir( grid[ny][nx], getOppositeDir(dirIndex) )
+    newDirIndex = dirs.index(newDir)
+    loopQueue.append([nx,ny,newDirIndex])
+
+
+insideQueue = list(insideSet)
+while insideQueue:
+    x,y = insideQueue.pop()
+    neighs = getneighs([x,y])
+    for neigh in neighs.values():
+        #if neigh in seenOutside or neigh in seenLoop: continue
+        if neigh in seenLoop: continue
+        if neigh in insideSet: continue
+        insideQueue.append(neigh)
+        insideSet.add(neigh)
+        
+        
+print("\n",insideSet,"\n")
+inOutGrid = [[x for x in y[::]] for y in grid[::]]
+for x,y in insideSet:
+    inOutGrid[y][x] = "█"
+for j,y in enumerate(inOutGrid):
+    for i,x in enumerate(y):
+        if x==".": inOutGrid[j][i] = " "
+for y in inOutGrid:
+    print("".join(y))
+        
+print(len(insideSet))
+#24 nope
+#26 nope
+#462 too low
+        
