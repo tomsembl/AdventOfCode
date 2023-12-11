@@ -149,26 +149,25 @@ test="""...#......
 .......#..
 #...#....."""
 #a=test
+#expansion=10
 b=[x for x in a.splitlines()]
 def rotate90(x):
     return ["".join(y) for y in list(zip(*b[::-1]))]
 
-def expand(x):
-    i=0
-    while i < len(x):
-        row = x[i]
-        if "#" not in row:
-            x.insert(i,row)
-            i += 1
-        i += 1
-    return x
+expansionRows = [i for i,y in enumerate(b) if "#" not in y]
+expansionCols = [i for i,x in enumerate(rotate90(b)) if "#" not in x]
 
-b = expand(b)
-b = rotate90(b)
-b = expand(b)
-b = rotate90(b)
-b = rotate90(b)
-b = rotate90(b)
+expansion = 1000_000
+
+def manhattan2(c1,c2):
+    x,y = c1
+    xx,yy = c2
+    total = 0
+    for pathX in range(min([x,xx])+1,max([x,xx])+1):
+        total += expansion if pathX in expansionCols else 1
+    for pathY in range(min([y,yy])+1,max([y,yy])+1):
+        total += expansion if pathY in expansionRows else 1
+    return total
 
 coords=[]
 for j,y in enumerate(b):
@@ -176,14 +175,11 @@ for j,y in enumerate(b):
         if x=="#":
             coords.append((i,j))
 
-def manhattan(c1,c2):
-    x,y = c1
-    xx,yy = c2
-    return abs(xx-x) + abs(yy-y)
-
 total = 0
 for i,coord in enumerate(coords):
     for j,coord2 in enumerate(coords):
-        man = manhattan(coord,coord2)
+        man = manhattan2(coord,coord2)
         total += man
+
 print (total//2)
+#678734916638 nope
