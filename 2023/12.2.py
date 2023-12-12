@@ -1025,13 +1025,14 @@ def recurse(springs,length,groups):
             return 0
         return 1
     group = groups[0]
+    remainingGroups = groups[1:]
     # all the groups, plus one "." buffer between each
-    minimumRemaining = sum(groups[1:]) + len(groups[1:])
+    minimumRemainingTiles = sum(remainingGroups) + len(remainingGroups)
     total = 0
-    for possibleIndex in range( length - minimumRemaining - group + 1 ):
+    for possibleIndex in range( length - minimumRemainingTiles - group + 1 ):
         possibleSlice = '.'*possibleIndex + '#'*group + '.'
         if isValid(springs, possibleSlice):
-            total += recurse(springs[len(possibleSlice):], length-group-possibleIndex-1, groups[1:])
+            total += recurse(springs[len(possibleSlice):], length-group-possibleIndex-1, remainingGroups)
     cache[(springs,length,tuple(groups))] = total
     return total
     
@@ -1040,7 +1041,7 @@ repeats=5
 for springs,groups in b:
     springs = "?".join([springs]*repeats)
     groups = [int(x) for x in groups.split(",")]*repeats
-    print(springs,groups)
+    #print(springs,groups)
     total += recurse(springs,len(springs),groups)     
     
 print(total)
