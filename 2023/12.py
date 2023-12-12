@@ -1014,25 +1014,12 @@ def isValid(springs,groups):
 total = 0
 for springs,groups in b:
     print(springs)
+    springsCopy = springs[::]
     springs = [{".":"0","#":"1","?":"?"}[x] for x in springs]
+    springsBin = int("0b"+"".join([{".":"0","#":"1","?":"0"}[x] for x in springsCopy]),2)
     groups = [int(x) for x in groups.split(",")]
     power = springs.count("?")
+    qPositions = [i for i,x in enumerate(springs) if x=="?"]
     for p in range(2**power):
-        binary = bin(p)[2:]
-        values = binary.zfill(power)
-        j=0
-        newSpring = ""
-        for x in springs:
-            if x=="?": 
-                x=values[j]
-                j+=1
-            newSpring += x
-        total += 1 if isValid(newSpring,groups) else 0
+        total += 1 if isValid(bin(springsBin & p)[2:],groups) else 0
 print(total)
-    #print(springs,groups)
-
-    # i = 0
-    # while i<len(springs):
-    #     if x==".": continue
-    #     if x=="?": 
-    #     i+=1
