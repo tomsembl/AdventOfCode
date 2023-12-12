@@ -1008,18 +1008,21 @@ test="""???.### 1,1,3
 b=[x.split() for x in a.splitlines()]
 
 def isValid(springs,groups):
-    return groups == [len(x) for x in springs.split("0") if len(x)>0]
+    newGroups = [len(x) for x in springs.split("0") if len(x)>0]
+    return groups == newGroups
 
 #print(isValid("#.#.###", [1,1,3]))
 total = 0
 for springs,groups in b:
     print(springs)
-    springsCopy = springs[::]
-    springs = [{".":"0","#":"1","?":"?"}[x] for x in springs]
-    springsBin = int("0b"+"".join([{".":"0","#":"1","?":"0"}[x] for x in springsCopy]),2)
+    questionPositions = [i for i,x in enumerate(springs[::-1]) if x=="?"]
+    power = len(questionPositions)
+    springsBin = "0b" + "".join([ {".":"0","#":"1","?":"0"}[x] for x in springs ])
+    springsInt = int(springsBin,2) 
     groups = [int(x) for x in groups.split(",")]
-    power = springs.count("?")
-    qPositions = [i for i,x in enumerate(springs) if x=="?"]
-    for p in range(2**power):
-        total += 1 if isValid(bin(springsBin & p)[2:],groups) else 0
+    for p in range(1<<power):
+        n = springsInt
+        for i,x in enumerate(questionPositions):
+            n |= (1<<i & p) << (x-i)
+        total += 1 if isValid( bin(n)[2:] , groups) else 0
 print(total)
