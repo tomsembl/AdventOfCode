@@ -1004,37 +1004,43 @@ test="""???.### 1,1,3
 ????.#...#... 4,1,1
 ????.######..#####. 1,6,5
 ?###???????? 3,2,1"""
-a=test
+#a=test
 b=[x.split() for x in a.splitlines()]
 
-def isValid(springs,groups):
-    return groups == [len(x) for x in springs.split("0") if len(x)>0]
 
-def recurse(strings,possibles,groups):
-    pass 
+def isValid(springs, possibleSlice):
+    for i,x in enumerate(springs):
+        if i > len(possibleSlice)-1: continue
+        if not (possibleSlice[i] == x or x == "?"): 
+            return False
+    return True
 
+cache = {}
+
+def recurse(springs,length,groups):
+    if (springs,length,tuple(groups)) in cache: 
+        return cache[(springs,length,tuple(groups))]
+    if groups == []:
+        if "#" in springs:
+            return 0
+        return 1
+    group = groups[0]
+    # all the groups, plus one "." buffer between each
+    minimumRemaining = sum(groups[1:]) + len(groups[1:])
+    total = 0
+    for possibleIndex in range( length - minimumRemaining - group + 1 ):
+        possibleSlice = '.'*possibleIndex + '#'*group + '.'
+        if isValid(springs, possibleSlice):
+            total += recurse(springs[len(possibleSlice):], length-group-possibleIndex-1, groups[1:])
+    cache[(springs,length,tuple(groups))] = total
+    return total
+    
 total = 0
-repeats=1
+repeats=5
 for springs,groups in b:
     springs = "?".join([springs]*repeats)
     groups = [int(x) for x in groups.split(",")]*repeats
     print(springs,groups)
-    #for each group, all the possible locations of the group (by starting index)
-    poss = [[] for _ in groups]
-    for j,group in enumerate(groups):
-        #get slices of the size of the group
-        for i in range(len(springs)-group+1):
-            for group2 in poss:
-                for 
-                
-            piece = springs[i:i+group]
-            if "." in piece: continue
-            #square after
-            if i+group < len(springs) and springs[i+group] == "#": continue
-            #square before
-            if i-1 >= 0 and springs[i-1] == "#": continue
-            poss[j].append(i)
-    for x in poss:
-        print(x)
+    total += recurse(springs,len(springs),groups)     
     
 print(total)
