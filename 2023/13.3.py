@@ -1410,6 +1410,7 @@ def printGrid(grid):
     print()
 
 def hasOneDifference(grid1,grid2):
+    if grid1==[]: return False
     w,h = len(grid1[0]),len(grid1)
     total = 0
     for y in range(h):
@@ -1450,9 +1451,9 @@ def getReflection2(grid):
             return i
     return -1
     
-def summarize(grid,original=-1):
-    vertical = getReflection(grid)
-    horizontal = getReflection(rotate90(grid))
+def summarize(grid):
+    vertical = getReflection2(grid)
+    horizontal = getReflection2(rotate90(grid))
     if vertical > -1: return vertical*100
     if horizontal > -1: return horizontal
 
@@ -1465,21 +1466,12 @@ for ii,grid in enumerate(b):
     original = summarize(grid)
     winner = None
     printGrid(grid)
-    for pixel in range(w*h):
-        summarized=-1
-        copy = [y[::] for y in grid[::]]
-        xx,yy = pixel%w , pixel//w
-        copy[yy][xx] = 1-copy[yy][xx]
-        summarized = summarize(copy,original)
-        #printGrid(copy)
-        if summarized and summarized != original:
-            printGrid(copy)
-            print(summarized)
-            winner = summarized
-            break
-    print(original,winner)
+    summarized=-1
+    summarized = summarize(grid)
+    print(summarized)
+    #printGrid(copy)
     #if any([s!=original for s in summaries.values()]):
-    globalTotal += winner
+    globalTotal += summarized
     # else:
     #     globalTotal+= original
 print(globalTotal) #part2 
