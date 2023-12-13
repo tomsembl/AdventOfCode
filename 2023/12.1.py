@@ -1007,24 +1007,31 @@ test="""???.### 1,1,3
 a=test
 b=[x.split() for x in a.splitlines()]
 
-def isValid(springs,groups):
-    return groups == [len(x) for x in springs.split("0") if len(x)>0]
-
-#print(isValid("#.#.###", [1,1,3]))
-total = 0
 for springs,groups in b:
-    questionPositions = [i for i,x in enumerate(springs[::-1]) if x=="?"]
-    springsBin = "0b" + "".join([ {".":"0","#":"1","?":"0"}[x] for x in springs ]*5)
+    springs = "?".join([springs]*5)
     groups = [int(x) for x in groups.split(",")]*5
-    print(springsBin)
+    print(springs)
     print(groups)
-    springsInt = int(springsBin,2) 
-    power = len(questionPositions)*5
-    power2 = 1<<power
-    for p in range(power2):
-        if p%10_000: print(p/power2)
-        n = springsInt
-        for i,x in enumerate(questionPositions):
-            n |= (1<<i & p) << (x-i)
-        total += 1 if isValid( bin(n)[2:] , groups) else 0
-print(total)
+    for 
+
+# def isValid(springs,groups):
+#     return groups == [len(x) for x in springs.split("0") if len(x)>0]
+    
+# #print(isValid("#.#.###", [1,1,3]))
+# total = 0
+# for springs,groups in b:
+#     questionPositions = [i for i,x in enumerate(springs[::-1]) if x=="?"]
+#     springsBin = "0b" + "".join([ {".":"0","#":"1","?":"0"}[x] for x in springs ]*5)
+#     groups = [int(x) for x in groups.split(",")]*5
+#     print(springsBin)
+#     print(groups)
+#     springsInt = int(springsBin,2) 
+#     power = len(questionPositions)*5
+#     power2 = 1<<power
+#     for p in range(power2):
+#         if p%10_000: print(p/power2)
+#         n = springsInt
+#         for i,x in enumerate(questionPositions):
+#             n |= (1<<i & p) << (x-i)
+#         total += 1 if isValid( bin(n)[2:] , groups) else 0
+# print(total)

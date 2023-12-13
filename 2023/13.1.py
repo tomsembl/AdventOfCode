@@ -1413,19 +1413,19 @@ def printGrid(grid):
 def getReflection(grid):
     #horizontal
     printGrid(grid)
-    for i in range(1,len(grid)+1):
-        if i <= (len(grid))//2:
-            topSlice = grid[:i]
-            bottomSlice = grid[i:2*i]
-        else:
-            topSlice = grid[i:]
-            bottomSlice = grid[i:2*i]
-        revBottom = bottomSlice[::-1]
-        printGrid(topSlice[len(topSlice)-len(revBottom):])
-        printGrid(revBottom[:len(topSlice)])
-
-        if topSlice[len(topSlice)-len(revBottom):]==revBottom[:len(topSlice)]:
-            print("match")
+    w=len(grid)
+    for i in range(w):
+        size = min([i,w-i])
+        start = max([0,i-size])
+        end = min([w,i+size])
+        top = grid[start:i]
+        bottom = grid[i:end]
+        revBottom = bottom[::-1]
+        print("top:")
+        printGrid(top)
+        print("bottom:")
+        printGrid(bottom)
+        if top == revBottom and top!=[]:
             return i
     return -1
     
@@ -1436,13 +1436,12 @@ for ii,x in enumerate(b):
     print(ii)
     j = getReflection(x)
     i = getReflection(rotate90(x))
-    k = getReflection(rotate90(rotate90(x)))
-    l = getReflection(rotate90(rotate90(rotate90(x))))
-    if max([i,l]) > -1: total += max([i,j])
-    if max([j,k]) > -1: total += max([j,k])*100
+    if j > -1: total += j * 100
+    if i > -1: total += i
     print(i,j)
 print(total)
 #9041 fail
 #18396 fail
 #16896 fail
 #17017 fail
+#40006
