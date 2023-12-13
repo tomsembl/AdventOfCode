@@ -172,11 +172,10 @@ def getneighs(c):
         dx,dy = dir
         if 0 <= x+dx < w and 0 <= y+dy < h:
             neighs[i]=(x+dx,y+dy)
-            #neighs.append(grid[y+dy][x+dx])
     return neighs
-    
-print(start)
-print(getneighs(start))
+
+
+#get the first 2 neighbours of the 'S'
 startNeighs =  getneighs(start)
 queue = []
 for startNeighIndex in startNeighs:
@@ -188,18 +187,13 @@ for startNeighIndex in startNeighs:
             newDir = getNewDir(value,getOppositeDir(startNeighIndex))
             newDirIndex = dirs.index(newDir)
             queue.append([nx,ny,newDirIndex,1])
-print(queue)
 
-distGrid = [[x for x in y[::]] for y in grid[::]]
-        
+#get the distance from S for each tile of the loop by traversing the loop    
 seen=set({})
 maxDist = 0
 while queue:
-    #for y in distGrid:
-        #print("".join(y))
     x,y,dirIndex,dist = queue.pop(0)
     if (x,y) in seen: continue
-    distGrid[y][x] = str(dist)
     seen.add((x,y))
     if dist > maxDist:
         maxDist = dist
@@ -211,6 +205,4 @@ while queue:
     newDirIndex = dirs.index(newDir)
     queue.append([nx,ny,newDirIndex,dist+1])
 
-for y in distGrid:
-    print("".join(y))
 print(maxDist)
