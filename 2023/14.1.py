@@ -112,6 +112,7 @@ O.#..O.#.#
 #a=test
 grid=[[{"O":1,"#":2,".":0}[x] for x in y] for y in a.splitlines()]
 h,w = len(grid),len(grid[0])
+
 def printGrid(grid):
     for y in grid:
         print("".join([" █░"[x] for x in y]))
@@ -133,21 +134,67 @@ def moveRock(c,dir):
         x,y = xx,yy
         xx,yy = xx+dx,yy+dy
 
+def rotate90(x):
+    return [list(y) for y in zip(*x[::-1])]
+
 def tilt(dir):
     for j,y in enumerate(grid):
         for i,x in enumerate(y):
             if grid[j][i]==1:
                 #print(i,j," █░"[grid[j][i]] )
-                moveRock((i,j),dir)
+                moveRock([i,j],dir)
 
-tilt(1)
+def getLoad(grid):
+    return sum([(h-j)*y.count(1) for j,y in enumerate(grid)])
 
-total = 0
-for j,y in enumerate(grid):
-    rowValue = h - j
-    for i,x in enumerate(y):
-        if grid[j][i]==1:
-            total+=rowValue
-print(total)
+seen=set()
+target = 1_000_000_000
+cycle = None
+for i in range(1_000_000_000):
+    gridString = "".join(["".join([str(x) for x in y]) for y in grid])
+    if gridString in seen:
+        cycle = len(seen)
+        print("cycle len:",cycle)
+        break
+    seen.add(gridString)
+    # if i%1_000==0:
+    #     print(i)
+    for _ in range(4):
+        tilt(1)
+        grid = rotate90(grid)
+        
+
+# grid=[[{"O":1,"#":2,".":0}[x] for x in y] for y in a.splitlines()]
+# for i in range(cycle):
+#     for _ in range(4):
+#         tilt(1)
+#         grid = rotate90(grid)
+#     print(i)
+#     #printGrid(grid)
+#     print()
+
+n = target//cycle
+n *= cycle
+finalN = (target-n) + cycle*2
+grid=[[{"O":1,"#":2,".":0}[x] for x in y] for y in a.splitlines()]
+print("n",n,"target",target,"cycle",cycle,"finalN",finalN)
+for i in range(finalN):
+    for _ in range(4):
+        tilt(1)
+        grid = rotate90(grid)
+    print(getLoad(grid))
     
+
+
+total = getLoad(grid)
+# for j,y in enumerate(grid):
+#     rowValue = h - j
+#     for i,x in enumerate(y):
+#         if grid[j][i]==1:
+#             total+=rowValue
+print(total)#part2
+#89058 nope
+#89048 too low
+#89049 too low
+#89049 wrong
             
