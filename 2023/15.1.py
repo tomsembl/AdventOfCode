@@ -2,7 +2,7 @@ a="zx=2,cq-,vz-,txz-,fvbk=9,ll-,dg=6,tpjh=5,fsn=9,jn=4,jgj=7,cfxrz=9,thgnk=4,bf-
 test="""rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7"""
 #a=test
 b=[x for x in a.split(",")]
-print(b)
+#print(b)
 
 def hash(x):
     current=0
@@ -12,5 +12,35 @@ def hash(x):
         current %= 256
     return current
     
-print(hash("HASH"))
-print(sum([hash(x) for x in b]))
+#print(hash("HASH"))
+#print(sum([hash(x) for x in b]))
+boxes={}
+for label in b:
+    op = "=" if "=" in  label else "-"
+    labelLetters = label.split(op)[0]
+    box = hash(labelLetters)
+    focalLength = label.split(op)[1]
+    print(labelLetters,op,box,focalLength)
+    if op == "=":
+        new = [labelLetters,focalLength]
+        boxList = boxes.setdefault(box,[])
+        if labelLetters in [x[0] for x in boxList]:
+            for i,x in enumerate(boxes[box]):
+                if x[0] == labelLetters:
+                    boxList[i] = new
+        else: 
+            boxList.append(new)
+    else:
+        if box in boxes:
+            for i,x in enumerate(boxes[box]):
+                if x[0] == labelLetters:
+                    del boxes[box][i]
+                    break
+print(boxes)
+total = 0
+for box in boxes:
+    lenses = boxes[box]
+    for i,lens in enumerate(lenses):
+        labelLetters,focalLength = lens
+        total += (box+1) *  (i+1) * int(focalLength)
+print(total)
