@@ -98,6 +98,7 @@ OOO.O##O...O..O.O#.##O#..OO.#.O..O...O.#O..O..#.#...O.O.......#O##.#..#.#.O.....
 #OOOO#.#...OO..O..O..#..O..O...#OO.O.O.O#.#.##..#....####..O#....#O.OOO..O#O.#...O....#.O......O....
 .##OO....#......O..OOO......#..O.....#..O...O..#.#.........OO.O..##.......#.#O#.OO......O#O..O......
 ........OOO.....OO........O.O.O.#O...#...O...O...O..O..#.....#O..#.#..OO....O...#..##..#O......O.#O#"""
+
 test=\
 """O....#....
 O.OO#....#
@@ -149,35 +150,30 @@ def getLoad(grid):
 
 seen=set()
 target = 1_000_000_000
+cycleStart = None
+cycleString = ""
 cycle = None
-for i in range(1_000_000_000):
+for i in range(1000):
     gridString = "".join(["".join([str(x) for x in y]) for y in grid])
     if gridString in seen:
-        cycle = len(seen)
-        print("cycle len:",cycle)
-        break
+        if cycleStart==None: 
+            cycleStart = len(seen)
+        #print("cycle len:",cycle)
+        if gridString == cycleString:
+            cycle = i-cycleStart
+            print("cycle2:",cycle)
+            break
+        if cycleString == "":cycleString = gridString
     seen.add(gridString)
-    # if i%1_000==0:
-    #     print(i)
     for _ in range(4):
         tilt(1)
         grid = rotate90(grid)
-        
 
-# grid=[[{"O":1,"#":2,".":0}[x] for x in y] for y in a.splitlines()]
-# for i in range(cycle):
-#     for _ in range(4):
-#         tilt(1)
-#         grid = rotate90(grid)
-#     print(i)
-#     #printGrid(grid)
-#     print()
-
-n = target//cycle
+n = (target-cycleStart)//cycle
 n *= cycle
-finalN = (target-n) + cycle*2
+finalN = (target-n)
 grid=[[{"O":1,"#":2,".":0}[x] for x in y] for y in a.splitlines()]
-print("n",n,"target",target,"cycle",cycle,"finalN",finalN)
+print("n",n,"target",target,"cycle",cycleStart,"cycle2",cycle,"finalN",finalN)
 for i in range(finalN):
     for _ in range(4):
         tilt(1)
@@ -187,14 +183,10 @@ for i in range(finalN):
 
 
 total = getLoad(grid)
-# for j,y in enumerate(grid):
-#     rowValue = h - j
-#     for i,x in enumerate(y):
-#         if grid[j][i]==1:
-#             total+=rowValue
 print(total)#part2
 #89058 nope
 #89048 too low
 #89049 too low
 #89049 wrong
+#89089
             
