@@ -2,7 +2,6 @@ a="zx=2,cq-,vz-,txz-,fvbk=9,ll-,dg=6,tpjh=5,fsn=9,jn=4,jgj=7,cfxrz=9,thgnk=4,bf-
 test="""rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7"""
 #a=test
 b=[x for x in a.split(",")]
-print(b)
 
 def hash(x):
     current=0
@@ -12,5 +11,4 @@ def hash(x):
         current %= 256
     return current
     
-print(hash("HASH"))
-print(sum([hash(x) for x in b]))
+print(sum([hash(x) for x in b]))#part1
