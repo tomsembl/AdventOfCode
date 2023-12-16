@@ -148,25 +148,31 @@ def reroute(nx,ny,dir):
             return [[nx,ny,dir]]
 
 w,h = len(b[0]),len(b)
-for x in b: print(x)
+    #for x in b: print(x)
 dirs=[[-1,0],[0,-1],[1,0],[0,1]]
-queue=reroute(0,0,2)
-seen = set({})
-while queue:
-    x,y,dir = queue.pop(0)
-    if (x,y,dir) in seen: continue
-    seen.add((x,y,dir))
-    # b2[y][x]="#"
-    # for yy in b2:
-    #     print("".join(yy))
-    # print()
-    dx,dy = dirs[dir]
-    nx,ny = x+dx, y+dy
-    newQueueItems = reroute(nx,ny,dir)
-    for q in newQueueItems:
-        queue.append(q)
-seen2=set()
-for x,y,dir in seen:
-    seen2.add((x,y))
-print(len(seen2))
+maxAnswer = 0
+borders = [[x,0,3] for x in range(w)]+[[x,h-1,1] for x in range(w)]+[[0,y,0] for y in range(h)]+[[w-1,y,2] for y in range(h)]
+for x,y,dir in borders:
+    print(x,y,dir)
+    queue=reroute(x,y,dir)
+    seen = set({})
+    while queue:
+        x,y,dir = queue.pop(0)
+        if (x,y,dir) in seen: continue
+        seen.add((x,y,dir))
+        # b2[y][x]="#"
+        # for yy in b2:
+        #     print("".join(yy))
+        # print()
+        dx,dy = dirs[dir]
+        nx,ny = x+dx, y+dy
+        newQueueItems = reroute(nx,ny,dir)
+        for q in newQueueItems:
+            queue.append(q)
+    seen2=set()
+    for x,y,dir in seen:
+        seen2.add((x,y))
+    if len(seen2) > maxAnswer:
+        maxAnswer = len(seen2)
+    print(maxAnswer)
     
