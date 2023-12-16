@@ -163,8 +163,7 @@ while queue:
     dx,dy = dirs[dir]
     nx,ny = x+dx, y+dy
     newQueueItems = reroute(nx,ny,dir)
-    for q in newQueueItems:
-        queue.append(q)
+    queue.extend(newQueueItems)
 seen2=set()
 for x,y,dir in seen:
     seen2.add((x,y))
