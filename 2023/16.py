@@ -123,7 +123,7 @@ b=[x for x in a.splitlines()]
 b2=[[y for y in x] for x in a.splitlines()]
 
 def reroute(nx,ny,dir):
-    if not(0<=nx<w and 0<=ny<w): return []
+    if not(0<=nx<w and 0<=ny<h): return []
     if b[ny][nx] == ".":
         return [[nx,ny,dir]]
     if b[ny][nx] == "/":
