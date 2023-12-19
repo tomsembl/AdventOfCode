@@ -770,25 +770,24 @@ hdj{m>838:A,pv}
 #a=test
 workflowsInput=[x for x in a.split("\n\n")[0].splitlines()]
 partsInput=[x.replace("{","{\"").replace(",",",\"").replace("=","\":") for x in a.split("\n\n")[1].splitlines()]
+
 parts=[]
 for partInput in partsInput:
     part = None
     exec(f"part = {partInput}")
     parts.append(part)
+
 workflows={}
 for workflowInput in workflowsInput:
     workflowName = workflowInput.split("{")[0]
     workFlowRules = workflowInput.split("{")[1][:-1].split(",")
     workflows[workflowName] = workFlowRules
-    # for workFlowRule in workFlowRules:
-    #     print(workFlowRule)
     
 def getWorkflowResult(workflowName,part):
     if workflowName in ["R","A"]:
         return {"A":True,"R":False}[workflowName]
     workflow = workflows[workflowName]
     for subWorkflow in workflow:
-        #print(part, subWorkflow)
         if ":" in subWorkflow:
             condition,result = subWorkflow.split(":")
             for p in part:
@@ -796,18 +795,13 @@ def getWorkflowResult(workflowName,part):
             conditionResult = eval(condition)
             if conditionResult:
                 return getWorkflowResult(result,part)
-        elif subWorkflow in ["R","A"]:
-            return getWorkflowResult(subWorkflow,part)
         else:
             return getWorkflowResult(subWorkflow,part)
         
-    
 acceptedParts = []
 for part in parts:
     result = getWorkflowResult("in",part)
     if result: acceptedParts.append(part)
 
 total = sum([sum(p.values()) for p in acceptedParts])
-print(total)
-#print(parts)
-#print(workflows)
+print(total)#part 1
