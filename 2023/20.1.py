@@ -75,11 +75,11 @@ for x in b:
     connections = x.split(" -> ")[1].split(", ")
     if x.startswith("broadcaster"):
         name = "broadcaster"
-        type = "low"
+        type_ = "low"
     else:
-        type = x[0]
+        type_ = x[0]
         name = x[1:].split(" -> ")[0]
-    OutputMapping[name] = [type, connections]
+    OutputMapping[name] = [type_, connections]
     for y in connections:
         InputMapping.setdefault(y,[]).append(name)
     
@@ -98,34 +98,51 @@ for x in OutputMapping:
         memory[x] = {x:0 for x in InputMapping[x]}
 lowHighPulses = [0,0]
 
-def buttonPush():
+def buttonPush(buttonPresses):
     queue = [[0, "button", "broadcaster", 0]]
     while queue:
         timestamp, nameFrom, nameTo, signalReceived = queue.pop(0)
         lowHighPulses[signalReceived] += 1
         #print(timestamp, nameFrom, ["low","high"][signalReceived], nameTo)
-        type, connections = OutputMapping[nameTo]
-        if type == "%":
+        type_, connections = OutputMapping[nameTo]
+        if type_ == "%":
             if signalReceived == 0:
                 memory[nameTo] = 1-memory[nameTo]
                 signalSent = memory[nameTo]
             else: continue
-        elif type == "&":
+        elif type_ == "&":
             memory[nameTo][nameFrom] = signalReceived
             signalSent = 0 if all([y==1 for y in memory[nameTo].values()]) else 1
         else:
             signalSent = signalReceived
         for connection in connections:
             if connection not in OutputMapping:
-                #print(nameTo, ["low","high"][signalSent], connection)
                 lowHighPulses[signalSent] += 1
+                if connection == "rx" and signalSent == 0:
+                    print(buttonPresses)
+                    quit()
+                #print(nameTo, ["low","high"][signalSent], connection)
                 continue
             queue.append([timestamp+1, nameTo, connection, signalSent])
-for _ in range(1000):
-    buttonPush()
-    #print()
-result = 1
-#print(lowHighPulses)
-for lh in lowHighPulses:
-    result *= lh
-print(result)
+
+
+queue = ["rx"]
+ampersands = []
+while queue:
+    x = queue.pop(0)
+    for next in InputMapping[x]:
+        if next in OutputMapping:
+            if OutputMapping[next][0] == "&":
+                if next not in queue:
+                    queue.append(next)
+                    ampersands.append(next)
+                    
+print(ampersands)
+last=0
+for buttonPresses in range(1000000000000):
+    memBin = "".join([ "".join([str(x) for x in memory[y].values() ]) for y in ampersands  ])
+    this = int(memBin,2)
+    if buttonPresses % 100000 == 0:
+        print(buttonPresses, memBin, this-last, this, last)
+    last=this 
+    buttonPush(buttonPresses+1)
