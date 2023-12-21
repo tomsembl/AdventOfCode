@@ -140,10 +140,9 @@ test="""...........
 .##.#.####.
 .##..##.##.
 ..........."""
-#a=test
+a=test
 start = [[(i,j) for i,x in enumerate(y) if x=="S"] for j,y in enumerate(a.splitlines()) if "S" in y][0][0]
-a.replace
-print(start)
+a.replace("S",".")
 b=[x for x in a.splitlines()]
 w,h = len(b[0]),len(b)
 
@@ -151,7 +150,7 @@ dirs=[[-1,0],[0,-1],[1,0],[0,1]]
 queue=[[start,0]]
 visited = {start}
 visitedSteps = {0:{start}}
-targetSteps = 64
+targetSteps = 10
 while queue:
     pos, steps = queue.pop(0)
     x,y = pos
@@ -159,16 +158,16 @@ while queue:
         break
     for dx,dy in dirs:
         nx,ny = x+dx,y+dy
-        if nx < 0 or ny < 0 or nx >= w or ny >= h:
-            continue
-        if b[ny][nx] == "#":
+        # if nx < 0 or ny < 0 or nx >= w or ny >= h:
+        #     continue
+        if b[ny%h][nx%w] == "#":
             continue
         if (nx,ny) in visited:
             continue
         visited.add((nx,ny))
         visitedSteps.setdefault(steps+1,set()).add((nx,ny))
         queue.append([(nx,ny), steps+1])
-print(visitedSteps)
+#print(visitedSteps)
 total = 0
 for x in visitedSteps:
     if x%2==0:
