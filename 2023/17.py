@@ -154,24 +154,39 @@ test="""2413432311323
 4322674655533"""
 a=test
 b=[x for x in a.splitlines()]
+b2=[[x for x in y] for y in a.splitlines()]
+
+def printGrid(grid):
+    for y in grid:
+        print("".join([str(x) for x in y]))
+    print()
+
 w,h = len(b[0]),len(b)
 dirs=[[-1,0],[0,-1],[1,0],[0,1]]
+dirStrs="<^>v"
 target = (w-1,h-1)
-def dfs():
-    queue=[[0,0,2,0,0]]
-    seen={}
-    while queue:
-        x,y,dir,straightCount,heatLoss = queue.pop()
-        newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
-        for newDir in newDirs:
-            dx,dy = dirs[newDir]
-            nx,ny = x+dx, y+dy
-            newHeatLoss = heatLoss + int(b[ny][nx])
-            if not(0<=nx<w and 0<=ny<h): continue
-            newStraightCount = straightCount + 1 if dir==newDir else 0
-            if (nx,ny) in seen:
-                if newHeatLoss < seen[(nx,ny)]: continue
-            seen[(nx,ny)] = newHeatLoss
-            queue.append([nx,ny,newDir,newStraightCount,newHeatLoss])
-    return seen[target]
-print(dfs())
+pathBack = {}
+queue=[[0,0,2,0,0]]
+seen={}
+while queue:
+    x,y,dir,straightCount,heatLoss = queue.pop()
+    print(x,y,dir,straightCount,heatLoss)
+    newDirs = [(dir+dd)%4 for dd in range(-1,2)] 
+    #newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
+    for newDir in newDirs:
+        dx,dy = dirs[newDir]
+        nx,ny = x+dx, y+dy
+        if not(0<=nx<w and 0<=ny<h): continue
+        newHeatLoss = heatLoss + int(b[ny][nx])
+        newStraightCount = straightCount + (1 if dir==newDir else 0)
+        if (nx,ny) in seen:
+            if newHeatLoss > seen[(nx,ny)]: continue
+        seen[(nx,ny)] = newHeatLoss
+        pathBack[(nx,ny)] = [x,y,dir]
+        queue.append([nx,ny,newDir,newStraightCount,newHeatLoss])
+print(seen[target])
+x,y=target
+while (x,y) != (0,0):
+    x,y,dir = pathBack[(x,y)]
+    b2[y][x] = dirStrs[dir]
+printGrid(b2)
