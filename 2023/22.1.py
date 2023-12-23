@@ -1352,7 +1352,7 @@ test="""1,0,1~1,2,1
 2,0,5~2,2,5
 0,1,6~2,1,6
 1,1,8~1,1,9"""
-a=test
+#a=test
 #coords of each corner of the cuboid
 cuboids=[[[int(z) for z in y.split(",")] for y in x.split("~")] for x in a.splitlines()]
 
@@ -1362,25 +1362,55 @@ def fall(cuboid):
     cuboidCopy[1][2] -= 1
     return cuboidCopy
 
-def checkCollision(cuboid, cuboids):
+def checkCollision(cuboid, cuboids, originalCuboid):
     ground = [[-100,-100,0],[100,100,0]]
     collidedCuboids = []
     c1BottomCorner, c1TopCorner = cuboid
     for cuboid2 in cuboids+[ground]:
-        if cuboid2 == cuboid: continue
+        if cuboid2 == originalCuboid: continue
         c2BottomCorner, c2TopCorner = cuboid2
         if c1BottomCorner[0] <= c2TopCorner[0] and c1BottomCorner[1] <= c2TopCorner[1] and c1BottomCorner[2] <= c2TopCorner[2]:
             if c1TopCorner[0] >= c2BottomCorner[0] and c1TopCorner[1] >= c2BottomCorner[1] and c1TopCorner[2] >= c2BottomCorner[2]:
                 collidedCuboids.append(cuboid2)
     return collidedCuboids
 
+def printSideView(cuboids):
+    yGrid = [["." for x in range(10)] for y in range(10)]
+    xGrid = [["." for x in range(10)] for y in range(10)]
+    for i,cuboid in enumerate(cuboids):
+        code = "ABCDEFGHI"[i]
+        c1BottomCorner, c1TopCorner = cuboid
+        for x in range(c1BottomCorner[0], c1TopCorner[0]+1):
+            for y in range(c1BottomCorner[2], c1TopCorner[2]+1):
+                if xGrid[y][x] != ".":
+                    xGrid[y][x] = "?"
+                else: 
+                    xGrid[y][x] = code
+        for x in range(c1BottomCorner[1], c1TopCorner[1]+1):
+            for y in range(c1BottomCorner[2], c1TopCorner[2]+1):
+                if yGrid[y][x] != ".":
+                    yGrid[y][x] = "?"
+                else: 
+                    yGrid[y][x] = code
+    print("_x_")
+    for row in xGrid[::-1]:
+        print("".join(row))
+    print("-"*32,"\n")
+    print("_y_")
+    for row in yGrid[::-1]:
+        print("".join(row))
+    print("-"*64)
+        
+
 while True:
+    #printSideView(cuboids)
     didAnythingFall = False
     for i,cuboid in enumerate(cuboids):
+        #print("ABCDEFGHI"[i])
         #print(i,"cuboid        ",cuboid)
         positionIfFallen = fall(cuboid)
         #print("positionIfFallen",positionIfFallen)
-        collidedCuboids = checkCollision(positionIfFallen, cuboids)
+        collidedCuboids = checkCollision(positionIfFallen, cuboids, cuboid)
         #print("collidedCuboids ", collidedCuboids)
         if len(collidedCuboids) > 0:
             #print("-"*32)
@@ -1392,20 +1422,34 @@ while True:
     #print(cuboids)
     #print("-"*64)
     if not didAnythingFall: break
-loadBearingCuboids = set()
+    
+dependents = {}
+LSupportedByR = {}
 for i,cuboid in enumerate(cuboids):
+    cuboidTuple = tuple(tuple(x) for x in cuboid)
     positionIfFallen = fall(cuboid)
-    collidedCuboids = checkCollision(positionIfFallen, cuboids)
+    collidedCuboids = checkCollision(positionIfFallen, cuboids, cuboid)
     print(collidedCuboids)
     for collidedCuboid in collidedCuboids:
         #convert 2d array to tupler:
         collidedCuboidTuple = tuple(tuple(x) for x in collidedCuboid)
-        loadBearingCuboids.add(collidedCuboidTuple)
+        dependents.setdefault(collidedCuboidTuple, set()).add(cuboidTuple)
+        LSupportedByR.setdefault(cuboidTuple, set()).add(collidedCuboidTuple)
+
 
 total = 0
-for cuboid in cuboids:
+for i,cuboid in enumerate(cuboids):
+    #print("ABCDEFGHI"[i])
     cuboidTuple = tuple(tuple(x) for x in cuboid)
-    if cuboidTuple not in loadBearingCuboids:
-        total+= 1
+    isRemovable = True
+    #if this one is the only one supporting another one, it's not removable
+    #if it's not supporting anything, it's removable
+    for dependent in dependents.get(cuboidTuple, []):
+        if len(LSupportedByR[dependent]) == 1:
+            isRemovable = False
+    if isRemovable:
+        #print("can")
+        total += 1
 print(total)#part1 
 #377 nope
+#486 nope
