@@ -170,6 +170,14 @@ end = ([i for i,x in enumerate(grid[-1]) if x=="."][0], h-1)
 dirs=[[-1,0],[0,-1],[1,0],[0,1]]
 dirStrs="<^>v"
 
+def printTheGrid(seen):
+    printGrid=[[y for y in x] for x in a.splitlines()]
+    for x,y in seen:
+        printGrid[y][x] = "O"
+    for y in printGrid:
+        print("".join(y))
+    print()
+
 def bfs():
     maxDist = 0
     seen=set({start})
@@ -185,9 +193,12 @@ def bfs():
             if not (0<=nx<w and 0<=ny<h): continue
             if (nx,ny) in seen: continue
             value = grid[ny][nx]
+            if value == "#": continue
             if value in dirStrs:
                 if dirStrs.index(value) != dirIndex: continue
+            printTheGrid(seen)
             seen.add((nx,ny))
             queue.append([nx,ny,dist+1])
+    
     return maxDist
 print(bfs())
