@@ -185,7 +185,7 @@ def bfs():
     iterations = 0
     while queue:
         if iterations % 10_000 == 0: print(iterations,len(queue),maxDist)
-        iterations += 1
+        iterations += 1        
         x,y,path = queue.pop(0)
         dist = len(path)
         if (x,y) == end:
@@ -199,8 +199,8 @@ def bfs():
             if (nx,ny) in path: continue
             value = grid[ny][nx]
             if value == "#": continue
-            if value in dirStrs:
-                if dirStrs.index(value) != dirIndex: continue
+            #if value in dirStrs:
+                #if dirStrs.index(value) != dirIndex: continue
                 #printTheGrid(path)
             #seen.add((nx,ny))
             queue.append([nx,ny,path+[(nx,ny)]])
