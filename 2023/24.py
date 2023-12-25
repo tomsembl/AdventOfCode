@@ -368,6 +368,5 @@ for intersection in intersections:
     x,y =  intersection
     if min_<=x<=max_ and min_<=y<=max_:
         total+=1
-print(total)
-print(len(intersections))#part 1
+print(total)#part 1
 #15791 too high
