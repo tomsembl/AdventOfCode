@@ -169,22 +169,23 @@ pathBack = {}
 queue=[[0,0,2,0,0]]
 seen={}
 while queue:
-    x,y,dir,straightCount,heatLoss = queue.pop()
+    x,y,dir,straightCount,heatLoss = queue.pop(0)
     print(x,y,dir,straightCount,heatLoss)
     newDirs = [(dir+dd)%4 for dd in range(-1,2)] 
     #newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
     for newDir in newDirs:
+        if newDir == dir and straightCount >= 3: continue
         dx,dy = dirs[newDir]
         nx,ny = x+dx, y+dy
         if not(0<=nx<w and 0<=ny<h): continue
         newHeatLoss = heatLoss + int(b[ny][nx])
         newStraightCount = straightCount + (1 if dir==newDir else 0)
-        if (nx,ny) in seen:
-            if newHeatLoss > seen[(nx,ny)]: continue
-        seen[(nx,ny)] = newHeatLoss
+        if (nx,ny,newDir) in seen:
+            if newHeatLoss > seen[(nx,ny,newDir)]: continue
+        seen[(nx,ny,newDir)] = newHeatLoss
         pathBack[(nx,ny)] = [x,y,dir]
         queue.append([nx,ny,newDir,newStraightCount,newHeatLoss])
-print(seen[target])
+#print(seen[target])
 x,y=target
 while (x,y) != (0,0):
     x,y,dir = pathBack[(x,y)]
