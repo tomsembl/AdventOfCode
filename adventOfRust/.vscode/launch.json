@@ -1,0 +1,119 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'adventOfRust'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=adventOfRust",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "adventOfRust",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'adventOfRust'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=adventOfRust",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "adventOfRust",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable '2201'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=2201",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "2201",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable '2201'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=2201",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "2201",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable '2201a'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=2201a",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "2201a",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable '2201a'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=2201a",
+                    "--package=adventOfRust"
+                ],
+                "filter": {
+                    "name": "2201a",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

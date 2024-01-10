@@ -707,61 +707,64 @@ U 3 (#a77fa3)
 L 2 (#015232)
 U 2 (#7a21e3)"""
 a=test
-b=[[int(y) if y.isnumeric() else y for y in x.split()] for x in a.splitlines()]
-
+intToDirs = "RDLU"
+b=[[intToDirs[int(y[-1])],int(y[1:-1],16)] for y in [x.split("(")[1].split(")")[0] for x in a.splitlines()]]
+for x in b:
+    print(x)
 x,y=0,0
-seen=set({(0,0)})
+#seen=set({(0,0)})
+#horizontalLines = []
+#verticalLines = []
+# horizontalPoints = {}
+# verticalPoints = {}
+xLines = {}
+yLines = {}
+xPoints = set()
+yPoints = set()
+#(horizontal lines have a fixed y value, vertical lines have a fixed x value)
 dirs={"L":[-1,0],"U":[0,-1],"R":[1,0],"D":[0,1]}
 
-for dir,dist,colour in b:
-    print(colour[2:-2],int(colour[-2]))
-    dist = int(colour[2:-2],16)
-    dirIndex = (int(colour[-2]) - 2) % 4 
-    dir = list(dirs.keys())[dirIndex]
-    print(dist,dir)
+#walk the path and make note of the lines along the way
+for dir,dist in b:
+    #print(dist,dir)
     dx,dy = dirs[dir]
-    dest = (x+(dx*dist),y+(dy*dist))
-    while (x,y) != dest:
-        x,y = x+dx, y+dy
-        seen.add((x,y))
-print(len(seen))
-
-minX,maxX,minY,maxY = 0,0,0,0
-for x,y in seen:
-    minX = min(minX,x)
-    maxX = max(maxX,x)
-    minY = min(minY,y)
-    maxY = max(maxY,y)
+    dest = [x+(dx*dist),y+(dy*dist)]
+    line = sorted([[x,y],dest])
+    if dir in "RL": 
+        # if y in yLines: 
+        #     print("duplicate error")
+        yLines.setdefault(y,[]).append(line)
+        for point in line: 
+            xPoints.add(point[0])
+        #horizontalLines.append(line)
+        #for px,py in line:
+            #horizontalPoints[(px,py)] = line
+    else:
+        # if x in xLines: 
+        #     print("duplicate error")
+        xLines.setdefault(x,[]).append(line)
+        for point in line: 
+            yPoints.add(point[1])
+        #verticalLines.append(line)
+        #for px,py in line:
+            #verticalPoints[(px,py)] = line
     
-w,h = maxX-minX+1,maxY-minY+1
+    
+    x,y = dest
 
-grid = [[0 for i in range(w)] for j in range(h)]
-for j in range(h):
-    for i in range(w):
-        if (i+minX,j+minY) in seen:
-            grid[j][i] = 255
-        else:
-            grid[j][i] = 0
+minX,maxX,minY,maxY = 999999999999,0,999999999999,0
+for lines in list(xLines.values())+list(yLines.values()):
+    for line in lines:
+        minX = min(minX,min(line[0][0],line[1][0]))
+        maxX = max(maxX,max(line[0][0],line[1][0]))
+        minY = min(minY,min(line[0][1],line[1][1]))
+        maxY = max(maxY,max(line[0][1],line[1][1]))
 
-from PIL import Image
-import numpy as np
-
-npGrid = np.asarray(grid)
-image = Image.fromarray(npGrid)
-if image.mode != 'RGB':
-    image = image.convert('RGB')
-
-#image.save("image.bmp", format='BMP')
-#use paint bucket fill in ms paint
-image = Image.open("image.bmp")
-image = image.convert('RGB')
-grid2 = np.asarray(image)
-#print(grid2)
-total = 0
-for y in grid2:
-    for x in y:
-        #print(x)
-        if x.all():
-            total += 1
+#for x in linesV: print(x)
+#print("minX",minX,"maxX",maxX,"minY",minY,"maxY",maxY)
+totalArea = 0
+for y in sorted(yPoints):
+    isInside = False
+    for x in sorted(xPoints):
+        print(x,y)
         
-print(total)
