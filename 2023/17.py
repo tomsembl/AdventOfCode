@@ -152,7 +152,7 @@ test="""2413432311323
 1224686865563
 2546548887735
 4322674655533"""
-a=test
+#a=test
 b=[x for x in a.splitlines()]
 b2=[[x for x in y] for y in a.splitlines()]
 
@@ -168,25 +168,36 @@ target = (w-1,h-1)
 pathBack = {}
 queue=[[0,0,2,0,0]]
 seen={}
+minHeatLoss = 9999
+xPlusY = 0
 while queue:
-    x,y,dir,straightCount,heatLoss = queue.pop()
-    print(x,y,dir,straightCount,heatLoss)
+    x,y,dir,straightCount,heatLoss = queue.pop(0)
+    #print(x,y,dir,straightCount,heatLoss)
     newDirs = [(dir+dd)%4 for dd in range(-1,2)] 
     #newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
+    if x+y > xPlusY:
+        xPlusY = x+y
+        print(xPlusY)
+    if (x,y) == target:
+        if heatLoss < minHeatLoss:
+            minHeatLoss = heatLoss
+            print(minHeatLoss)
     for newDir in newDirs:
+        if newDir == dir and straightCount >= 3: continue
         dx,dy = dirs[newDir]
         nx,ny = x+dx, y+dy
         if not(0<=nx<w and 0<=ny<h): continue
         newHeatLoss = heatLoss + int(b[ny][nx])
-        newStraightCount = straightCount + (1 if dir==newDir else 0)
-        if (nx,ny) in seen:
-            if newHeatLoss > seen[(nx,ny)]: continue
-        seen[(nx,ny)] = newHeatLoss
-        pathBack[(nx,ny)] = [x,y,dir]
+        newStraightCount = (straightCount + 1) if dir==newDir else 1
+        if (nx,ny,newDir,newStraightCount) in seen:
+            if newHeatLoss > seen[(nx,ny,newDir,newStraightCount)]: continue
+        seen[(nx,ny,newDir,newStraightCount)] = newHeatLoss
+        pathBack[(nx,ny,newDir,newStraightCount)] = [x,y,dir,straightCount]
         queue.append([nx,ny,newDir,newStraightCount,newHeatLoss])
-print(seen[target])
-x,y=target
-while (x,y) != (0,0):
-    x,y,dir = pathBack[(x,y)]
-    b2[y][x] = dirStrs[dir]
-printGrid(b2)
+print(seen[(2,1,3,1)])
+#print(seen[target])
+# x,y=target
+# while (x,y) != (0,0):
+#     x,y,dir = pathBack[(x,y)]
+#     b2[y][x] = dirStrs[dir]
+# printGrid(b2)
