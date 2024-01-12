@@ -712,11 +712,6 @@ b=[[intToDirs[int(y[-1])],int(y[1:-1],16)] for y in [x.split("(")[1].split(")")[
 for x in b:
     print(x)
 x,y=0,0
-#seen=set({(0,0)})
-#horizontalLines = []
-#verticalLines = []
-# horizontalPoints = {}
-# verticalPoints = {}
 horizontalLinesY = {}
 verticalLinesX = {}
 #(horizontal lines have a fixed y value, vertical lines have a fixed x value)
@@ -750,30 +745,68 @@ for lines in list(verticalLinesX.values())+list(horizontalLinesY.values()):
         minY = min(minY,min(line[0][1],line[1][1]))
         maxY = max(maxY,max(line[0][1],line[1][1]))
 
+#matplotlib stuff
+scale = 300_000
+matrix = [[0 for _ in range((maxX-minX)//scale+10)] for _ in range((maxY-minY)//scale+10)]
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+im = ax.imshow(matrix, vmax=2, vmin=0)
+cbar = ax.figure.colorbar(im, ax=ax)
+def update_visualization(new_matrix):
+    im.set_array(new_matrix)
+    fig.canvas.draw()
+    plt.pause(0.001)
+
+for x in verticalLinesX:
+    for bottom,top in verticalLinesX[x]:
+        for y in range(bottom[1]//scale,(top[1]//scale)+1):
+            matrix[y-(minY//scale)][(x-minX)//scale] = 1
+        update_visualization(matrix)
+for y in horizontalLinesY:
+    for left,right in horizontalLinesY[y]:
+        for x in range(left[0]//scale,(right[0]//scale)+1):
+            matrix[(y-minY)//scale][x-(minX//scale)] = 1
+        update_visualization(matrix)
+
+def fillGrid(yStart,yEnd,xStart,xEnd):
+    global matrix
+    for y in range((yStart-minY)//scale,(yEnd-minY)//scale+1):
+        for x in range((xStart-minX)//scale,(xEnd-minX)//scale+1):
+            #if matrix[y][x] == 0: 
+            matrix[y][x] = 2
+    update_visualization(matrix)
+    plt.pause(0.1)
+
+
+                
 #for x in linesV: print(x)
 #print("minX",minX,"maxX",maxX,"minY",minY,"maxY",maxY)
 totalArea = 0
 yPoints = sorted(yPoints)
 xPoints = sorted(xPoints)
 for j,y in enumerate(yPoints):
+    if j==len(yPoints)-1: continue
+    nextY = yPoints[j+1]
+    sliceHeight = nextY - y + 0#(1 if j==len(yPoints)-2 else 0)
     sliceWidth = 0
     isInside = False
-    xInterstections = []
+    xIntersections = []
     for x in sorted(verticalLinesX):
         for verticalLine in verticalLinesX[x]:
             bottom,top = verticalLine
-            if bottom[1] <= y <= top[1]:
-                xInterstections.append(x)
-    for i,x in enumerate(xInterstections):
+            if bottom[1] <= y < top[1]:
+                xIntersections.append(x)
+    for i,x in enumerate(xIntersections):
         if isInside:
-            previousX = xInterstections[i-1]
-            pieceWidth = x - previousX
-            sliceWidth += pieceWidth
+            previousX = xIntersections[i-1]
+            pieceWidth = x - previousX + 1
+            pieceArea = pieceWidth * sliceHeight
+            totalArea += pieceArea
+            print(f"{pieceWidth} * {sliceHeight} = {pieceArea}")
+            fillGrid(y,y+sliceHeight,previousX,previousX+pieceWidth)
         isInside = not isInside
-    if j==0: continue
-    previousY = yPoints[j-1]
-    sliceHeight = y - previousY
-    sliceArea = sliceWidth * sliceHeight
-    totalArea += sliceArea
-print(totalArea)
+undersideArea=maxX-minX+1
+print(totalArea+undersideArea)
         
+plt.show()
+#63806893533206 too low
