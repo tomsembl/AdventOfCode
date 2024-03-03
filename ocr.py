@@ -31,7 +31,7 @@
 #             #     print(cell.text)
 
 import pyodbc
-cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=CND1433P80\GTILOCALSQL;DATABASE=master;trusted_connection=yes')
+cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=;DATABASE=master;trusted_connection=yes')
 cnxn.autocommit = True
 cursor = cnxn.cursor()
 
