@@ -192,20 +192,18 @@ while queue:
         newHeatLoss = heatLoss + int(b[ny][nx])
         if newHeatLoss > minHeatLoss: continue
         newStraightCount = (straightCount + 1) if dir==newDir else 1
-        if (nx,ny,newDir,newStraightCount) in seen:
-            if newHeatLoss > seen[(nx,ny,newDir,newStraightCount)]: continue
-        seen[(nx,ny,newDir,newStraightCount)] = newHeatLoss
+        if (nx,ny,newStraightCount) in seen:
+            if newHeatLoss > seen[(nx,ny,newStraightCount)]: continue
+        seen[(nx,ny,newStraightCount)] = newHeatLoss
         pathBack[(nx,ny,newDir,newStraightCount)] = [x,y,dir,straightCount]
         newQueueItems.append([nx,ny,newDir,newStraightCount,newHeatLoss])
     queue.extend(sorted(newQueueItems,key=lambda x: [ x[-1],[1,1,0,0][x[2]] ], reverse=True))
-print(seen[(2,1,3,1)])
+#print(seen[(2,1,3,1)])
 #print(seen[target])
 # x,y=target
 # while (x,y) != (0,0):
 #     x,y,dir = pathBack[(x,y)]
 #     b2[y][x] = dirStrs[dir]
 # printGrid(b2)
+    
 #1325 too high
-#1296 nope
-#1075 nope
-#1070

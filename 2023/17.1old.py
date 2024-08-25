@@ -154,58 +154,42 @@ test="""2413432311323
 4322674655533"""
 #a=test
 b=[x for x in a.splitlines()]
-b2=[[x for x in y] for y in a.splitlines()]
-
-def printGrid(grid):
-    for y in grid:
-        print("".join([str(x) for x in y]))
-    print()
-
+b2=[[y for y in x] for x in a.splitlines()]
 w,h = len(b[0]),len(b)
 dirs=[[-1,0],[0,-1],[1,0],[0,1]]
-dirStrs="<^>v"
 target = (w-1,h-1)
-pathBack = {}
-queue=[[0,0,2,0,0]]
-seen={}
-minHeatLoss = 1325
-xPlusY = 0
-while queue:
-    x,y,dir,straightCount,heatLoss = queue.pop()
-    if heatLoss > minHeatLoss: continue
-    #print(x,y,dir,straightCount,heatLoss)
-    newDirs = [(dir+dd)%4 for dd in range(-1,2)] 
-    #newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
-    if x+y > xPlusY:
-        xPlusY = x+y
-        print(xPlusY)
-    if (x,y) == target:
-        if heatLoss < minHeatLoss:
-            minHeatLoss = heatLoss
-            print(minHeatLoss,len(queue))
-    newQueueItems = []
-    for newDir in newDirs:
-        if newDir == dir and straightCount >= 3: continue
-        dx,dy = dirs[newDir]
-        nx,ny = x+dx, y+dy
-        if not(0<=nx<w and 0<=ny<h): continue
-        newHeatLoss = heatLoss + int(b[ny][nx])
-        if newHeatLoss > minHeatLoss: continue
-        newStraightCount = (straightCount + 1) if dir==newDir else 1
-        if (nx,ny,newDir,newStraightCount) in seen:
-            if newHeatLoss > seen[(nx,ny,newDir,newStraightCount)]: continue
-        seen[(nx,ny,newDir,newStraightCount)] = newHeatLoss
-        pathBack[(nx,ny,newDir,newStraightCount)] = [x,y,dir,straightCount]
-        newQueueItems.append([nx,ny,newDir,newStraightCount,newHeatLoss])
-    queue.extend(sorted(newQueueItems,key=lambda x: [ x[-1],[1,1,0,0][x[2]] ], reverse=True))
-print(seen[(2,1,3,1)])
-#print(seen[target])
-# x,y=target
-# while (x,y) != (0,0):
-#     x,y,dir = pathBack[(x,y)]
-#     b2[y][x] = dirStrs[dir]
-# printGrid(b2)
-#1325 too high
-#1296 nope
-#1075 nope
-#1070
+def dfs():
+    queue=[[0,0,2,0,0,w-1+h-1]]
+    seen={}
+    i=0
+    while queue:
+        if i%100_000==0:
+            # for yy in b2:
+            #     print("".join(yy))
+            # print()
+            try:print(min([seen[x] for x in seen if x[:2]==target]))
+            except:pass
+        x,y,dir,straightCount,heatLoss,dist = queue.pop()
+        newDirs = ([dir] if straightCount < 3 else []) + [(dir-1)%4] + [(dir+1)%4]
+        newQueueItems = []
+        for newDir in newDirs:
+            dx,dy = dirs[newDir]
+            nx,ny = x+dx, y+dy
+            if not(0<=nx<w and 0<=ny<h): continue
+            newHeatLoss = heatLoss + int(b[ny][nx])
+            newStraightCount = straightCount + 1 if dir==newDir else 0
+            #if (nx,ny,dir) in seen:
+            if (nx,ny) in seen:
+                #if newHeatLoss > seen[(nx,ny,dir)]: continue
+                if newHeatLoss > seen[(nx,ny)]: continue
+            #seen[(nx,ny,dir)] = newHeatLoss
+            seen[(nx,ny)] = newHeatLoss
+            b2[ny][nx] = "#"
+            newQueueItems.append([nx,ny,newDir,newStraightCount,newHeatLoss,w-nx-1+h-ny-1])
+        newQueueItems.sort(key=lambda x: x[-1],reverse=True)
+        queue.extend(newQueueItems)
+    #return min([seen[x] for x in seen if x[:2]==target])
+    return min([seen[x] for x in seen if x==target])
+print(dfs()+1)
+#1513 nope
+#1511 nope
