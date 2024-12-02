@@ -1011,25 +1011,24 @@ def isSafe(report):
     for i,x in enumerate(report):
         if i==0:
             continue
-        y = report [i-1]
+        y = report[i-1]
         diff = abs(x-y)
         if diff > 3:
             return False
         if diff < 1:
             return False
-        
-    if sorted(report) == report:
-        return True
-    if sorted(report)[::-1] == report:
+    sortedReport = sorted(report)
+    if sortedReport == report or sortedReport[::-1] == report:
         return True
     return False
+
 print(sum([int(isSafe(x)) for x in b]))#p1
 
 def isSafe2(report):
     for j in range(len(report)):
-        #cut out j'th element
-        res = isSafe(report[:j]+report[j+1:])
-        if res:
+        subset = report[:j]+report[j+1:]
+        if isSafe(subset):
             return True
     return False
+
 print(sum([int(isSafe2(x)) for x in b]))#p2
