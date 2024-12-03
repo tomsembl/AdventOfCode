@@ -1013,9 +1013,7 @@ def isSafe(report):
             continue
         y = report[i-1]
         diff = abs(x-y)
-        if diff > 3:
-            return False
-        if diff < 1:
+        if diff > 3 or diff < 1:
             return False
     sortedReport = sorted(report)
     if sortedReport == report or sortedReport[::-1] == report:
