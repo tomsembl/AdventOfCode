@@ -14,7 +14,7 @@ b = re.findall(pattern, a)
 total=0
 for x,y in b:
     total+= int(x)*int(y)
-print(total)
+print(total)#p1
 
 pattern = r"mul\((\d+),(\d+)\)|do\(\)|don't\(\)"
 b = re.finditer(pattern, a)
@@ -28,4 +28,4 @@ for match in b:
         on = True
     if "don't" in match.group():
         on = False
-print(total)
+print(total)#p2
