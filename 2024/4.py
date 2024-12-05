@@ -171,12 +171,11 @@ total_mas = 0
 for j,y in enumerate(b):
     for i,x in enumerate(y):
         #only within 1 away from bounds
-        if i < 1 or i > w-2 or j < 1 or j > h-2:
+        if i < 1 or i >= w-1 or j < 1 or j >= h-1:
             continue
         if x != "A":
             continue
         diagStrs = [[b[j+dy][i+dx] for dx,dy in diags[0]],[b[j+dy][i+dx] for dx,dy in diags[1]]]
-        print(diagStrs)
         if all([sorted(x) == ["M","S"] for x in diagStrs]):
             total_mas += 1
 print(total_mas)#p2
