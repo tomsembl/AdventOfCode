@@ -148,20 +148,19 @@ for j,y in enumerate(b):
         if x=="^":
             startX,startY=i,j
             break
-dir = 0
+        
 def turnRight():
     global dir
     dir = (dir + 1 ) % 4
 
+dir = 0
 visited = set()
 visitedWithDir = set()
 x,y = startX,startY
 while True:
     if x >= w or y >= h or x < 0 or y < 0:
         break
-        #print(x,y,dir,"out of bounds", len(visited))
     if (x,y,dir) in visitedWithDir:
-        print(x,y,dir,"seen same x,y,dir befoer")
         break
     visitedWithDir.add((x,y,dir))
     visited.add((x,y))
@@ -170,15 +169,37 @@ while True:
     try:
         val = b[newY][newX]
     except IndexError:
-        print(x,y,dir)
         break
     if val == "#":
         turnRight()
     else:
         x,y = newX,newY
-    
 print(len(visited))#p1
-#120 not right
-#1852 not right
-#4807 not right
-#4789
+
+totalInfiniteLoops = 0
+for blocker in visited:
+    c = [x[::] for x in b[::]]
+    c[blocker[1]][blocker[0]] = "#"
+    visitedWithDir = set()
+    dir = 0
+    x,y = startX,startY
+    
+    while True:
+        if x >= w or y >= h or x < 0 or y < 0:
+            break
+        if (x,y,dir) in visitedWithDir:
+            totalInfiniteLoops += 1
+            break
+        visitedWithDir.add((x,y,dir))
+        dx,dy = dirs[dir]
+        newX,newY = x+dx,y+dy
+        try:
+            val = c[newY][newX]
+        except IndexError:
+            break
+        if val == "#":
+            turnRight()
+        else:
+            x,y = newX,newY
+    
+print(totalInfiniteLoops)#p2
