@@ -869,12 +869,11 @@ for x, y in b:
         if i == len(y)-1 and current == y[i]:
             total += x
             break
-        queue.append([current - y[i], i + 1])
+        queue.append([current - y[i], i + 1]) #addition
         if current % y[i] == 0:
-            queue.append([current // y[i], i + 1])
+            queue.append([current // y[i], i + 1]) #multiplication
 print(total) #p1
 
-b=[[int(x.split(":")[0]),[int(y) for y in x.split(": ")[1].split()][::-1]] for x in a.splitlines()]
 total = 0
 for x, y in b:
     queue = [[x, 0]]
@@ -885,14 +884,12 @@ for x, y in b:
         if i == len(y)-1 and current == y[i]:
             total += x
             break
-        queue.append([current - y[i], i + 1])
+        queue.append([current - y[i], i + 1]) #addition
         if current % y[i] == 0:
-            queue.append([current // y[i], i + 1])
+            queue.append([current // y[i], i + 1]) #multiplication
         if str(current).endswith(str(y[i])):
-            s = str(current)
             try:
-                newQ = [int(s[:-len(str(y[i]))]), i + 1]
-            except:
-                continue
+                newQ = [int(str(current)[:-len(str(y[i]))]), i + 1] #concatenation
+            except: continue
             queue.append(newQ)
 print(total) #p2
