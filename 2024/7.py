@@ -889,7 +889,6 @@ for x, y in b:
             queue.append([current // y[i], i + 1]) #multiplication
         if str(current).endswith(str(y[i])):
             try:
-                newQ = [int(str(current)[:-len(str(y[i]))]), i + 1] #concatenation
-            except: continue
-            queue.append(newQ)
+                queue.append([int(str(current)[:-len(str(y[i]))]), i + 1]) #concatenation
+            except ValueError: continue
 print(total) #p2
