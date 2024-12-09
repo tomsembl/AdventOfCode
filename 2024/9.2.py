@@ -7,31 +7,6 @@ fileNum = 0
 i = 0
 avails = []
 files = []
-for x in a:
-    x = int(x)
-    if isFileSize:
-        hdd += [fileNum]*x
-        fileNum += 1
-        files.append((x,i,len(files)))
-        i += x
-    else:
-        hdd += [-1]*x
-        avails.extend(range(i,i+x))
-        i += x
-    isFileSize = not isFileSize
-    
-while avails:
-    if hdd[-1] == -1:
-        hdd.pop()
-        continue
-    i = avails.pop(0)
-    if i >= len(hdd):
-        break
-    hdd[i] = hdd.pop()
-
-checksum = sum([i*x for i,x in enumerate(hdd)])
-print(checksum)#p1
-
 
 def findListInList(l1,l2, filePos):
     for i in range(len(l1)):
@@ -40,14 +15,29 @@ def findListInList(l1,l2, filePos):
             return i
     raise ValueError("List not found")
 
+for x in a:
+    x = int(x)
+    if isFileSize:
+        hdd += [fileNum]*x
+        fileNum += 1
+        files.append((x,i,len(files)))
+        i += x
+    else:
+        hdd += ["."]*x
+        avails.extend(range(i,i+x))
+        i += x
+    isFileSize = not isFileSize
+
+
 for fileLen, filePos, fileIndex in files[::-1]:
     print(fileIndex)
     try: 
-        insertLocation = findListInList(hdd,[-1]*fileLen, filePos)
+        insertLocation = findListInList(hdd,["."]*fileLen, filePos)
         for j in range(fileLen):
             hdd[insertLocation+j] = fileIndex
-            hdd[filePos+j] = -1
+            hdd[filePos+j] = "."
     except ValueError: continue
 
-checksum = sum([i*x for i,x in enumerate(hdd) if x != -1])
-print(checksum)#p2
+checksum = sum([i*x for i,x in enumerate(hdd) if x != "."])
+print(checksum)
+
