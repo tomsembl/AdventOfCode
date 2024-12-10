@@ -100,7 +100,6 @@ print(total)#p1
 def bfs2(x,y):
     path = [(x,y)]
     queue = [(x,y,path)]
-    nines = set()
     paths = []
     while queue:
         x,y,path = queue.pop(0)
@@ -112,14 +111,13 @@ def bfs2(x,y):
             nHeight = b[ny][nx]
             if nHeight == height+1:
                 if nHeight == 9:
-                    nines.add((nx,ny))
                     paths.append(path+[(nx,ny)])
                 queue.append((nx,ny,path+[(nx,ny)]))
-    return nines, paths
+    return paths
 
 total=0
 for x,y in trailheads:
-    nines, paths = bfs2(x,y)
+    paths = bfs2(x,y)
     total += len(paths)
     
-print(total)
+print(total)#p2
