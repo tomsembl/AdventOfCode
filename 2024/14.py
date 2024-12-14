@@ -558,9 +558,8 @@ def getNeighbours(coords):
 t=0
 while True:
     c=[[" " for _ in range(w)] for _ in range(h)]
+    t+=1
     for i,row in enumerate(b):
-
-        t+=1
         pos,vel = row
         x,y = pos
         vx, vy = vel
