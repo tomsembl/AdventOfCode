@@ -512,7 +512,7 @@ p=2,4 v=2,-3
 p=9,5 v=-3,-3"""
 #a=test
 b=[[[int(z) for z in y.split("=")[1].split(",")] for y in x.split()] for x in a.splitlines()]
-w,h = 11,7
+#w,h = 11,7
 w,h = 101,103
 time = 100
 for t in range(time):
@@ -542,3 +542,37 @@ total = 1
 for q in quadrants:
     total *= q
 print(total)
+
+
+b=[[[int(z) for z in y.split("=")[1].split(",")] for y in x.split()] for x in a.splitlines()]
+dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]
+def getNeighbours(coords):
+    x,y = coords
+    neighbours = []
+    for dx,dy in dirs:
+        nx,ny = x+dx,y+dy
+        if not (0 <= nx < len(b[0]) and 0 <= ny < len(b)):
+            continue
+        neighbours.append((nx,ny))
+    return neighbours
+t=0
+while True:
+    c=[[" " for _ in range(w)] for _ in range(h)]
+    for i,row in enumerate(b):
+
+        t+=1
+        pos,vel = row
+        x,y = pos
+        vx, vy = vel
+        x += vx
+        y += vy
+        x %= w
+        y %= h
+        b[i][0] = [x,y]
+    for pos,vel in b:
+        x,y = pos
+        c[y][x] = "#"
+    if any(["#######" in "".join(row) for row in c]):
+        for row in c:
+            print("".join(row))
+        print(t) #p2
