@@ -101,44 +101,109 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 <><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
 ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^"""
+
+# test = """#######
+# #...#.#
+# #.....#
+# #..OO@#
+# #..O..#
+# #.....#
+# #######
+
+# <vv<<^^<<^^"""
 #a=test
 grid, moves = a.split("\n\n")
 moves = "".join(moves.splitlines())
 grid = [[x for x in y] for y in grid.splitlines()]
 dirs = {"^": (0, -1), "v": (0, 1), "<": (-1, 0), ">": (1, 0)}
 w,h = len(grid[0]), len(grid)
-x,y = next((i,j) for i in range(w) for j in range(h) if grid[j][i] == "@")
 
+
+gridDoubled = [["." for _ in range(w*2)] for _ in range(h)]
+for j,y in enumerate(grid):
+    for i,x in enumerate(y):
+        if x == "O":
+            gridDoubled[j][i*2] = "["
+            gridDoubled[j][i*2+1] = "]"
+        elif x == "@":
+            gridDoubled[j][i*2] = x
+        else:
+            gridDoubled[j][i*2] = x
+            gridDoubled[j][i*2+1] = x
+grid = gridDoubled
+w,h = len(grid[0]), len(grid)
+
+bricks = {}
+for j,row in enumerate(grid):
+    for i,cell in enumerate(row):
+        if cell == "[":
+            bricks[(i,j)] = (i,j)
+            bricks[(i+1,j)] = (i,j)
+
+   
+x,y = next((i,j) for i in range(w) for j in range(h) if grid[j][i] == "@")
+for row in grid:
+    print("".join(row))  
+    
 for move in moves:
     dx,dy = dirs[move]
     nx,ny = x+dx, y+dy
     pathOfInfluence = [(x,y)]
     hasRoomToMove = True
     
-    while True:
-        if grid[ny][nx] == ".":
-            break
-        if grid[ny][nx] == "#":
-            hasRoomToMove = False
-            break
-        pathOfInfluence.append((nx,ny))
-        nx,ny = nx+dx, ny+dy
+    queue = [(x,y)]
+    
+    while queue:
+        xx,yy = queue.pop(0)
+        
+        # news = []
+        # if move in "^v":
+        #     for xxx in range(2):
+        #         news.append((xx+dx+xxx, yy+dy))
+        # else:
+        #     news.append((xx+dx*2, yy+dy))
+        for nx,ny in [(xx+dx, yy+dy)]:
+            if grid[ny][nx] == "#":
+                hasRoomToMove = False
+                break
+            if grid[ny][nx] in "[]":
+                brickx, bricky = bricks[(nx,ny)]
+                for brickCoord in [(brickx, bricky), (brickx+1, bricky)]:
+                    if brickCoord not in pathOfInfluence:
+                        pathOfInfluence.append(brickCoord)
+                        queue.append(brickCoord)
         
     if not hasRoomToMove:
         continue
     x,y = x+dx, y+dy
-    for i,j in pathOfInfluence[::-1]:
+    pathOfInfluence.sort()
+    if move in ">v":
+        pathOfInfluence.reverse()
+    for i,j in pathOfInfluence:
         value = grid[j][i]
         grid[j][i] = "."
         grid[j+dy][i+dx] = value
-        
-for row in grid:
-    print("".join(row))
+        # if (i,j) in bricks:
+        #     if bricks[(i,j)] == (i,j):
+        #         del bricks[(i,j)]
+        #         del bricks[(i+1,j)]
+        #         bricks[(i+dx,j+dy)] = (i+dx,j+dy)
+        #         bricks[(i+dx+1,j+dy)] = (i+dx,j+dy)
+    bricks = {}
+    for j,row in enumerate(grid):
+        for i,cell in enumerate(row):
+            if cell == "[":
+                bricks[(i,j)] = (i,j)
+                bricks[(i+1,j)] = (i,j)
+    # print(move)
+    # for row in grid:
+    #         print("".join(row))
+
     
 total = 0
 for j,y in enumerate(grid):
     for i,x in enumerate(y):
-        if x == "O":
+        if x == "[":
             total += 100*j+i
 print(total)
     
