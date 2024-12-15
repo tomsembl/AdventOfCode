@@ -148,7 +148,7 @@ VVIIICJJEE
 MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE"""
-#a=test
+a=test
 b=[[y for y in x] for x in a.splitlines()]
 dirs = [[0,1],[-1,0],[0,-1],[1,0]]
 
@@ -164,6 +164,18 @@ def getNeighbours(coords):
         if not (0 <= nx < len(b[0]) and 0 <= ny < len(b)):
             continue
         neighbours.append((nx,ny))
+    return neighbours
+
+def getNeighboursDirs(coords):
+    x,y = coords
+    plant = b[y][x]
+    neighbours = []
+    for i,dir in enumerate(dirs):
+        dx,dy = dir
+        nx,ny = x+dx,y+dy
+        if not (0 <= nx < len(b[0]) and 0 <= ny < len(b)):
+            neighbours.append((nx,ny,i,True))
+        neighbours.append((nx,ny,i,False))
     return neighbours
 
 def getPerimeter(coords, neighbours):
@@ -206,17 +218,60 @@ for j,y in enumerate(b):
         bfs((i,j))
         #seen.add((i,j))
 
+def getNumberOfEdgesInGroup(group):
+    #an edge is a straight line consisting of one or more tiles, not the edges of individual tiles
+    edgeTilesOnly = [x for x in group if x[2] > 0]
+    edges = []
+    seenPlants = set()
+    for plant in group:
+        x,y,_ = plant
+        neighbours = getNeighboursDirs((x,y))
+        for nx,ny,dir,isAtBounds in neighbours:
+            if isAtBounds:
+                edge = [(x,y)]
+                while True:
+                    if (nx,ny) in edgeTilesOnly:
+                        edge.append((nx,ny))
+                        seenPlants.add((nx,ny))
+                        nx,ny = nx+dirs[dir][0],ny+dirs[dir][1]
+                    else:
+                        break
+                edges.append(edge)
+    return edges
+
+
 total = 0
 for group in groups:
-    groupPerimeter = 0
     area = len(group)
-    for plant in group:
-        x,y,perimeter = plant
-        groupPerimeter += perimeter
-    total += area * groupPerimeter
-    #print(area, groupPerimeter, area * groupPerimeter)
-    #print(group)
+    edges = getNumberOfEdgesInGroup(group)
+    total += area * len(edges)
+    print(area,len(edges))
 print(total)
 
 
 
+
+
+
+
+
+        # if (x,y,"x") not in seenPlants:
+        #     seenPlants.add((x,y,"x"))
+        #     edge = [(x,y)]
+        #     neighbours = getNeighbours((x,y))
+        #     for nx,ny in neighbours:
+        #         if ny == y and (nx,ny) in edgeTilesOnly:
+        #             edge.append((nx,ny))
+        #             seenPlants.add((nx,ny,"x"))
+        #             break
+        #     edges.append(edge)
+        # if (x,y,"y") not in seenPlants:
+        #     seenPlants.add((x,y,"y"))
+        #     edge = [(x,y)]
+        #     neighbours = getNeighbours((x,y))
+        #     for nx,ny in neighbours:
+        #         if nx == x and (nx,ny) in edgeTilesOnly:
+        #             edge.append((nx,ny))
+        #             seenPlants.add((nx,ny,"y"))
+        #             break
+        #     edges.append(edge)
