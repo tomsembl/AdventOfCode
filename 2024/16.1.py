@@ -154,7 +154,24 @@ test="""###############
 #.###.#.#.#.#.#
 #S..#.....#...#
 ###############"""
-# a=test
+# test="""#################
+# #...#...#...#..E#
+# #.#.#.#.#.#.#.#.#
+# #.#.#.#...#...#.#
+# #.#.#.#.###.#.#.#
+# #...#.#.#.....#.#
+# #.#.#.#.#.#####.#
+# #.#...#.#.#.....#
+# #.#.#####.#.###.#
+# #.#.#.......#...#
+# #.#.###.#####.###
+# #.#.#...#.....#.#
+# #.#.#.#####.###.#
+# #.#.#.........#.#
+# #.#.#.#########.#
+# #S#.............#
+# #################"""
+a=test
 b=[[y for y in x] for x in a.splitlines()]
 c=[[y for y in x] for x in a.splitlines()]
 w,h = len(b[0]),len(b)
@@ -171,17 +188,11 @@ end = (w-2,1)
 #             end=(i,j)
 x,y = start
 seen = {(x,y,dir):0}
-queue = [(x,y,dir,0)]
-best = 999999999999
+queue = [(x,y,dir,0,[start])]
+paths = {}
 while queue:
-    x,y,dir,cost = queue.pop(0)
-    c[y][x] = ">v<^"[dir]
-    # for row in c:
-    #     print("".join(row))
-    if (x,y)==end:
-        if cost<best:
-            best = cost
-            print(cost)
+    x,y,dir,cost,path = queue.pop(0)
+    paths.setdefault((x,y,dir,cost),[]).append(path)
 
     for i in range(-1,2,2):
         newdir = (dir+i)%4
@@ -191,27 +202,40 @@ while queue:
         if b[ny][nx]=="#":
             continue
         if (x,y,newdir) in seen:
-            if seen[(x,y,newdir)] <= newCost:
+            if seen[(x,y,newdir)] < newCost:
                 continue
         seen[(x,y,newdir)] = newCost
-        queue.append((x,y,newdir,newCost))
+        queue.append((x,y,newdir,newCost,path))
 
     dx,dy = dirs[dir]
     nx,ny = x+dx,y+dy
+    newCost = cost + 1
     if b[ny][nx]=="#":
         continue
     if (nx,ny,dir) in seen:
-        if seen[(nx,ny,dir)] <= cost+1:
+        if seen[(nx,ny,dir)] < newCost:
             continue
     if (nx,ny,(dir+2)%4) in seen:
-        if seen[(nx,ny,(dir+2)%4)] <= cost+1:
+        if seen[(nx,ny,(dir+2)%4)] <= newCost:
             continue
-    seen[(nx,ny,dir)] = cost
-    queue.append((nx,ny,dir,cost+1))
+    seen[(nx,ny,dir)] = newCost
+    queue.append((nx,ny,dir,newCost,path+[(nx,ny)]))
 
-# for key in seen:
-#     x,y,dir = key
-#     if (x,y) == end:
-#         print(seen[key])
-#         break
-print(best)
+best=999999999
+for key in seen:
+    x,y,dir = key
+    if (x,y) == end:
+        if seen[key] < best:
+            best = seen[key]
+            bestKey = key
+print(bestKey,seen[bestKey])
+print(len(paths[bestKey]))
+bestTiles = set()
+for path in paths[bestKey]:
+    for x,y in path:
+        bestTiles.add((x,y))
+        c[y][x] = "O"
+bestTiles.add(end)
+print(len(bestTiles))
+for row in c:
+    print("".join(row))

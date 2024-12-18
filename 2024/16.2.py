@@ -154,7 +154,24 @@ test="""###############
 #.###.#.#.#.#.#
 #S..#.....#...#
 ###############"""
-# a=test
+test="""#################
+#...#...#...#..E#
+#.#.#.#.#.#.#.#.#
+#.#.#.#...#...#.#
+#.#.#.#.###.#.#.#
+#...#.#.#.....#.#
+#.#.#.#.#.#####.#
+#.#...#.#.#.....#
+#.#.#####.#.###.#
+#.#.#.......#...#
+#.#.###.#####.###
+#.#.#...#.....#.#
+#.#.#.#####.###.#
+#.#.#.........#.#
+#.#.#.#########.#
+#S#.............#
+#################"""
+#a=test
 b=[[y for y in x] for x in a.splitlines()]
 c=[[y for y in x] for x in a.splitlines()]
 w,h = len(b[0]),len(b)
@@ -172,17 +189,11 @@ end = (w-2,1)
 x,y = start
 seen = {(x,y,dir):0}
 queue = [(x,y,dir,0)]
-best = 999999999999
+parents = {}
 while queue:
-    x,y,dir,cost = queue.pop(0)
-    c[y][x] = ">v<^"[dir]
-    # for row in c:
-    #     print("".join(row))
-    if (x,y)==end:
-        if cost<best:
-            best = cost
-            print(cost)
+    x,y,dir,cost = queue.pop(0)    
 
+    #turns
     for i in range(-1,2,2):
         newdir = (dir+i)%4
         dx,dy = dirs[newdir]
@@ -191,27 +202,53 @@ while queue:
         if b[ny][nx]=="#":
             continue
         if (x,y,newdir) in seen:
-            if seen[(x,y,newdir)] <= newCost:
+            if seen[(x,y,newdir)] < newCost-1001:
                 continue
         seen[(x,y,newdir)] = newCost
         queue.append((x,y,newdir,newCost))
+        parents.setdefault((x,y,newdir,newCost),[]).append((x,y,dir,cost))
 
+    #forwards
     dx,dy = dirs[dir]
     nx,ny = x+dx,y+dy
+    newCost = cost + 1
     if b[ny][nx]=="#":
         continue
     if (nx,ny,dir) in seen:
-        if seen[(nx,ny,dir)] <= cost+1:
+        if seen[(nx,ny,dir)] < newCost-1001:
             continue
     if (nx,ny,(dir+2)%4) in seen:
-        if seen[(nx,ny,(dir+2)%4)] <= cost+1:
+        if seen[(nx,ny,(dir+2)%4)] <= newCost-1001:
             continue
-    seen[(nx,ny,dir)] = cost
-    queue.append((nx,ny,dir,cost+1))
+    seen[(nx,ny,dir)] = newCost
+    queue.append((nx,ny,dir,newCost))
+    parents.setdefault((nx,ny,dir,newCost),[]).append((x,y,dir,cost))
 
-# for key in seen:
-#     x,y,dir = key
-#     if (x,y) == end:
-#         print(seen[key])
-#         break
-print(best)
+best=999999999
+for key in seen:
+    x,y,dir = key
+    if (x,y) == end:
+        if seen[key] < best:
+            best = seen[key]
+            bestKey = key
+x,y,dir = bestKey
+cost = seen[bestKey]
+
+bestTiles = set()
+queue = [(x,y,dir,cost)]
+while queue:
+    x,y,dir,cost = queue.pop(0)
+    if (x,y) == (65,7):
+        print("here")
+    bestTiles.add((x,y))
+    # if (x,y) == start:
+    #     break
+    if (x,y,dir,cost) in parents:
+        for parent in parents[(x,y,dir,cost)]:
+            if (parent[3] == cost-1 or parent[3] == cost-1000) and parent not in queue:
+                queue.append(parent)
+    c[y][x] = "O"
+for row in c:
+        print("".join(row))
+print(len(bestTiles))
+#988 too low
