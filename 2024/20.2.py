@@ -175,6 +175,27 @@ def getNeighs(x,y):
             neighs.append((nx,ny))
     return neighs
 
+def getNeighs2(x,y):
+    neighs = []
+    for d in dirs:
+        nx,ny = x+d[0]*2,y+d[1]*2
+        if nx>=0 and ny>=0 and nx<w and ny<h:
+            neighs.append((nx,ny))
+    return neighs
+
+def manhattan(coord1,coord2):
+    return abs(coord1[0]-coord2[0]) + abs(coord1[1]-coord2[1])
+
+def getNeighs3(x,y):
+    neighs = []
+    for dy in range(-20,21):
+        for dx in range(-20,21):
+            nx,ny = x+dx,y+dy
+            man = manhattan((nx,ny),(x,y))
+            if nx>=0 and ny>=0 and nx<w and ny<h and man <= 20:
+                neighs.append((nx,ny,man))
+    return neighs
+
 def bfs(grid):
     queue = [(start[0],start[1],0)]
     while queue:
@@ -186,22 +207,62 @@ def bfs(grid):
         grid[y][x] = '#'
         for nx,ny in getNeighs(x,y):
             queue.append((nx,ny,d+1))
-            
-originalTime = bfs(b)
-print(originalTime)
 
-targetTimeSaving = 100
-totalCheatsGtTarget = 0
+originalTime = bfs(b)
+print("originalTime:",originalTime)
+
+
+def bfs2(grid,start):
+    queue = [(start[0],start[1],0)]
+    while queue:
+        x,y,d = queue.pop(0)
+        if (x,y) == end:
+            return d
+        if grid[y][x] == '#':
+            continue
+        grid[y][x] = '#'
+        for nx,ny in getNeighs(x,y):
+            queue.append((nx,ny,d+1))
+    
+b=[[z for z in zz] for zz in a.splitlines()]
+
+everyCoordToEnd = {}
 for x in range(w):
     for y in range(h):
-        if b[y][x] != '#':
+        if b[y][x] == '#':
             continue
-        b=[[y for y in x] for x in a.splitlines()]
-        b[y][x] = '.'
-        time = bfs(b)
-        if originalTime - time >= targetTimeSaving:
-            totalCheatsGtTarget += 1
-            print(x,y)
-print(totalCheatsGtTarget) #p1
+        result = bfs2(b,(x,y))
+        print(result)
+        everyCoordToEnd[(x,y)] = result
+        b=[[z for z in zz] for zz in a.splitlines()]
+
+# for k,v in everyCoordToEnd.items():
+#     print(k,v)
+     
+targetTimeSaving = 100
+totalCheatsGtTarget = 0
+cheatsGtTarget=[]
+def bfs3(grid):
+    global totalCheatsGtTarget
+    queue = [(start[0],start[1],0)]
+    while queue:
+        x,y,d = queue.pop(0)
+        if (x,y) == end:
+            return totalCheatsGtTarget
+        if grid[y][x] == '#':
+            continue
+        grid[y][x] = '#'
+        for nx,ny in getNeighs(x,y):
+            queue.append((nx,ny,d+1))
+        for nx,ny,cheatDistance in getNeighs3(x,y):
+            if grid[ny][nx] == '#':
+                continue
+            timeToEnd = everyCoordToEnd[(nx,ny)]
+            if originalTime - d - timeToEnd - cheatDistance >= targetTimeSaving:
+                totalCheatsGtTarget += 1
+                cheatsGtTarget.append(((x,y),(nx,ny),d + timeToEnd + cheatDistance))
         
-        
+b=[[z for z in zz] for zz in a.splitlines()]
+bfs3(b)
+print(totalCheatsGtTarget) #p2
+#2353798 too high
