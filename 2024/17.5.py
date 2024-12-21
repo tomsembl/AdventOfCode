@@ -43,10 +43,10 @@ print(",".join([str(x) for x in outputs])) #p1
 winners = []
 for x in range(len(program)):
     leastsignificants = sum([z<<(i*3) for i,z in enumerate(winners)])
-    for y in range(8):
+    for y in range(64*8):
         registers = [int(x.split(": ")[1]) for x in b[:3]]
         #print(bin((y << (x * 3))))
-        registers[0] = (7 << (x * 6)) + (y << (x * 3)) + leastsignificants
+        registers[0] = (y << (x * 3)) + leastsignificants
         i = 0
         outputs=[]
         while i < len(program)-1:
@@ -83,7 +83,7 @@ for x in range(len(program)):
 
             i += 2
         print(f"x={x}, y={y}, outputs = {outputs}, A = {bin((y << (x * 3)) + leastsignificants)[2:]}")
-        if len(outputs) == x+1:
-            if outputs[:x+1] == program[:x+1]:
+        if len(outputs) >= x+2:
+            if outputs[:x+2] == program[:x+2]:
                 winners.append(y)
                 print(f"winner: {y}")

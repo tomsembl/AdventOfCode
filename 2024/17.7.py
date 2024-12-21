@@ -19,27 +19,25 @@ program = [int(x) for x in b[4].split(": ")[1].split(",")]
 
 bestOutput = []
 bestOutLen = -1
-def listStartsWithList(l1,l2):
-    global bestOutput,bestOutLen,i
+def listStartsWithList(l1,l2,i):
+    global bestOutput,bestOutLen
     for j in range(len(l2)):
         if l1[j] != l2[j]:
             if j-1 > bestOutLen:
                 bestOutLen = j-1
                 bestOutput = l2[:j]
-                print("bestOutput",bestOutput,i, bin(i)[2:])
+                #print("bestOutput",bestOutput,i, bin(i)[2:])
                 
             return False
     return True
  
-outputs=[]
 i = -1
-while program != outputs:
-    i+=1
+def f(i):
     A = i
     B=0
     C=0
     outputs=[]
-    while A != 0 and listStartsWithList(program,outputs):
+    while A != 0 and listStartsWithList(program+[0,0,0],outputs,i):
         B = A % 8
         B = B ^ 2
         C = A // (2 ** B)
@@ -47,4 +45,20 @@ while program != outputs:
         A = A // 8
         B = B ^ 7
         outputs.append(B % 8)
-print(A)
+    return outputs
+
+winners = []
+for x in range(len(program)+3):
+    for y in range(8**3):
+        num = (y << (3 * (x))) + sum([z<<(i*3) for i,z in enumerate(winners)])
+        fnum = f(num)
+        print(x,y,bin(num)[2:],",".join([str(x) for x in fnum]))
+        if len(fnum) < x+1:
+            continue
+        if fnum[:x+1] == (program+[0,0,0])[:x+1]:
+            winners.append(y)
+            break
+    if len(winners) == x:
+        winners.append(0)
+for x in range(8):
+    
