@@ -3,87 +3,75 @@ Register B: 0
 Register C: 0
 
 Program: 2,4,1,2,7,5,4,3,0,3,1,7,5,5,3,0"""
-test="""Register A: 729
-Register B: 0
-Register C: 0
+# test="""Register A: 0 
+# Register B: 0
+# Register C: 0
 
-Program: 0,1,5,4,3,0"""
+# Program: 0,1,5,4,3,0"""
+# test="""Register A: 2024
+# Register B: 0
+# Register C: 0
+
+# Program: 0,3,5,4,3,0"""
+#a=test
 b=[x for x in a.splitlines()]
 registers = [int(x.split(": ")[1]) for x in b[:3]]
 program = [int(x) for x in b[4].split(": ")[1].split(",")]
 
-i = 0
-outputs=[]
-while i < len(program)-1:
-    opcode, operand = program[i:i+2]
-    if 3 < operand < 7:
-        operand = registers[operand-4]
-    
-    if opcode == 0: #adv
-        registers[0] = registers[0] //  (2 ** operand)
-    if opcode == 1: #bxl
-        registers[1] = registers[1] ^ operand
-    if opcode == 2: #bst
-        registers[1] = operand % 8
-    if opcode == 3: #jnz
-        if registers[0] != 0:
-            i = operand
-            continue
-    if opcode == 4: #bxc
-        registers[1] = registers[1] ^ registers[2]
-    if opcode == 5: #out
-        outputs.append(operand % 8)
-    if opcode == 6: #bdv
-        registers[1] = registers[0] //  (2 ** operand)
-    if opcode == 7: #cdv
-        registers[2] = registers[0] //  (2 ** operand)
+ 
+def f(i=registers[0]):
+    prog=0
+    outputs=[]
+    registers=[i,0,0]
+    while prog < len(program)-1:
+        opcode, operand = program[prog:prog+2]
+        if 3 < operand < 7:
+            operand = registers[operand-4]
+        
+        if opcode == 0: #adv
+            registers[0] = registers[0] //  (2 ** operand)
+        if opcode == 1: #bxl
+            registers[1] = registers[1] ^ operand
+        if opcode == 2: #bst
+            registers[1] = operand % 8
+        if opcode == 3: #jnz
+            if registers[0] != 0:
+                prog = operand
+                continue
+        if opcode == 4: #bxc
+            registers[1] = registers[1] ^ registers[2]
+        if opcode == 5: #out
+            outputs.append(operand % 8)
+        if opcode == 6: #bdv
+            registers[1] = registers[0] //  (2 ** operand)
+        if opcode == 7: #cdv
+            registers[2] = registers[0] //  (2 ** operand)
 
-    i += 2
-print(",".join([str(x) for x in outputs])) #p1
-winners = []
-for x in range(len(program)):
-    leastsignificants = sum([z<<(i*3) for i,z in enumerate(winners)])
+        prog += 2
+    return outputs
+
+print(",".join([str(x) for x in f()])) #p1
+
+queue = [(0, tuple())]
+best = 99999999999999999
+while queue:
+    x,winners = queue.pop(0)
     for y in range(8):
-        registers = [int(x.split(": ")[1]) for x in b[:3]]
-        #print(bin((y << (x * 3))))
-        registers[0] = (7 << (x * 6)) + (y << (x * 3)) + leastsignificants
-        i = 0
-        outputs=[]
-        while i < len(program)-1:
-            opcode, operand = program[i:i+2]
-            if 3 < operand < 7:
-                operand = registers[operand-4]
+        wins = sum([z<<((i+1)*3) for i,z in enumerate(winners[::-1])])
+        num = wins + y
+        fnum = f(num)
+        if len(fnum) < x+1:
+            continue
+        if fnum == program[-(x+1):]:
+            if fnum == program:
+                if num < best:
+                    best = num
+                break
+            queue.append((x+1,winners+(y,)))
             
-            if opcode == 0: #adv
-                print(f"    op 0: A: {bin(registers[0])[2:]} // 8 = {bin(registers[0] //  (2 ** operand))[2:]}")
-                registers[0] = registers[0] //  (2 ** operand)
-            if opcode == 1: #bxl
-                print(f"    op 1: B: {bin(registers[1])[2:]} XOR 10 = {bin(registers[1] ^ operand)[2:]}")
-                registers[1] = registers[1] ^ operand
-            if opcode == 2: #bst
-                print(f"    op 2: B = A: {bin(registers[0])[2:]} % 8 = {bin(operand % 8)[2:]}")
-                registers[1] = operand % 8
-            if opcode == 3: #jnz
-                print(f"    jump to 0")
-                if registers[0] != 0:
-                    i = operand
-                    continue
-            if opcode == 4: #bxc
-                print(f"    op 4: B: {bin(registers[1])[2:]} XOR C: {bin(registers[2])[2:]} = {bin(registers[1] ^ registers[2])[2:]}")
-                registers[1] = registers[1] ^ registers[2]
-            if opcode == 5: #out
-                print(f"    op 5: output B: {bin(registers[1])[2:]} % 8 = {bin(operand % 8)[2:]}")
-                outputs.append(operand % 8)
-            if opcode == 6: #bdv
-                print(f"    op 6: C = A: {bin(registers[0])[2:]} // 2^B: {bin(operand)[2:]} = {bin(registers[0] //  (2 ** operand))[2:]}")
-                registers[1] = registers[0] //  (2 ** operand)
-            if opcode == 7: #cdv
-                print(f"    op 7: C = A: {bin(registers[0])[2:]} // 2^B: {bin(operand)[2:]} = {bin(registers[0] //  (2 ** operand))[2:]}")
-                registers[2] = registers[0] //  (2 ** operand)
-
-            i += 2
-        print(f"x={x}, y={y}, outputs = {outputs}, A = {bin((y << (x * 3)) + leastsignificants)[2:]}")
-        if len(outputs) == x+1:
-            if outputs[:x+1] == program[:x+1]:
-                winners.append(y)
-                print(f"winner: {y}")
+print(best) #p2
+        
+#print(f(190384609508360))
+#1890242470951951 too high
+#207976803417103 too high
+#190384609508367
