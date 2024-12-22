@@ -62,3 +62,4 @@ for x in range(len(program)+3):
         winners.append(0)
 for x in range(8):
     
+#1890242470951951 too high
