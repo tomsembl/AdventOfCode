@@ -49,6 +49,8 @@ def f(i):
 
 winners = []
 for x in range(len(program)+3):
+    if x== 17:
+        print("hi")
     for y in range(8**3):
         num = (y << (3 * (x))) + sum([z<<(i*3) for i,z in enumerate(winners)])
         fnum = f(num)
@@ -60,6 +62,6 @@ for x in range(len(program)+3):
             break
     if len(winners) == x:
         winners.append(0)
-for x in range(8):
+#for x in range(8):
     
 #1890242470951951 too high
