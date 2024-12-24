@@ -352,6 +352,15 @@ x05 AND y05 -> z05"""
 #a=test
 b={x.split(":")[0]:int(x.split(": ")[1]) for x in a.split("\n\n")[0].splitlines()}
 c=[x.split()+[False] for x in a.split("\n\n")[1].splitlines()]
+swaps = [('kmw', 'brw'),]
+for swap1,swap2 in swaps:
+    for i,x in enumerate(c):
+        if x[4] == swap1:
+            c[i][4] = swap2
+        elif x[4] == swap2:
+            c[i][4] = swap1
+        
+        
 OPS = {"AND": lambda x,y: x&y, "OR": lambda x,y: x|y, "XOR": lambda x,y: x^y}
 
 parents = {}
@@ -421,25 +430,39 @@ for i,x in enumerate(zBin[::-1]):
             if next not in parents:
                 continue
             queue += parents[next][:2]
-#print(len(swapCandidates), len(b))
+print(len(swapCandidates), len(b))
 swapCandidates = list(swapCandidates)
 
+import random
 swapAttempts = {}
-for j,y in enumerate(swapCandidates):
-    for i,x in enumerate(swapCandidates):
-        if i <= j:
-            continue
-        parents2 = {z:parents[z][::] for z in parents}
-        parents2y = parents2[y] 
-        parents2[y] = parents2[x]
-        parents2[x] = parents2y
-        zSum = f({z:b[z] for z in b},parents2)
-        zBin = bin(zSum)[2:]
-        error = bin(zSum ^ xPlusY)[2:]
-        if error.count("1") < 15:
-            print((" "*(len(bin(xPlusY))-2-len(error))) + error, error.count("1"),"errors",x,y)
-        swapAttempts[(x,y)] = {"error":error,"errorCount":error.count("1")}
-        
+for j,y in enumerate(sorted(swapCandidates)):
+    for i,x in enumerate(sorted(swapCandidates)):
+        print(x,y)
+        for _ in range(10):
+            randX = random.randint(2**43,2**44-1)
+            randY = random.randint(2**43,2**44-1)
+            xPlusY = randX + randY
+            b2 = {}
+            for i in range(45):
+                b2["x"+str(i).zfill(2)] = (randX >> i) & 1
+                b2["y"+str(i).zfill(2)] = (randY >> i) & 1 
+            if i <= j:
+                continue
+            parents2 = {z:parents[z][::] for z in parents}
+            parents2y = parents2[y] 
+            parents2[y] = parents2[x]
+            parents2[x] = parents2y
+            zSum = f(b2,parents2)
+            if zSum == 0:
+                continue
+            zBin = bin(zSum)[2:]
+            error = bin(zSum ^ xPlusY)[2:]
+            #print((" "*(len(bin(xPlusY))-2-len(error))) + error, error.count("1"),"errors",x,y,randX,randY)
+            swapAttempts.setdefault((x,y),[]).append({"error":error,"errorCount":error.count("1"),"randX":randX,"randY":randY})
+#get the swap with the best average error
+bestSwap = sorted(swapAttempts,key=lambda x:sum([y["errorCount"] for y in swapAttempts[x]])/len(swapAttempts[x]))[0]
+print("bestSwap",bestSwap)
+            
 
         
         
