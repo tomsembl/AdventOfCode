@@ -147,7 +147,7 @@ test="""..@@.@@@@.
 .@@@@@@@@.
 @.@.@@@.@."""
 #a=test
-b=a.splitlines()
+b=[[x for x in row] for row in a.splitlines()]
 dirs=[
     [1,-1],
     [1,0],
@@ -174,4 +174,34 @@ for j,y in enumerate(b):
                 neighs += 1
         if neighs < 4:
             n += 1
-print(n)
+print(n) #p1
+
+def print_b(rows):
+    for row in rows:
+        print("".join(row))
+
+nn=0
+while True:
+    n=0
+    nb = [x[::] for x in b[::]]
+    for j,y in enumerate(b):
+        for i,x in enumerate(y):
+            neighs=0
+            if x!="@":
+                continue
+            for dx,dy in dirs:
+                ni = i + dx
+                nj = j + dy
+                if ni < 0 or ni > w-1 or nj < 0 or nj > h-1: 
+                    continue
+                if b[nj][ni] == "@":
+                    neighs += 1
+            if neighs < 4:
+                nb[j][i] = "."
+                n+=1
+    #print_b(nb)
+    if b==nb:
+        break
+    nn+=n
+    b = nb
+print(nn) #p2
