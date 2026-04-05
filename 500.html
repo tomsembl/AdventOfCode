@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        html, body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        .card-cell {
+            width: 40px;
+            height: 60px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .selected0 {
+            background-color: yellow;
+        }
+        .selected1 {
+            background-color: lightblue;
+        }
+        .selected2 {
+            background-color: lightgreen;
+        }
+        .selected3 {
+            background-color: lightcoral;
+        }
+        .suit {
+            width: 40px;
+            height: 60px;
+            font-size: 42px;
+            text-align: center;
+            vertical-align: middle;
+            /* border-radius: 3px;
+            border:1px solid #000;
+            margin: 2px;
+            border-collapse: none;
+            padding-inline: -20px; */
+        }
+        th {
+            width: 40px;
+            height: 30px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .main-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #trump-card {
+            width: 320px;
+            height: 480px;
+            border: 3px solid #000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 300px;
+            cursor: pointer;
+            user-select: none;
+            background: #fff;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        #trump-card.trump-nt, #trump-card.trump-mis {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 50px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #000;
+            font-size: 14px;
+            font-weight: bold;
+            outline: none;
+        }
+        #name0 { background-color: yellow; }
+        #name1 { background-color: lightblue; }
+        #name2 { background-color: lightgreen; }
+        #name3 { background-color: lightcoral; }
+        .trump-row td {
+            border-width: 3px;
+            border-color: #000;
+        }
+        .left-bower {
+            border-width: 3px !important;
+            border-color: #000 !important;
+        }
+        #card-order {
+            margin-top: 12px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        #card-order span {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>500 Card Counting Table</h1>
+    <div class="main-layout">
+    <div class="left-column">
+    <table style="border:1">
+        <tr>
+            <th></th>
+            <th>A</th>
+            <th>K</th>
+            <th>Q</th>
+            <th>J</th>
+            <th>T</th>
+            <th>9</th>
+            <th>8</th>
+            <th>7</th>
+            <th>6</th>
+            <th>5</th>
+            <th>4</th>
+        </tr>
+        <tr>
+            <!--club symbol--><td class="suit">♣</td>
+        </tr>
+        <tr>
+            <!--spade symbol--><td class="suit">♠</td>
+        </tr>
+        <tr>
+            <!--diamond symbol--><td class="suit" style="color: red;">♦</td>
+        </tr>
+        <tr>
+            <!--heart symbol--><td class="suit" style="color: red;">♥</td>
+        </tr>
+        <tr>
+            <!--Joker--><td class="suit">🃏</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th>
+                <input id="name0" type="text">
+            </th>
+            <th>
+                <input id="name1" type="text">
+            </th>
+            <th>
+                <input id="name2" type="text">
+            </th>
+            <th>
+                <input id="name3" type="text">
+            </th>
+        </tr>
+    </table>
+    </div>
+    <div id="trump-card" onclick="cycleTrump()">♣</div>
+    <div id="card-order"></div>
+    </div>
+</body>
+<script type="text/javascript">
+    const trumpOptions = [
+        { label: '♣', color: 'black', cls: '' },
+        { label: '♠', color: 'black', cls: '' },
+        { label: '♦', color: 'red', cls: '' },
+        { label: '♥', color: 'red', cls: '' },
+        { label: 'NT', color: 'black', cls: 'trump-nt' },
+        { label: 'MIS', color: 'grey', cls: 'trump-mis' }
+    ]
+    // suit index: 0=♣, 1=♠, 2=♦, 3=♥
+    const sameColourPartner = { 0: 1, 1: 0, 2: 3, 3: 2 }
+    const suitSymbols = ['♣', '♠', '♦', '♥']
+
+    let currentTrump = 0
+
+    function highlightTrump() {
+        const table = document.querySelector('table')
+        // Clear all trump highlights
+        for (let r = 1; r <= 5; r++) {
+            table.rows[r].classList.remove('trump-row')
+        }
+        document.querySelectorAll('.left-bower').forEach(el => el.classList.remove('left-bower'))
+
+        const suitIdx = currentTrump // 0-3 are suits, 4=NT, 5=MIS
+        if (suitIdx <= 3) {
+            // Bold the trump suit row (row index = suitIdx + 1)
+            table.rows[suitIdx + 1].classList.add('trump-row')
+            // Bold the joker row
+            table.rows[5].classList.add('trump-row')
+            // Bold the left bower (Jack of same colour suit)
+            const partnerSuit = suitSymbols[sameColourPartner[suitIdx]]
+            const leftBowerCell = document.getElementById(`${partnerSuit}J`)
+            if (leftBowerCell) leftBowerCell.classList.add('left-bower')
+        }
+    }
+
+    function getCardOrder() {
+        const idx = currentTrump
+        if (idx > 3) {
+            // NT or MIS
+            if (idx === 4) return 'Joker, then A K Q J 10 9 8 7 6 5 in each suit'
+            return 'No trumps (Mis\u00E8re)'
+        }
+        const s = suitSymbols[idx]
+        const partner = suitSymbols[sameColourPartner[idx]]
+        const isRed = (idx === 2 || idx === 3)
+        const clr = isRed ? 'red' : 'black'
+        const cards = [
+            '🃏',
+            `<span style="color:${clr}">J${s}</span>`,
+            `<span style="color:${clr}">J${partner}</span>`,
+            `<span style="color:${clr}">A${s}</span>`,
+            `<span style="color:${clr}">K${s}</span>`,
+            `<span style="color:${clr}">Q${s}</span>`,
+            `<span style="color:${clr}">10${s}</span>`,
+            `<span style="color:${clr}">9${s}</span>`,
+            `<span style="color:${clr}">8${s}</span>`,
+            `<span style="color:${clr}">7${s}</span>`,
+            `<span style="color:${clr}">6${s}</span>`,
+            `<span style="color:${clr}">5${s}</span>`
+        ]
+        return cards.map((c, i) => `<div>${i + 1}. ${c}</div>`).join('')
+    }
+
+    function updateCardOrder() {
+        document.getElementById('card-order').innerHTML = '<b>Trump order:</b><br>' + getCardOrder()
+    }
+
+    function cycleTrump() {
+        currentTrump = (currentTrump + 1) % trumpOptions.length
+        const card = document.getElementById('trump-card')
+        const opt = trumpOptions[currentTrump]
+        card.textContent = opt.label
+        card.style.color = opt.color
+        card.className = ''
+        card.id = 'trump-card'
+        if (opt.cls) card.classList.add(opt.cls)
+        highlightTrump()
+        updateCardOrder()
+    }
+
+    // Initial state
+    highlightTrump()
+
+    const suits = ['♣', '♠', '♦', '♥', '🃏']
+    const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4']
+    const table = document.querySelector('table')
+    var selectedColour = 'yellow'
+    for (let i = 0; i < suits.length; i++) {
+        const row = table.rows[i + 1] // Skip header row
+        const suit = suits[i]
+        //const cell = row.insertCell()
+        //cell.textContent = suits[i]
+        var l = ranks.length
+        if (suit === '🃏') {
+            l = 1
+        }
+        for (let j = 0; j < l; j++) {
+            if((suit === '♣' || suit === '♠') && ranks[j] == '4') {
+                continue
+            }
+            const cell = row.insertCell()
+            //cell.textContent = ranks[j]
+            cell.className = 'card-cell'
+            cell.id = `${suit}${ranks[j]}`
+            cell.onclick = function() {
+                const classes = ['', 'selected0', 'selected1', 'selected2', 'selected3']
+                let current = 0
+                for (let c = 1; c < classes.length; c++) {
+                    if (cell.classList.contains(classes[c])) {
+                        current = c
+                        break
+                    }
+                }
+                if (current > 0) cell.classList.remove(classes[current])
+                const next = (current + 1) % classes.length
+                if (next > 0) cell.classList.add(classes[next])
+            }
+        }
+    }
+
+    // Initial highlight + card order after cells are built
+    highlightTrump()
+    updateCardOrder()
+
+</script>
+</html>
